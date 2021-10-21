@@ -43,6 +43,20 @@ class Accounts {
     }
 
     /**
+     * Remove account from accounts array
+     * @param {hex} address
+     */
+         async removeAccount(address) {
+            try {
+                acctIdx = _getAccountIndex(address)
+                this.accounts.splice(acctIdx);
+            }
+            catch (ex) {
+                throw new Error("Account.removeAccount: " + String(ex));
+            }
+        }
+
+    /**
      * Get account object by address
      * @param {hex} address
      * @return {Object}
