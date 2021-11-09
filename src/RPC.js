@@ -329,13 +329,13 @@ class RPC {
             throw new Error("RPC.getMinedTransaction: " + String(ex));
         }
     }
-    
+
     /**
      * Get pending transaction
      * @param {hex} txHash
      * @return {Object} transaction object 
      */
-     async getPendingTransaction(txHash) {
+    async getPendingTransaction(txHash) {
         try {
             let getPending = await this.request("get-pending-transaction", { "TxHash": txHash });
             if (!getPending["Tx"]) {
@@ -343,7 +343,7 @@ class RPC {
             }
             return getPending["Tx"];
         }
-        catch(ex) {
+        catch (ex) {
             throw new Error("RPC.getPendingTransaction: " + String(ex));
         }
     }
@@ -394,11 +394,13 @@ class RPC {
                 try {
                     resp = await Axios.post(this.rpcServer + route, data, { timeout: constant.ReqTimeout, validateStatus: function (status) { return status } });
                 } catch (ex) {
-                    [attempts, timeout] = await this.backOffRetry(attempts, timeout);
+                    [attempts, timeout] = await this.backOffRetry(attempts, timeout, lastErrorMsg.message);
                     continue;
                 }
                 if (!resp || !resp.data || resp.data["error"]) {
-                    [attempts, timeout] = await this.backOffRetry(attempts, timeout);
+                    // !! NOTE: Troy => I don't know what the object from resp.data is expected to look like 
+                    // -- I want the text to be passed through :: Is this sufficient?
+                    [attempts, timeout] = await this.backOffRetry(attempts, timeout, resp.data["error"]);
                     continue;
                 }
                 break
@@ -410,9 +412,9 @@ class RPC {
         }
     }
 
-    async backOffRetry(attempts, timeout) {
+    async backOffRetry(attempts, timeout, lastErrorMsg) {
         if (attempts >= 5) {
-            throw new Error("RPC.backOffRetry: RPC request attempt limit reached")
+            throw new Error("RPC.backOffRetry: RPC request attempt limit reached -- Last nested error: " + lastErrorMsg)
         }
         if (!attempts) {
             attempts = 1
