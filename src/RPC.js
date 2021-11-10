@@ -398,9 +398,7 @@ class RPC {
                     continue;
                 }
                 if (!resp || !resp.data || resp.data["error"]) {
-                    // !! NOTE: Troy => I don't know what the object from resp.data is expected to look like 
-                    // -- I want the text to be passed through :: Is this sufficient?
-                    [attempts, timeout] = await this.backOffRetry(attempts, timeout, resp.data["error"]);
+                    [attempts, timeout] = await this.backOffRetry(attempts, timeout, String(resp.data["error"]));
                     continue;
                 }
                 break

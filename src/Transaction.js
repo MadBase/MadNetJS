@@ -212,7 +212,8 @@ class Transaction {
                 }
                 for (let i = 0; i < outValue["dsIndex"].length; i++) {
                     let DS = await this.Wallet.Rpc.getDataStoreByIndex(account["address"], account["curve"], outValue["dsIndex"][i]["index"]);
-                    if (DS) {
+                    // Skip if the store doesn't equal datastore for spending
+                    if (DS && DS["DSLinker"]["DSPreImage"].Index === outValue["dsIndex"][i]["index"]) {
                         let reward = await this.Utils.remainigDeposit(DS, outValue["dsIndex"][i]["epoch"]);
                         if (reward) {
                             await this._createDataTxIn(account["address"], DS);
@@ -313,7 +314,7 @@ class Transaction {
                 await this._createValueTxIn(account["address"], highestUnspent);
                 for (let i = 0; i < accountUTXO.length; i++) {
                     if (accountUTXO[i]["TxHash"] === highestUnspent["TxHash"] &&
-                    accountUTXO[i]["VSPreImage"]["TXOutIdx"] === highestUnspent["VSPreImage"]["TXOutIdx"]
+                        accountUTXO[i]["VSPreImage"]["TXOutIdx"] === highestUnspent["VSPreImage"]["TXOutIdx"]
                     ) {
                         await accountUTXO.splice(i, 1);
                         break;
