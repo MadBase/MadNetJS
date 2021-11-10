@@ -5,19 +5,28 @@ const expect = chai.expect
 let MadWalletJS = require("../index.js");
 
 require('dotenv').config({ path: process.cwd() + '/tests/.env' });
-let privateKey;
+
+let privateKey, madWallet;
+if (
+    process.env.RPC &&
+    process.env.CHAIN_ID
+) {
+
+    madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
+}
+else {
+    let madWallet = new MadWalletJS();
+}
 if (process.env.PRIVATE_KEY) {
-    privateKey = process.env.PRIVATE_KEY;
+    privateKey = process.env.PRIVATE_KEY
 }
 else {
     privateKey = "6B59703273357638792F423F4528482B4D6251655468576D5A7134743677397A"
 }
 
-let madWallet = new MadWalletJS();
-
 describe('Transaction: DataStore', () => {
 
-    before(async() => {
+    before(async () => {
         await madWallet.Account.addAccount(privateKey, 1);
     });
 
@@ -51,12 +60,13 @@ describe('Transaction: DataStore', () => {
         ).to.eventually.be.rejected;
     });
 
+    /*
     it('Fail: Create DataStore - No IssuedAt && No RPC', async () => {
         await expect(
             madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0xA", 1, "0xC0FFEE")
         ).to.eventually.be.rejected;
     });
-
+    */
     it('Success: Created DataStore - Hex index', async () => {
         await expect(
             madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0xA", 1, "COFFEE", 1)
@@ -82,7 +92,7 @@ describe('Transaction: DataStore', () => {
     });
 
     it('Success: Vout length is correct', () => {
-        expect(madWallet.Transaction.Tx.Vout).to.have.lengthOf(4)
+        expect(madWallet.Transaction.Tx.Vout).to.have.lengthOf(4) //account for fee object
     });
 
 });
@@ -131,14 +141,31 @@ describe('Transaction: ValueStore', () => {
         ).to.eventually.be.fulfilled;
     });
 
-    it('Success: Vout length is correct', () => {
-        expect(madWallet.Transaction.Tx.Vout).to.have.lengthOf(5)
+    it('Success: Vout length is correct', async () => {
+        /*
+        try {
+        await madWallet.Transaction._createTxIns()
+        await madWallet.Transaction.Tx._createTx()
+        console.log(JSON.stringify(madWallet.Transaction.Tx.getTx()))
+        } catch(ex) {
+            console.log(ex)
+        }
+        */
+        expect(madWallet.Transaction.Tx.Vout).to.have.lengthOf(5) //account for fee object
     });
 
 });
-
+if (process.env.RPC) {
+    describe('Transaction: GetFeeEstiamtes', () => {
+        it('Success: Get Fees', async () => {
+            await expect(
+                madWallet.Transaction.Tx.estimateFees()
+            ).to.eventually.be.fulfilled;
+        });
+    });
+}
 describe('Transaction: Hash and Sign', () => {
-    it('Success: Sign Transaction', async() => {
+    it('Success: Sign Transaction', async () => {
         await expect(
             madWallet.Transaction.Tx._createTx()
         ).to.eventually.be.fulfilled;

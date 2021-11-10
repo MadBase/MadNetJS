@@ -110,7 +110,8 @@ class Tx {
             "ChainID": this.Wallet.chainId,
             "Value": value,
             "TXOutIdx": txOutIdx,
-            "Owner": owner
+            "Owner": owner,
+            "Fee": "CAFE"
         }
     }
 
@@ -182,7 +183,8 @@ class Tx {
             "Deposit": deposit,
             "RawData": rawData,
             "TXOutIdx": txOutIdx,
-            "Owner": owner
+            "Owner": owner,
+            "Fee": "CAFE"
         }
     }
 
@@ -226,10 +228,84 @@ class Tx {
             "TXOutIdx": txOutIdx,
             "IssuedAt": issuedAt,
             "Exp": exp,
-            "Owner": owner
+            "Owner": owner,
+            "Fee": "CAFE"
         }
     }
 
+    /**
+     * Create TxFee
+     * @param {number} value
+     * @param {number} txOutIdx
+     * @return {Object}
+     */
+    TxFee() {
+        this.Vout.push({
+            "FeePreImage": FeePreImage(),
+            "TxHash": "C0FFEE"
+        });
+        return this.Vout[this.Vout.length - 1];
+    }
+
+    /**
+     * Create TxFee PreImage
+     * @param {number} value
+     * @param {number} txOutIdx
+     */
+    TxFeePreImage(value, txOutIdx) {
+        return {
+            "ChainID":  this.Wallet.chainId,
+	        "TXOutIdx": txOutIdx,
+	        "Fee":      value
+        }
+    }
+
+    /**
+     * 
+     * @returns {Object} Fee Estimates
+     */
+    async estimateFees() {
+        let fees = await this.Wallet.Rpc.getFees();
+        let total = BigInt(0);
+        let thisTotal = BigInt(0)
+        let voutCost = [];
+        for (let i = 0; i < this.Vout.length; i++) {
+            switch(Object.keys(this.Vout[i])[0]) {
+                case 'ValueStore':
+                    thisTotal = BigInt("0x" + fees["ValueStoreFee"]);
+                    total = BigInt(total) + BigInt(thisTotal)
+                    voutCost.push(thisTotal.toString())
+                    break;;
+                case 'DataStore':
+                    let rawData = this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["RawData"]
+                    let dataSize = BigInt(Buffer.from(rawData, "hex").length)
+                    let dsEpochs = await utils.calculateNumEpochs(dataSize, BigInt("0x" + this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Deposit"]))
+                    thisTotal = (BigInt("0x" + fees["DataStoreFee"]) * BigInt(dsEpochs));
+                    total = BigInt(total) + BigInt(thisTotal)
+                    voutCost.push(thisTotal.toString())
+                    break;;
+                case 'AtomicSwap':
+                    thisTotal = BigInt("0x" + fees["AtomicSwapFee"]);
+                    total = BigInt(total) + BigInt(thisTotal)
+                    voutCost.push(thisTotal.toString())
+                    break;;
+                default:
+                    throw "Could not inject get fee for undefined Vout object"
+            }
+        }
+        total = BigInt(total) + BigInt("0x" + fees["MinTxFee"])
+        total = total.toString()
+        let feesInt = JSON.parse(JSON.stringify(fees));
+        for (let i = 0; i < Object.keys(feesInt); i++) {
+            feesInt[Object.keys(feesInt)[i]] = BigInt("0x" + feesInt[Object.keys(feesInt)[i]]);
+        }
+        return {
+            "baseFees": feesInt,
+            "totalFees": total,
+            "costByVoutIdx": voutCost 
+        }
+    }
+    
     /**
      * Create transaction from generated Vin and Vout
      */
@@ -240,6 +316,43 @@ class Tx {
             await this._signTx(Tx)
         } catch (ex) {
             throw new Error("Tx.createTx: " + String(ex));
+        }
+    }
+
+    /**
+     * Inject fees to the tx
+     * @param {number} baseFee 
+     */
+    async _injectFees(baseFee) {
+        try {
+            let fees = await this.Wallet.Rpc.getFees();
+            for (let i = 0; i < this.Vout.length; i++) {
+                switch(Object.keys(this.Vout[i])[0]) {
+                    case 'ValueStore':
+                        this.Vout[i]["ValueStore"]["VSPreImage"] = fees["ValueStoreFee"];
+                        break;;
+                    case 'DataStore':
+                        let rawData = this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["RawData"]
+                        let dataSize = BigInt(Buffer.from(rawData, "hex").length)
+                        let dsEpochs = utils.calculateNumEpochs(dataSize, this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Deposit"])
+                        this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"] = (BigInt("0x" + fees["DataStoreFee"]) * BigInt(dsEpochs)).toString(16);
+                        break;;
+                    case 'AtomicSwap':
+                        this.Vout[i]["AtomicSwap"]["ASPreImage"] = fees["AtomicSwapFee"];
+                        break;;
+                    default:
+                        throw "Could not inject tx fee to undefined Vout object"
+                }
+            }
+            let txFee = fees["MinTxFee"];
+            if (baseFee && BigInt(baseFee) >= BigInt("0x" + fees["MinTxFee"])) {
+                txFee = this.Wallet.Validator.numToHex(baseFee);
+            }
+            let idx = this.Tx.Vout.length;
+            this.TxFee(txFee, idx);
+        }
+        catch(ex) {
+            throw new Error("Tx.injectFees: " + String(ex))
         }
     }
 

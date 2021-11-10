@@ -108,6 +108,23 @@ class RPC {
     }
 
     /**
+     * Get fees for this epoch
+     * @returns {Object} Fees
+     */
+    async getFees() {
+        try{
+            let fees = await this.request("get-fees")
+            if (!fees) {
+                throw "Could not get fees"
+            }
+            return fees;
+        }
+        catch(ex) {
+            throw new Error("RPC.getFees: " + String(ex))
+        }
+    }
+
+    /**
      * Get UTXOs for account by array of utxo ids
      * @param {hex} address
      * @param {Object} UTXOIDs

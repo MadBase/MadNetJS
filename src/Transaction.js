@@ -28,6 +28,7 @@ class Transaction {
      */
     async sendTx(changeAddress, changeAddressCurve, UTXOIDs = []) {
         try {
+            // TODO: create tx fee in Vout
             await this._createTxIns(changeAddress, changeAddressCurve, UTXOIDs);
             await this.Tx._createTx();
             let txHash = await this.Wallet.Rpc.sendTransaction(this.Tx.getTx())
@@ -48,6 +49,7 @@ class Transaction {
      * @return ValueStore
      */
     async createValueStore(from, value, to, toCurve) {
+        // TODO: Add fee
         try {
             if (!from || !to || !value || !toCurve) {
                 throw "Missing arugments";
@@ -65,6 +67,7 @@ class Transaction {
                 throw "Cannot get curve";
             }
             let owner = await this.Utils.prefixSVACurve(1, toCurve, to);
+            // get fee from rpc
             let vStore = this.Tx.ValueStore(
                 validator.numToHex(value),
                 this.Tx.Vout.length,
@@ -87,6 +90,7 @@ class Transaction {
      * @return DataStore
      */
     async createDataStore(from, index, duration, rawData, issuedAt = false) {
+        // TODO: Add Fee per epoch maths
         try {
             if (!from || !index || !duration || !rawData) {
                 throw "Missing arguments";
