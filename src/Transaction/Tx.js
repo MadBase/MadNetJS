@@ -239,10 +239,12 @@ class Tx {
      * @param {number} txOutIdx
      * @return {Object}
      */
-    TxFee() {
+    TxFee(value, txOutIdx) {
         this.Vout.push({
-            "FeePreImage": FeePreImage(),
-            "TxHash": "C0FFEE"
+            "TxFee": {
+                "TFPreImage": this.TxFeePreImage(value, txOutIdx),
+                "TxHash": "C0FFEE"
+            }
         });
         return this.Vout[this.Vout.length - 1];
     }
@@ -254,9 +256,9 @@ class Tx {
      */
     TxFeePreImage(value, txOutIdx) {
         return {
-            "ChainID":  this.Wallet.chainId,
-	        "TXOutIdx": txOutIdx,
-	        "Fee":      value
+            "ChainID": this.Wallet.chainId,
+            "TXOutIdx": txOutIdx,
+            "Fee": value
         }
     }
 
@@ -270,7 +272,7 @@ class Tx {
         let thisTotal = BigInt(0)
         let voutCost = [];
         for (let i = 0; i < this.Vout.length; i++) {
-            switch(Object.keys(this.Vout[i])[0]) {
+            switch (Object.keys(this.Vout[i])[0]) {
                 case 'ValueStore':
                     thisTotal = BigInt("0x" + fees["ValueStoreFee"]);
                     total = BigInt(total) + BigInt(thisTotal)
@@ -302,18 +304,22 @@ class Tx {
         return {
             "baseFees": feesInt,
             "totalFees": total,
-            "costByVoutIdx": voutCost 
+            "costByVoutIdx": voutCost
         }
     }
-    
+
     /**
      * Create transaction from generated Vin and Vout
      */
     async _createTx() {
         try {
+            console.log(JSON.stringify(this.getTx()["Tx"]))
+            await this._injectFees()
+            console.log(JSON.stringify(this.getTx()["Tx"]))
             let injected = await TxHasher.TxHasher(JSON.stringify(this.getTx()["Tx"]))
             let Tx = { "Tx": JSON.parse(injected) }
             await this._signTx(Tx)
+            console.log(JSON.stringify(this.getTx()["Tx"]))
         } catch (ex) {
             throw new Error("Tx.createTx: " + String(ex));
         }
@@ -327,18 +333,18 @@ class Tx {
         try {
             let fees = await this.Wallet.Rpc.getFees();
             for (let i = 0; i < this.Vout.length; i++) {
-                switch(Object.keys(this.Vout[i])[0]) {
+                switch (Object.keys(this.Vout[i])[0]) {
                     case 'ValueStore':
-                        this.Vout[i]["ValueStore"]["VSPreImage"] = fees["ValueStoreFee"];
+                        this.Vout[i]["ValueStore"]["VSPreImage"]["Fee"] = this.Wallet.Validator.numToHex(fees["ValueStoreFee"]);
                         break;;
                     case 'DataStore':
                         let rawData = this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["RawData"]
                         let dataSize = BigInt(Buffer.from(rawData, "hex").length)
-                        let dsEpochs = utils.calculateNumEpochs(dataSize, this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Deposit"])
-                        this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"] = (BigInt("0x" + fees["DataStoreFee"]) * BigInt(dsEpochs)).toString(16);
+                        let dsEpochs = await utils.calculateNumEpochs(dataSize, BigInt("0x" + this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Deposit"]))
+                        this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Fee"] = this.Wallet.Validator.numToHex(BigInt("0x" + fees["DataStoreFee"]) * BigInt(dsEpochs)).toString(16);
                         break;;
                     case 'AtomicSwap':
-                        this.Vout[i]["AtomicSwap"]["ASPreImage"] = fees["AtomicSwapFee"];
+                        this.Vout[i]["AtomicSwap"]["ASPreImage"]["Fee"] = this.Wallet.Validator.numToHex(fees["AtomicSwapFee"]);
                         break;;
                     default:
                         throw "Could not inject tx fee to undefined Vout object"
@@ -348,10 +354,11 @@ class Tx {
             if (baseFee && BigInt(baseFee) >= BigInt("0x" + fees["MinTxFee"])) {
                 txFee = this.Wallet.Validator.numToHex(baseFee);
             }
-            let idx = this.Tx.Vout.length;
+            let idx = this.Vout.length;
             this.TxFee(txFee, idx);
         }
-        catch(ex) {
+        catch (ex) {
+            console.trace(ex)
             throw new Error("Tx.injectFees: " + String(ex))
         }
     }

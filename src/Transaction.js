@@ -29,6 +29,12 @@ class Transaction {
     async sendTx(changeAddress, changeAddressCurve, UTXOIDs = []) {
         try {
             // TODO: create tx fee in Vout
+            // create new method addBaseFee()
+            let feeEst = await this.Tx.estimateFees();
+            console.log(JSON.stringify(feeEst))
+            await this._addOutValue(feeEst["totalFees"], this.Wallet.Account.accounts[0]["address"]);
+            //
+
             await this._createTxIns(changeAddress, changeAddressCurve, UTXOIDs);
             await this.Tx._createTx();
             let txHash = await this.Wallet.Rpc.sendTransaction(this.Tx.getTx())
@@ -39,6 +45,8 @@ class Transaction {
             throw new Error("Transaction.sendTx: " + String(ex));
         }
     }
+
+
 
     /**
      * Create a ValueStore
