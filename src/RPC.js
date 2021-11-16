@@ -320,6 +320,7 @@ class RPC {
         try {
             let sendTx = await this.request("send-transaction", Tx);
             if (!sendTx["TxHash"]) {
+                console.log(sendTx)
                 throw "Transaction error"
             }
             return sendTx["TxHash"];
@@ -410,7 +411,6 @@ class RPC {
             while (true) {
                 try {
                     resp = await Axios.post(this.rpcServer + route, data, { timeout: constant.ReqTimeout, validateStatus: function (status) { return status } });
-                    console.log(resp)
                 } catch (ex) {
                     [attempts, timeout] = await this.backOffRetry(attempts, timeout);
                     continue;

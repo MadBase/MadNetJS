@@ -83,15 +83,17 @@ class Tx {
      * @param {number} value
      * @param {number} txOutIdx
      * @param {hex} owner
+     * @param {hex} fee
      */
-    ValueStore(value, txOutIdx, owner) {
+    ValueStore(value, txOutIdx, owner, fee) {
         this.Vout.push({
             "ValueStore": {
                 "TxHash": "C0FFEE",
                 "VSPreImage": this.VSPreImage(
                     value,
                     txOutIdx,
-                    owner
+                    owner,
+                    fee
                 )
             }
         });
@@ -103,15 +105,16 @@ class Tx {
      * @param {number} value
      * @param {number} txOutIdx
      * @param {hex} owner
+     * @param {hex} fee
      * @return {Object} 
      */
-    VSPreImage(value, txOutIdx, owner) {
+    VSPreImage(value, txOutIdx, owner, fee) {
         return {
             "ChainID": this.Wallet.chainId,
             "Value": value,
             "TXOutIdx": txOutIdx,
             "Owner": owner,
-            "Fee": "CAFE"
+            "Fee": fee
         }
     }
 
@@ -123,8 +126,9 @@ class Tx {
      * @param {hex} rawData
      * @param {number} txOutIdx
      * @param {hex} owner
+     * @param {hex} fee
      */
-    DataStore(index, issuedAt, deposit, rawData, txOutIdx, owner) {
+    DataStore(index, issuedAt, deposit, rawData, txOutIdx, owner, fee) {
         this.Vout.push({
             "DataStore": {
                 "Signature": "C0FFEE",
@@ -134,7 +138,8 @@ class Tx {
                     deposit,
                     rawData,
                     txOutIdx,
-                    owner
+                    owner,
+                    fee
                 )
             }
         })
@@ -149,9 +154,10 @@ class Tx {
      * @param {hex} rawData
      * @param {number} txOutIdx
      * @param {hex} owner
+     * @param {hex} fee
      * @return {Object} 
      */
-    DSLinker(index, issuedAt, deposit, rawData, txOutIdx, owner) {
+    DSLinker(index, issuedAt, deposit, rawData, txOutIdx, owner, fee) {
         return {
             "TxHash": "C0FFEE",
             "DSPreImage": this.DSPreImage(
@@ -160,7 +166,8 @@ class Tx {
                 deposit,
                 rawData,
                 txOutIdx,
-                owner
+                owner,
+                fee
             )
         }
     }
@@ -173,9 +180,10 @@ class Tx {
      * @param {hex} rawData
      * @param {number} txOutIdx
      * @param {hex} owner
+     * @param {hex} fee
      * @return {Object} 
      */
-    DSPreImage(index, issuedAt, deposit, rawData, txOutIdx, owner) {
+    DSPreImage(index, issuedAt, deposit, rawData, txOutIdx, owner, fee) {
         return {
             "ChainID": this.Wallet.chainId,
             "Index": index,
@@ -184,7 +192,7 @@ class Tx {
             "RawData": rawData,
             "TXOutIdx": txOutIdx,
             "Owner": owner,
-            "Fee": "CAFE"
+            "Fee": fee
         }
     }
 
@@ -195,8 +203,10 @@ class Tx {
      * @param {number} issuedAt
      * @param {number} exp
      * @param {hex} owner
+     * @param {hex} fee
+     * @return {Object}
      */
-    AtomicSwap(value, txOutIdx, issuedAt, exp, owner) {
+    AtomicSwap(value, txOutIdx, issuedAt, exp, owner, fee) {
         this.Vout.push({
             "AtomicSwap": {
                 "TxHash": "C0FFEE",
@@ -205,7 +215,8 @@ class Tx {
                     txOutIdx,
                     issuedAt,
                     exp,
-                    owner
+                    owner,
+                    fee
                 )
             }
         })
@@ -219,9 +230,10 @@ class Tx {
      * @param {number} issuedAt
      * @param {number} exp
      * @param {hex} owner
+     * @param {hex} fee
      * @return {Object} 
      */
-    ASPreImage(value, txOutIdx, issuedAt, exp, owner) {
+    ASPreImage(value, txOutIdx, issuedAt, exp, owner, fee) {
         return {
             "ChainID": this.Wallet.chainId,
             "Value": value,
@@ -229,42 +241,40 @@ class Tx {
             "IssuedAt": issuedAt,
             "Exp": exp,
             "Owner": owner,
-            "Fee": "CAFE"
+            "Fee": fee
         }
     }
 
     /**
      * Create TxFee
      * @param {number} value
-     * @param {number} txOutIdx
      * @return {Object}
      */
-    TxFee(value, txOutIdx) {
-        this.Vout.push({
+    TxFee(value) {
+        this.Vout.unshift({
             "TxFee": {
-                "TFPreImage": this.TxFeePreImage(value, txOutIdx),
+                "TFPreImage": this.TxFeePreImage(value),
                 "TxHash": "C0FFEE"
             }
         });
-        return this.Vout[this.Vout.length - 1];
+        return this.Vout[0];
     }
 
     /**
      * Create TxFee PreImage
      * @param {number} value
-     * @param {number} txOutIdx
      */
-    TxFeePreImage(value, txOutIdx) {
+    TxFeePreImage(value) {
         return {
             "ChainID": this.Wallet.chainId,
-            "TXOutIdx": txOutIdx,
+            "TXOutIdx": 0,
             "Fee": value
         }
     }
 
     /**
-     * 
-     * @returns {Object} Fee Estimates
+     * Get estimate of fees
+     * @return {Object} Fee Estimates
      */
     async estimateFees() {
         let fees = await this.Wallet.Rpc.getFees();
@@ -314,52 +324,12 @@ class Tx {
     async _createTx() {
         try {
             console.log(JSON.stringify(this.getTx()["Tx"]))
-            await this._injectFees()
-            console.log(JSON.stringify(this.getTx()["Tx"]))
             let injected = await TxHasher.TxHasher(JSON.stringify(this.getTx()["Tx"]))
             let Tx = { "Tx": JSON.parse(injected) }
             await this._signTx(Tx)
             console.log(JSON.stringify(this.getTx()["Tx"]))
         } catch (ex) {
-            throw new Error("Tx.createTx: " + String(ex));
-        }
-    }
-
-    /**
-     * Inject fees to the tx
-     * @param {number} baseFee 
-     */
-    async _injectFees(baseFee) {
-        try {
-            let fees = await this.Wallet.Rpc.getFees();
-            for (let i = 0; i < this.Vout.length; i++) {
-                switch (Object.keys(this.Vout[i])[0]) {
-                    case 'ValueStore':
-                        this.Vout[i]["ValueStore"]["VSPreImage"]["Fee"] = this.Wallet.Validator.numToHex(fees["ValueStoreFee"]);
-                        break;;
-                    case 'DataStore':
-                        let rawData = this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["RawData"]
-                        let dataSize = BigInt(Buffer.from(rawData, "hex").length)
-                        let dsEpochs = await utils.calculateNumEpochs(dataSize, BigInt("0x" + this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Deposit"]))
-                        this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Fee"] = this.Wallet.Validator.numToHex(BigInt("0x" + fees["DataStoreFee"]) * BigInt(dsEpochs)).toString(16);
-                        break;;
-                    case 'AtomicSwap':
-                        this.Vout[i]["AtomicSwap"]["ASPreImage"]["Fee"] = this.Wallet.Validator.numToHex(fees["AtomicSwapFee"]);
-                        break;;
-                    default:
-                        throw "Could not inject tx fee to undefined Vout object"
-                }
-            }
-            let txFee = fees["MinTxFee"];
-            if (baseFee && BigInt(baseFee) >= BigInt("0x" + fees["MinTxFee"])) {
-                txFee = this.Wallet.Validator.numToHex(baseFee);
-            }
-            let idx = this.Vout.length;
-            this.TxFee(txFee, idx);
-        }
-        catch (ex) {
-            console.trace(ex)
-            throw new Error("Tx.injectFees: " + String(ex))
+            throw new Error("Tx.createTx: " + console.trace(ex));
         }
     }
 

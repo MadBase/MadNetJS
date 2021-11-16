@@ -1,7 +1,8 @@
 const validator = require('./Validator.js');
 const utils = require('./Transaction/Utils.js');
 const Tx = require('./Transaction/Tx.js');
-const Constants = require('./Constants.js')
+const Constants = require('./Constants.js');
+const { throws } = require('assert');
 /**
  * Transaction handler
  * @class Transaction
@@ -16,6 +17,7 @@ class Transaction {
         this.Tx = new Tx(Wallet);
         this.Utils = utils;
 
+        this.fees = false;
         this.outValue = [];
     }
 
@@ -28,13 +30,15 @@ class Transaction {
      */
     async sendTx(changeAddress, changeAddressCurve, UTXOIDs = []) {
         try {
-            // TODO: create tx fee in Vout
-            // create new method addBaseFee()
-            let feeEst = await this.Tx.estimateFees();
-            console.log(JSON.stringify(feeEst))
-            await this._addOutValue(feeEst["totalFees"], this.Wallet.Account.accounts[0]["address"]);
-            //
-
+            if (!this.Tx.Vout[0]["TxFee"]) {
+                throw "No Tx fee added"
+            }
+            if (this.Tx.Vout.length <= 0) {
+                throw "No Vouts for transaction"
+            }
+            if (!this.Wallet.Rpc.rpcServer) {
+                throw 'No RPC to send transaction'
+            }
             await this._createTxIns(changeAddress, changeAddressCurve, UTXOIDs);
             await this.Tx._createTx();
             let txHash = await this.Wallet.Rpc.sendTransaction(this.Tx.getTx())
@@ -46,7 +50,27 @@ class Transaction {
         }
     }
 
+    async createTxFee(payeerAddress, payeerCurve, fee) {
+        try {
+            if (!payeerAddress || !payeerCurve || !fee) {
+                throw "Missing arugments";
+            }
+            payeerAddress = validator.isAddress(payeerAddress);
+            payeerCurve = validator.isCurve(payeerCurve)
+            fee = validator.isBigInt(fee);
+            if (fee <= BigInt(0)) {
+                throw "Invalid value"
+            }
+            let account = await this.Wallet.Account.getAccount(payeerAddress);
+            this.Tx.TxFee(validator.numToHex(fee))
+            console.log("TXF: ", fee)
+            await this._addOutValue(fee, account["address"]);
 
+        }
+        catch (ex) {
+            throw new Error("Transaction.createTxFee: " + String(ex));
+        }
+    }
 
     /**
      * Create a ValueStore
@@ -54,10 +78,10 @@ class Transaction {
      * @param {number} value
      * @param {hex} to
      * @param {number} toCurve
+     * @param {number} fee
      * @return ValueStore
      */
-    async createValueStore(from, value, to, toCurve) {
-        // TODO: Add fee
+    async createValueStore(from, value, to, toCurve, fee) {
         try {
             if (!from || !to || !value || !toCurve) {
                 throw "Missing arugments";
@@ -69,22 +93,48 @@ class Transaction {
             if (value <= BigInt(0)) {
                 throw "Invalid value"
             }
-
+            if (fee) {
+                fee = validator.numToHex(fee)
+                if (this.Wallet.Rpc.rpcServer) {
+                    if (!this.fees["ValueStoreFee"]) {
+                        await this._getFees()
+                    }
+                    if (BigInt("0x" + this.fees["ValueStoreFee"]) < BigInt("0x" + fee)) {
+                        throw "Fee too low"
+                    }
+                }
+            }
+            if (!fee) {
+                if (this.Wallet.Rpc.rpcServer) {
+                    if (!this.fees["ValueStoreFee"]) {
+                        await this._getFees()
+                    }
+                    fee = this.fees["ValueStoreFee"]
+                }
+                else {
+                    throw 'RPC server must be set to fetch fee'
+                }
+            }
             let account = await this.Wallet.Account.getAccount(from);
             if (!account["MultiSigner"]["curve"]) {
                 throw "Cannot get curve";
             }
             let owner = await this.Utils.prefixSVACurve(1, toCurve, to);
-            // get fee from rpc
             let vStore = this.Tx.ValueStore(
                 validator.numToHex(value),
                 this.Tx.Vout.length,
-                owner
+                owner,
+                fee
             )
-            await this._addOutValue(value, account["address"]);
+            let total = BigInt(value) + BigInt("0x" + fee)
+
+            console.log("V: ", value)
+            console.log("F: ", fee)
+            console.log("T: ", total)
+            await this._addOutValue(total, account["address"]);
             return vStore;
         } catch (ex) {
-            throw new Error("Transaction.createValueStore: " + String(ex));
+            throw new Error("Transaction.createValueStore: " + console.trace(ex));
         }
     }
 
@@ -95,10 +145,111 @@ class Transaction {
      * @param {number} duration
      * @param {(string|hex)} rawData
      * @param {number} [issuedAt=false]
+     * @param {hex} fee
      * @return DataStore
      */
-    async createDataStore(from, index, duration, rawData, issuedAt = false) {
-        // TODO: Add Fee per epoch maths
+    async createDataStore(from, index, duration, rawData, issuedAt = false, fee) {
+        try {
+            if (!from || !index || !duration || !rawData) {
+                throw "Missing arguments";
+            }
+            from = validator.isAddress(from);
+            duration = validator.isBigInt(duration);
+            if (duration <= BigInt(0)) {
+                throw "Invalid duration"
+            }
+            let account = await this.Wallet.Account.getAccount(from);
+            if (!account) {
+                throw "Cannot get account";
+            }
+            if (issuedAt) {
+                issuedAt = validator.isNumber(issuedAt);
+            }
+            else {
+                if (!this.Wallet.Rpc.rpcServer) {
+                    throw "RPC server must be set to fetch epoch"
+                }
+                issuedAt = await this.Wallet.Rpc.getEpoch();
+                let blockNumber = await this.Wallet.Rpc.getBlockNumber();
+                if ((blockNumber % Constants.EpochBlockSize) > Constants.EpochBoundary ||
+                    (blockNumber % Constants.EpochBlockSize) === 0
+                ) {
+                    issuedAt++
+                }
+            }
+            // Wrong fee is per epoch
+            if (fee) {
+                fee = validator.numToHex(fee)
+                if (this.Wallet.Rpc.rpcServer) {
+                    if (!this.fees["DataStoreFee"]) {
+                        await this._getFees()
+                    }
+                    if (BigInt("0x" + this.fees["DataStoreFee"]) < BigInt("0x" + fee)) {
+                        throw "Fee too low"
+                    }
+                }
+            }
+            if (!fee) {
+                if (this.Wallet.Rpc.rpcServer) {
+                    if (!this.fees["DataStoreFee"]) {
+                        await this._getFees()
+                    }
+                    fee = this.fees["DataStoreFee"]
+                }
+                else {
+                    throw 'RPC server must be set to fetch fee'
+                }
+            }
+
+            if (rawData.indexOf("0x") === 0) {
+                rawData = validator.isHex(rawData);
+            }
+            else {
+                rawData = validator.txtToHex(rawData);
+            }
+            let deposit = await this.Utils.calculateDeposit(rawData, duration);
+            deposit = validator.isBigInt(deposit)
+            let owner = await this.Utils.prefixSVACurve(3, account["MultiSigner"]["curve"], account["address"]);
+            let txIdx = this.Tx.Vout.length;
+            if (index.indexOf("0x") === 0) {
+                index = validator.isHex(index);
+            }
+            else {
+                index = validator.txtToHex(index);
+            }
+            if (index.length > 64) {
+                throw "Index too large";
+            }
+            else if (index.length != 64) {
+                index = index.padStart(64, "0")
+            }
+            let dStore = this.Tx.DataStore(index,
+                issuedAt,
+                validator.numToHex(deposit),
+                rawData,
+                txIdx,
+                owner,
+                fee
+            )
+            let total = BigInt(deposit) + BigInt("0x" + fee);
+            await this._addOutValue(total, account["address"], { index: index, epoch: issuedAt });
+            return dStore;
+        } catch (ex) {
+            throw new Error("Transaction.createDataStore: " + String(ex));
+        }
+    }
+
+    /**
+     * Create a DataStore
+     * @param {hex} from
+     * @param {(string|hex)} index
+     * @param {number} duration
+     * @param {(string|hex)} rawData
+     * @param {number} [issuedAt=false]
+     * @param {hex} fee
+     * @return DataStore
+     */
+    async createDataStore(from, index, duration, rawData, issuedAt = false, fee) {
         try {
             if (!from || !index || !duration || !rawData) {
                 throw "Missing arguments";
@@ -149,20 +300,52 @@ class Transaction {
             else if (index.length != 64) {
                 index = index.padStart(64, "0")
             }
+            if (fee) {
+                fee = validator.numToHex(fee)
+                if (this.Wallet.Rpc.rpcServer) {
+                    if (!this.fees["DataStoreFee"]) {
+                        await this._getFees()
+                    }
+                    if (BigInt(BigInt("0x" + this.fees["DataStoreFee"]) * BigInt(duration)) < BigInt("0x" + fee)) {
+                        throw "Fee too low"
+                    }
+                }
+            }
+            if (!fee) {
+                if (this.Wallet.Rpc.rpcServer) {
+                    if (!this.fees["DataStoreFee"]) {
+                        await this._getFees()
+                    }
+                    fee = validator.numToHex(BigInt("0x" + fees["DataStoreFee"]) * BigInt(duration));
+                }
+                else {
+                    throw 'RPC server must be set to fetch fee'
+                }
+            }
             let dStore = this.Tx.DataStore(index,
                 issuedAt,
                 validator.numToHex(deposit),
                 rawData,
                 txIdx,
-                owner
+                owner,
+                fee
             )
-            await this._addOutValue(deposit, account["address"], { index: index, epoch: issuedAt });
+            let total = BigInt(deposit) + BigInt("0x" + fee);
+            await this._addOutValue(total, account["address"], { index: index, epoch: issuedAt });
             return dStore;
         } catch (ex) {
             throw new Error("Transaction.createDataStore: " + String(ex));
         }
     }
 
+    async _getFees() {
+        try {
+            this.fees = await this.Wallet.Rpc.getFees();
+        }
+        catch (ex) {
+            throw new Error("Transaction.getFees: " + String(ex))
+        }
+    }
     /**
      * _reset transaction Objects
      */
@@ -220,6 +403,9 @@ class Transaction {
                     await this.Wallet.Account._getAccountUTXOsByIds(account["address"], UTXOIDs);
                 }
                 else {
+                    if (!this.fees) {
+                        this.fees = await this.Wallet.Rpc.getFees();
+                    }
                     await this.Wallet.Account._getAccountValueStores(account["address"], outValue["totalValue"]);
                 }
                 for (let i = 0; i < outValue["dsIndex"].length; i++) {
@@ -232,15 +418,28 @@ class Transaction {
                         }
                     }
                 }
+
+                // fails if spending all(fees included) - 1, due to change out VS fee being more than remaining value 
+                //---------------------------------------//
+
+                // balance is too low
                 if (BigInt(outValue["totalValue"]) > BigInt(account["UTXO"]["Value"])) {
                     throw "Insufficient funds";
                 }
+                // out value === in value (rewarded ds exp)
                 if (BigInt(outValue["totalValue"]) == BigInt(0)) {
                     return;
                 }
-                else if (BigInt(outValue["totalValue"]) < BigInt(0)) {
+                // get reward back 
+                if (BigInt(outValue["totalValue"]) < BigInt(0)) {
+                    // TODO: test this logic
+                    if (BigInt(BigInt(BigInt(outValue["totalValue"]) * BigInt(-1)) + BigInt("0x" + this.fees["ValueStoreFee"])) > BigInt(account["UTXO"]["Value"])) {
+                        await this._updateTxFee( BigInt(BigInt(BigInt(outValue["totalValue"]) * BigInt(-1)) + BigInt(this.Tx.Vout[0]["TxFee"]["TFPreImage"]["Fee"])).toString(10));
+                        continue;
+                    }
                     await this.createValueStore(account["address"], BigInt(BigInt(outValue["totalValue"]) * BigInt(-1)), changeAddress ? changeAddress : account["address"], changeAddressCurve ? changeAddressCurve : account["MultiSigner"]["curve"])
                 }
+                // add txs ins to cover cost of tx outs
                 else {
                     await this._spendUTXO(account["UTXO"], account, outValue["totalValue"], changeAddress, changeAddressCurve);
                 }
@@ -306,8 +505,7 @@ class Transaction {
     async _spendUTXO(accountUTXO, account, currentValue, changeAddress, changeAddressCurve) {
         try {
             accountUTXO = accountUTXO["ValueStores"]
-            let spent = false;
-            while (!spent) {
+            while (true) {
                 let highestUnspent = false
                 for (let i = 0; i < accountUTXO.length; i++) {
                     if (!highestUnspent) {
@@ -325,7 +523,7 @@ class Transaction {
                 await this._createValueTxIn(account["address"], highestUnspent);
                 for (let i = 0; i < accountUTXO.length; i++) {
                     if (accountUTXO[i]["TxHash"] === highestUnspent["TxHash"] &&
-                    accountUTXO[i]["VSPreImage"]["TXOutIdx"] === highestUnspent["VSPreImage"]["TXOutIdx"]
+                        accountUTXO[i]["VSPreImage"]["TXOutIdx"] === highestUnspent["VSPreImage"]["TXOutIdx"]
                     ) {
                         await accountUTXO.splice(i, 1);
                         break;
@@ -333,7 +531,12 @@ class Transaction {
                 }
                 let remaining = BigInt(BigInt(highestUnspent["VSPreImage"]["Value"]) - BigInt(currentValue));
                 if (remaining > BigInt(0)) {
-                    await this.createValueStore(account["address"], remaining.toString(10), changeAddress ? changeAddress : account["address"], changeAddressCurve ? changeAddressCurve : account["MultiSigner"]["curve"])
+                    if ( BigInt(BigInt(remaining) - BigInt("0x" + this.fees["ValueStoreFee"])) == BigInt(0)) {
+                        await this._updateTxFee(BigInt(BigInt(remaining) + BigInt(this.Tx.Vout[0]["TxFee"]["TFPreImage"]["Fee"])).toString(10));
+                        break;;
+                    }
+                    remaining = BigInt(BigInt(remaining) - BigInt("0x" + this.fees["ValueStoreFee"]));
+                    await this.createValueStore(account["address"], BigInt(remaining).toString(10), changeAddress ? changeAddress : account["address"], changeAddressCurve ? changeAddressCurve : account["MultiSigner"]["curve"])
                     break;
                 }
                 currentValue = BigInt(currentValue) - BigInt(highestUnspent["VSPreImage"]["Value"]);
@@ -343,6 +546,16 @@ class Transaction {
             }
         } catch (ex) {
             throw new Error("Trasaction._spendUTXO: " + String(ex));
+        }
+    }
+
+    async _updateTxFee(fee) {
+        try {
+            fee = validator.numToHex(fee)
+            this.Tx.Vout[0]["TxFee"]["TFPreImage"]["Fee"] = fee
+        }
+        catch(ex) {
+            throw new Error("Transaction._updateTxFee: " + String(ex));
         }
     }
 }

@@ -59,11 +59,13 @@ describe('RPC: Query Data', () => {
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+let fees;
 describe('RPC: Send Transaction', () => {
 
     before(async () => {
         await madWallet.Account.addAccount(privateKey, 1);
         await madWallet.Account.addAccount(privateKey, 2);
+        fees = await madWallet.Rpc.getFees();
     });
     /*
     it('Fail: Insufficient funds', async () => {
@@ -84,7 +86,9 @@ describe('RPC: Send Transaction', () => {
     
     it('Success: SECP Create & Send ValueStore', async () => {
         //await wait(45 * 1000);
-        await madWallet.Transaction.createValueStore(madWallet.Account.accounts[0]["address"], 600, madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"])
+        await madWallet.Transaction.createTxFee(madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"], BigInt("0x" + fees["MinTxFee"]).toString())
+        await madWallet.Transaction.createValueStore(madWallet.Account.accounts[0]["address"], 8988, madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"])
+        
         await expect(
             madWallet.Transaction.sendTx()
         ).to.eventually.be.fulfilled;
