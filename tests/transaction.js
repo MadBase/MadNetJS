@@ -142,16 +142,9 @@ describe('Transaction: ValueStore', () => {
     });
 
     it('Success: Vout length is correct', async () => {
-        /*
-        try {
         await madWallet.Transaction._createTxIns()
         await madWallet.Transaction.Tx._createTx()
-        console.log(JSON.stringify(madWallet.Transaction.Tx.getTx()))
-        } catch(ex) {
-            console.log(ex)
-        }
-        */
-        expect(madWallet.Transaction.Tx.Vout).to.have.lengthOf(5) //account for fee object
+        expect(madWallet.Transaction.Tx.Vout).to.have.lengthOf(6)
     });
 
 });

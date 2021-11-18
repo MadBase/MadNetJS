@@ -30,7 +30,7 @@ class Transaction {
      */
     async sendTx(changeAddress, changeAddressCurve, UTXOIDs = []) {
         try {
-            if (!this.Tx.Vout[0]["TxFee"]) {
+            if (this.Tx.getTx()["Fee"] === 0) {
                 throw "No Tx fee added"
             }
             if (this.Tx.Vout.length <= 0) {
@@ -63,7 +63,6 @@ class Transaction {
             }
             let account = await this.Wallet.Account.getAccount(payeerAddress);
             this.Tx.TxFee(validator.numToHex(fee))
-            console.log("TXF: ", fee)
             await this._addOutValue(fee, account["address"]);
 
         }
@@ -127,14 +126,10 @@ class Transaction {
                 fee
             )
             let total = BigInt(value) + BigInt("0x" + fee)
-
-            console.log("V: ", value)
-            console.log("F: ", fee)
-            console.log("T: ", total)
             await this._addOutValue(total, account["address"]);
             return vStore;
         } catch (ex) {
-            throw new Error("Transaction.createValueStore: " + console.trace(ex));
+            throw new Error("Transaction.createValueStore: " + String(ex));
         }
     }
 
@@ -316,7 +311,7 @@ class Transaction {
                     if (!this.fees["DataStoreFee"]) {
                         await this._getFees()
                     }
-                    fee = validator.numToHex(BigInt("0x" + fees["DataStoreFee"]) * BigInt(duration));
+                    fee = validator.numToHex(BigInt("0x" + this.fees["DataStoreFee"]) * BigInt(duration));
                 }
                 else {
                     throw 'RPC server must be set to fetch fee'
@@ -419,9 +414,6 @@ class Transaction {
                     }
                 }
 
-                // fails if spending all(fees included) - 1, due to change out VS fee being more than remaining value 
-                //---------------------------------------//
-
                 // balance is too low
                 if (BigInt(outValue["totalValue"]) > BigInt(account["UTXO"]["Value"])) {
                     throw "Insufficient funds";
@@ -434,7 +426,7 @@ class Transaction {
                 if (BigInt(outValue["totalValue"]) < BigInt(0)) {
                     // TODO: test this logic
                     if (BigInt(BigInt(BigInt(outValue["totalValue"]) * BigInt(-1)) + BigInt("0x" + this.fees["ValueStoreFee"])) > BigInt(account["UTXO"]["Value"])) {
-                        await this._updateTxFee( BigInt(BigInt(BigInt(outValue["totalValue"]) * BigInt(-1)) + BigInt(this.Tx.Vout[0]["TxFee"]["TFPreImage"]["Fee"])).toString(10));
+                        this.Tx.TxFee(BigInt(BigInt(BigInt(outValue["totalValue"]) * BigInt(-1)) + BigInt(this.Tx.Vout[0]["TxFee"]["TFPreImage"]["Fee"])).toString(10));
                         continue;
                     }
                     await this.createValueStore(account["address"], BigInt(BigInt(outValue["totalValue"]) * BigInt(-1)), changeAddress ? changeAddress : account["address"], changeAddressCurve ? changeAddressCurve : account["MultiSigner"]["curve"])
@@ -531,8 +523,8 @@ class Transaction {
                 }
                 let remaining = BigInt(BigInt(highestUnspent["VSPreImage"]["Value"]) - BigInt(currentValue));
                 if (remaining > BigInt(0)) {
-                    if ( BigInt(BigInt(remaining) - BigInt("0x" + this.fees["ValueStoreFee"])) == BigInt(0)) {
-                        await this._updateTxFee(BigInt(BigInt(remaining) + BigInt(this.Tx.Vout[0]["TxFee"]["TFPreImage"]["Fee"])).toString(10));
+                    if (BigInt(BigInt(remaining) - BigInt("0x" + this.fees["ValueStoreFee"])) == BigInt(0)) {
+                        this.Tx.TxFee(BigInt(BigInt(remaining) + BigInt(this.Tx.Vout[0]["TxFee"]["TFPreImage"]["Fee"])).toString(10));
                         break;;
                     }
                     remaining = BigInt(BigInt(remaining) - BigInt("0x" + this.fees["ValueStoreFee"]));
@@ -546,16 +538,6 @@ class Transaction {
             }
         } catch (ex) {
             throw new Error("Trasaction._spendUTXO: " + String(ex));
-        }
-    }
-
-    async _updateTxFee(fee) {
-        try {
-            fee = validator.numToHex(fee)
-            this.Tx.Vout[0]["TxFee"]["TFPreImage"]["Fee"] = fee
-        }
-        catch(ex) {
-            throw new Error("Transaction._updateTxFee: " + String(ex));
         }
     }
 }

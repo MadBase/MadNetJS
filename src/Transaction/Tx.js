@@ -15,6 +15,7 @@ class Tx {
 
         this.Vin = [];
         this.Vout = [];
+        this.Fee = "0";
 
         this.txInOwners = [];
         this.txOutOwners = [];
@@ -28,7 +29,8 @@ class Tx {
         return {
             "Tx": {
                 "Vin": this.Vin,
-                "Vout": this.Vout
+                "Vout": this.Vout,
+                "Fee": this.Fee
             }
         }
     }
@@ -251,26 +253,9 @@ class Tx {
      * @return {Object}
      */
     TxFee(value) {
-        this.Vout.unshift({
-            "TxFee": {
-                "TFPreImage": this.TxFeePreImage(value),
-                "TxHash": "C0FFEE"
-            }
-        });
-        return this.Vout[0];
+        this.Fee = value;
     }
 
-    /**
-     * Create TxFee PreImage
-     * @param {number} value
-     */
-    TxFeePreImage(value) {
-        return {
-            "ChainID": this.Wallet.chainId,
-            "TXOutIdx": 0,
-            "Fee": value
-        }
-    }
 
     /**
      * Get estimate of fees
@@ -323,13 +308,13 @@ class Tx {
      */
     async _createTx() {
         try {
-            console.log(JSON.stringify(this.getTx()["Tx"]))
-            let injected = await TxHasher.TxHasher(JSON.stringify(this.getTx()["Tx"]))
+            let tx = this.getTx()["Tx"]
+            delete tx["Fee"]
+            let injected = await TxHasher.TxHasher(JSON.stringify(tx))
             let Tx = { "Tx": JSON.parse(injected) }
             await this._signTx(Tx)
-            console.log(JSON.stringify(this.getTx()["Tx"]))
         } catch (ex) {
-            throw new Error("Tx.createTx: " + console.trace(ex));
+            throw new Error("Tx.createTx: " + String(ex));
         }
     }
 

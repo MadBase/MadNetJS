@@ -67,36 +67,36 @@ describe('RPC: Send Transaction', () => {
         await madWallet.Account.addAccount(privateKey, 2);
         fees = await madWallet.Rpc.getFees();
     });
-    /*
     it('Fail: Insufficient funds', async () => {
         await madWallet.Transaction.createValueStore(madWallet.Account.accounts[0]["address"], 1000000000, madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"])
         await expect(
             madWallet.Transaction.sendTx()
         ).to.eventually.be.rejected;
     });
-
+/*
     it('Success: SECP Create & Send DataStore', async () => {
+        await madWallet.Transaction.createTxFee(madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"], BigInt("0x" + fees["MinTxFee"]).toString())
         await madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0x02", 1, "0x02")
         await expect(
             madWallet.Transaction.sendTx()
         ).to.eventually.be.fulfilled;
 
     }).timeout(100 * 1000);
-    */
-    
+*/
     it('Success: SECP Create & Send ValueStore', async () => {
-        //await wait(45 * 1000);
+        await wait(45 * 1000);
         await madWallet.Transaction.createTxFee(madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"], BigInt("0x" + fees["MinTxFee"]).toString())
-        await madWallet.Transaction.createValueStore(madWallet.Account.accounts[0]["address"], 8988, madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"])
+        await madWallet.Transaction.createValueStore(madWallet.Account.accounts[0]["address"], 5000, madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"])
         
         await expect(
             madWallet.Transaction.sendTx()
         ).to.eventually.be.fulfilled;
     }).timeout(100 * 1000);
-/*
+
     it('Success: BN Create & Send DataStore', async () => {
         await wait(45 * 1000);
-        await madWallet.Transaction.createDataStore(madWallet.Account.accounts[1]["address"], "0x03", 3, "0x02")
+        await madWallet.Transaction.createTxFee(madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"], BigInt("0x" + fees["MinTxFee"]).toString())
+        await madWallet.Transaction.createDataStore(madWallet.Account.accounts[1]["address"], "0x03", 1, "0x02")
         await expect(
             madWallet.Transaction.sendTx()
         ).to.eventually.be.fulfilled;
@@ -104,10 +104,11 @@ describe('RPC: Send Transaction', () => {
 
     it('Success: BN Create & Send ValueStore', async () => {
         await wait(45 * 1000);
+        await madWallet.Transaction.createTxFee(madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"], BigInt("0x" + fees["MinTxFee"]).toString())
         await madWallet.Transaction.createValueStore(madWallet.Account.accounts[1]["address"], 1, madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"])
         await expect(
             madWallet.Transaction.sendTx()
         ).to.eventually.be.fulfilled;
     }).timeout(100 * 1000);
-    */
+    
 });

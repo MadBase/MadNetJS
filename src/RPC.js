@@ -114,7 +114,7 @@ class RPC {
     async getFees() {
         try{
             let fees = await this.request("get-fees")
-            if (!fees) {
+            if (!fees["MinTxFee"]) {
                 throw "Could not get fees"
             }
             return fees;
@@ -320,8 +320,7 @@ class RPC {
         try {
             let sendTx = await this.request("send-transaction", Tx);
             if (!sendTx["TxHash"]) {
-                console.log(sendTx)
-                throw "Transaction error"
+                throw "Transaction Error"
             }
             return sendTx["TxHash"];
         }
