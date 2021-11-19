@@ -50,6 +50,12 @@ class Transaction {
         }
     }
 
+    /**
+     * Create the transaction fee and account that will be paying it
+     * @param {hex} payeerAddress 
+     * @param {number} payeerCurve 
+     * @param {number} fee 
+     */
     async createTxFee(payeerAddress, payeerCurve, fee) {
         try {
             if (!payeerAddress || !payeerCurve || !fee) {
@@ -172,30 +178,6 @@ class Transaction {
                     issuedAt++
                 }
             }
-            // Wrong fee is per epoch
-            if (fee) {
-                fee = validator.numToHex(fee)
-                if (this.Wallet.Rpc.rpcServer) {
-                    if (!this.fees["DataStoreFee"]) {
-                        await this._getFees()
-                    }
-                    if (BigInt("0x" + this.fees["DataStoreFee"]) < BigInt("0x" + fee)) {
-                        throw "Fee too low"
-                    }
-                }
-            }
-            if (!fee) {
-                if (this.Wallet.Rpc.rpcServer) {
-                    if (!this.fees["DataStoreFee"]) {
-                        await this._getFees()
-                    }
-                    fee = this.fees["DataStoreFee"]
-                }
-                else {
-                    throw 'RPC server must be set to fetch fee'
-                }
-            }
-
             if (rawData.indexOf("0x") === 0) {
                 rawData = validator.isHex(rawData);
             }
@@ -217,6 +199,30 @@ class Transaction {
             }
             else if (index.length != 64) {
                 index = index.padStart(64, "0")
+            }
+            if (fee) {
+                fee = validator.numToHex(fee)
+                if (this.Wallet.Rpc.rpcServer) {
+                    if (!this.fees["DataStoreFee"]) {
+                        await this._getFees()
+                    }
+                    let calculatedFee = await utils.calculateFee(validator.hexToInt(this.fees["DataStoreFee"]), duration)
+                    if (BigInt(calculatedFee) < BigInt("0x" + fee)) {
+                        throw 'Invalid fee'
+                    }
+                }
+            }
+            if (!fee) {
+                if (this.Wallet.Rpc.rpcServer) {
+                    if (!this.fees["DataStoreFee"]) {
+                        await this._getFees()
+                    }
+                    let calculatedFee = await utils.calculateFee(validator.hexToInt(this.fees["DataStoreFee"]), duration)
+                    fee = validator.numToHex(calculatedFee)
+                }
+                else {
+                    throw 'RPC server must be set to fetch fee'
+                }
             }
             let dStore = this.Tx.DataStore(index,
                 issuedAt,
@@ -235,104 +241,8 @@ class Transaction {
     }
 
     /**
-     * Create a DataStore
-     * @param {hex} from
-     * @param {(string|hex)} index
-     * @param {number} duration
-     * @param {(string|hex)} rawData
-     * @param {number} [issuedAt=false]
-     * @param {hex} fee
-     * @return DataStore
+     * Get the current fees and store them
      */
-    async createDataStore(from, index, duration, rawData, issuedAt = false, fee) {
-        try {
-            if (!from || !index || !duration || !rawData) {
-                throw "Missing arguments";
-            }
-            from = validator.isAddress(from);
-            duration = validator.isBigInt(duration);
-            if (duration <= BigInt(0)) {
-                throw "Invalid duration"
-            }
-            let account = await this.Wallet.Account.getAccount(from);
-            if (!account) {
-                throw "Cannot get account";
-            }
-            if (issuedAt) {
-                issuedAt = validator.isNumber(issuedAt);
-            }
-            else {
-                if (!this.Wallet.Rpc.rpcServer) {
-                    throw "RPC server must be set to fetch epoch"
-                }
-                issuedAt = await this.Wallet.Rpc.getEpoch();
-                let blockNumber = await this.Wallet.Rpc.getBlockNumber();
-                if ((blockNumber % Constants.EpochBlockSize) > Constants.EpochBoundary ||
-                    (blockNumber % Constants.EpochBlockSize) === 0
-                ) {
-                    issuedAt++
-                }
-            }
-            if (rawData.indexOf("0x") === 0) {
-                rawData = validator.isHex(rawData);
-            }
-            else {
-                rawData = validator.txtToHex(rawData);
-            }
-            let deposit = await this.Utils.calculateDeposit(rawData, duration);
-            deposit = validator.isBigInt(deposit)
-            let owner = await this.Utils.prefixSVACurve(3, account["MultiSigner"]["curve"], account["address"]);
-            let txIdx = this.Tx.Vout.length;
-            if (index.indexOf("0x") === 0) {
-                index = validator.isHex(index);
-            }
-            else {
-                index = validator.txtToHex(index);
-            }
-            if (index.length > 64) {
-                throw "Index too large";
-            }
-            else if (index.length != 64) {
-                index = index.padStart(64, "0")
-            }
-            if (fee) {
-                fee = validator.numToHex(fee)
-                if (this.Wallet.Rpc.rpcServer) {
-                    if (!this.fees["DataStoreFee"]) {
-                        await this._getFees()
-                    }
-                    if (BigInt(BigInt("0x" + this.fees["DataStoreFee"]) * BigInt(duration)) < BigInt("0x" + fee)) {
-                        throw "Fee too low"
-                    }
-                }
-            }
-            if (!fee) {
-                if (this.Wallet.Rpc.rpcServer) {
-                    if (!this.fees["DataStoreFee"]) {
-                        await this._getFees()
-                    }
-                    fee = validator.numToHex(BigInt("0x" + this.fees["DataStoreFee"]) * BigInt(duration));
-                }
-                else {
-                    throw 'RPC server must be set to fetch fee'
-                }
-            }
-            let dStore = this.Tx.DataStore(index,
-                issuedAt,
-                validator.numToHex(deposit),
-                rawData,
-                txIdx,
-                owner,
-                fee
-            )
-            let total = BigInt(deposit) + BigInt("0x" + fee);
-            await this._addOutValue(total, account["address"], { index: index, epoch: issuedAt });
-            return dStore;
-        } catch (ex) {
-            throw new Error("Transaction.createDataStore: " + String(ex));
-        }
-    }
-
     async _getFees() {
         try {
             this.fees = await this.Wallet.Rpc.getFees();
@@ -414,24 +324,19 @@ class Transaction {
                     }
                 }
 
-                // balance is too low
                 if (BigInt(outValue["totalValue"]) > BigInt(account["UTXO"]["Value"])) {
                     throw "Insufficient funds";
                 }
-                // out value === in value (rewarded ds exp)
                 if (BigInt(outValue["totalValue"]) == BigInt(0)) {
                     return;
                 }
-                // get reward back 
                 if (BigInt(outValue["totalValue"]) < BigInt(0)) {
-                    // TODO: test this logic
                     if (BigInt(BigInt(BigInt(outValue["totalValue"]) * BigInt(-1)) + BigInt("0x" + this.fees["ValueStoreFee"])) > BigInt(account["UTXO"]["Value"])) {
                         this.Tx.TxFee(BigInt(BigInt(BigInt(outValue["totalValue"]) * BigInt(-1)) + BigInt(this.Tx.Vout[0]["TxFee"]["TFPreImage"]["Fee"])).toString(10));
                         continue;
                     }
                     await this.createValueStore(account["address"], BigInt(BigInt(outValue["totalValue"]) * BigInt(-1)), changeAddress ? changeAddress : account["address"], changeAddressCurve ? changeAddressCurve : account["MultiSigner"]["curve"])
                 }
-                // add txs ins to cover cost of tx outs
                 else {
                     await this._spendUTXO(account["UTXO"], account, outValue["totalValue"], changeAddress, changeAddressCurve);
                 }

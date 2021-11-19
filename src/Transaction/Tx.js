@@ -250,7 +250,6 @@ class Tx {
     /**
      * Create TxFee
      * @param {number} value
-     * @return {Object}
      */
     TxFee(value) {
         this.Fee = value;
@@ -262,6 +261,9 @@ class Tx {
      * @return {Object} Fee Estimates
      */
     async estimateFees() {
+        if (!this.Wallet.Rpc.rpcServer) {
+            throw 'Cannot estimate fees without RPC'
+        }
         let fees = await this.Wallet.Rpc.getFees();
         let total = BigInt(0);
         let thisTotal = BigInt(0)
@@ -277,7 +279,7 @@ class Tx {
                     let rawData = this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["RawData"]
                     let dataSize = BigInt(Buffer.from(rawData, "hex").length)
                     let dsEpochs = await utils.calculateNumEpochs(dataSize, BigInt("0x" + this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Deposit"]))
-                    thisTotal = (BigInt("0x" + fees["DataStoreFee"]) * BigInt(dsEpochs));
+                    thisTotal= await utils.calculateFee(BigInt("0x" + fees["DataStoreFee"]), BigInt(dsEpochs))
                     total = BigInt(total) + BigInt(thisTotal)
                     voutCost.push(thisTotal.toString())
                     break;;

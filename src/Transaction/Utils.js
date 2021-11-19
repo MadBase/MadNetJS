@@ -125,5 +125,20 @@ var self = module.exports = {
         } catch (ex) {
             throw "Transaction.calculateNumEpochs: " + String(ex);
         }
+    },
+
+    /**
+     * Calculate the DataStore Fee
+     * @param {number} dsFee 
+     * @param {number} numEpochs 
+     * @returns {number} dsFee
+     */
+    calculateFee: async(dsFee, numEpochs) => {
+        try {
+            return BigInt(BigInt(dsFee) * BigInt(BigInt(numEpochs) + BigInt(2))).toString(10);
+        }
+        catch(ex) {
+            throw "Transaction.calculateFee: " + String(ex);
+        }
     }
 }
