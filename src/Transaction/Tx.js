@@ -332,7 +332,7 @@ class Tx {
                 let consumedIdx = txIn["TXInLinker"]["TXInPreImage"]["ConsumedTxIdx"] ? txIn["TXInLinker"]["TXInPreImage"]["ConsumedTxIdx"] : "0";
                 let txInObj;
                 for (let j = 0; j < this.txInOwners.length; j++) {
-                    if (String(this.txInOwners[j]["txHash"]) === String(consumedHash) && String(this.txInOwners[j]["txOutIdx"]) && String(consumedIdx)) {
+                    if (String(this.txInOwners[j]["txHash"]) === String(consumedHash) && String(this.txInOwners[j]["txOutIdx"]) == String(consumedIdx)) {
                         txInObj = this.txInOwners[j];
                         break;
                     }

@@ -87,7 +87,7 @@ describe('RPC: Send Transaction', () => {
     it('Success: SECP Create & Send ValueStore', async () => {
         await wait(40 * 1000);
         await madWallet.Transaction.createTxFee(madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"], BigInt("0x" + fees["MinTxFee"]).toString())
-        await madWallet.Transaction.createValueStore(madWallet.Account.accounts[0]["address"], 10000, madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"])
+        await madWallet.Transaction.createValueStore(madWallet.Account.accounts[0]["address"], 9995, madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"])
         
         await expect(
             madWallet.Transaction.sendTx()
@@ -97,8 +97,8 @@ describe('RPC: Send Transaction', () => {
     
     it('Success: BN Create & Send DataStore', async () => {
         await wait(40 * 1000);
-        await madWallet.Transaction.createTxFee(madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"], BigInt("0x" + fees["MinTxFee"]).toString())
         await madWallet.Transaction.createDataStore(madWallet.Account.accounts[1]["address"], "0x03", 2, "0x02")
+        await madWallet.Transaction.createTxFee(madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"], BigInt("0x" + fees["MinTxFee"]).toString())
         await expect(
             madWallet.Transaction.sendTx()
         ).to.eventually.be.fulfilled;
@@ -106,8 +106,8 @@ describe('RPC: Send Transaction', () => {
 
     it('Success: BN Create & Send ValueStore', async () => {
         await wait(40 * 1000);
-        await madWallet.Transaction.createTxFee(madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"], BigInt("0x" + fees["MinTxFee"]).toString())
         await madWallet.Transaction.createValueStore(madWallet.Account.accounts[1]["address"], 1, madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"])
+        await madWallet.Transaction.createTxFee(madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"], BigInt("0x" + fees["MinTxFee"]).toString())
         await expect(
             madWallet.Transaction.sendTx()
         ).to.eventually.be.fulfilled;
