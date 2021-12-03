@@ -317,7 +317,7 @@ class Transaction {
                     let DS = await this.Wallet.Rpc.getDataStoreByIndex(account["address"], account["curve"], outValue["dsIndex"][i]["index"]);
                     // Skip if the store doesn't equal datastore for spending
                     if (DS && DS["DSLinker"]["DSPreImage"]["Index"] == outValue["dsIndex"][i]["index"]) {
-                        let reward = await this.Utils.remainigDeposit(DS, outValue["dsIndex"][i]["epoch"]);
+                        let reward = await this.Utils.remainingDeposit(DS, outValue["dsIndex"][i]["epoch"]);
                         if (reward) {
                             await this._createDataTxIn(account["address"], DS);
                             outValue["totalValue"] = BigInt(outValue["totalValue"]) - BigInt(reward);
@@ -337,6 +337,7 @@ class Transaction {
                         continue;
                     }
                     await this.createValueStore(account["address"], BigInt(BigInt(outValue["totalValue"]) * BigInt(-1)), changeAddress ? changeAddress : account["address"], changeAddressCurve ? changeAddressCurve : account["MultiSigner"]["curve"])
+                    await this._spendUTXO(account["UTXO"], account, outValue["totalValue"], changeAddress, changeAddressCurve);
                 }
                 else {
                     await this._spendUTXO(account["UTXO"], account, outValue["totalValue"], changeAddress, changeAddressCurve);
