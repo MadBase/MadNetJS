@@ -76,7 +76,7 @@ var self = module.exports = {
      * @param {Object} DataStore
      * @return {number} deposit
      */
-    remainigDeposit: async(DataStore, thisEpoch) => {
+    remainingDeposit: async(DataStore, thisEpoch) => {
         try {
             // dspi.go - RemainingValue
             let issuedAt = DataStore["DSLinker"]["DSPreImage"]["IssuedAt"]
