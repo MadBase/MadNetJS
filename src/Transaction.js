@@ -56,7 +56,7 @@ class Transaction {
      * Resets Tx state after running
      * @return { Object } - Fees from Tx.estimateFees()
      */
-    async getTxFeeEstimates(changeAddress, changeAddressCurve, UTXOIDs = []) {
+     async getTxFeeEstimates(changeAddress, changeAddressCurve, UTXOIDs = []) {
         try {
             if (this.Tx.getTx()["Fee"] === 0) {
                 throw "No Tx fee added to tx"
@@ -64,10 +64,22 @@ class Transaction {
             if (this.Tx.Vout.length <= 0) {
                 throw "No Vouts for fee estimation"
             }
+
+            // Make deep copy here for Tx state to restore it
+            let vout = this.Tx.Vout.slice();
+            let outValue = this.outValue.slice();
+
             await this._createTxIns(changeAddress, changeAddressCurve, UTXOIDs);
             let fees = await this.Tx.estimateFees()
-            await this._reset();
+            
+            this.Tx.Vin = [];
+            this.Tx.txInOwners = [];
+            this.Tx.txOutOwners = [];
+            this.outValue = outValue;
+            this.Tx.Vout = vout;
+            
             return fees;
+
         } catch (ex) {
             this._reset();
             throw new Error("Transaction.getTxFeeEstimates: " + String(ex));
