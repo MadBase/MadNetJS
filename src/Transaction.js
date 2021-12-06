@@ -51,6 +51,42 @@ class Transaction {
     }
 
     /**
+     * Create temporary TxIns and run tx.EstimateFees on the expected Tx state
+     * TxOuts must already be added for this function call
+     * Resets Tx state after running
+     * @return { Object } - Fees from Tx.estimateFees()
+     */
+     async getTxFeeEstimates(changeAddress, changeAddressCurve, UTXOIDs = []) {
+        try {
+            if (this.Tx.getTx()["Fee"] === 0) {
+                throw "No Tx fee added to tx"
+            }
+            if (this.Tx.Vout.length <= 0) {
+                throw "No Vouts for fee estimation"
+            }
+
+            // Make deep copy here for Tx state to restore it
+            let vout = this.Tx.Vout.slice();
+            let outValue = this.outValue.slice();
+
+            await this._createTxIns(changeAddress, changeAddressCurve, UTXOIDs);
+            let fees = await this.Tx.estimateFees()
+            
+            this.Tx.Vin = [];
+            this.Tx.txInOwners = [];
+            this.Tx.txOutOwners = [];
+            this.outValue = outValue;
+            this.Tx.Vout = vout;
+            
+            return fees;
+
+        } catch (ex) {
+            this._reset();
+            throw new Error("Transaction.getTxFeeEstimates: " + String(ex));
+        }
+    }
+
+    /**
      * Create the transaction fee and account that will be paying it
      * @param {hex} payeerAddress 
      * @param {number} payeerCurve 
