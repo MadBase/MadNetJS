@@ -54,9 +54,13 @@ class Transaction {
      * Create temporary TxIns and run tx.EstimateFees on the expected Tx state
      * TxOuts must already be added for this function call
      * Resets Tx state after running
+     * @param { String} changeAddress - Change address for the Tx
+     * @param { Int } changeAddressCurve - Curve of the change address == 1 (SECP256k1) || 2 (BN)
+     * @param {Array<String>} UTXOIDs - Array of UTXO ID strings
+     * @param { Boolean } - returnInsufficientOnGas - Return insufficinet amount error in object form for insufficient funds per account, rather than throwing error
      * @return { Object } - Fees from Tx.estimateFees()
      */
-     async getTxFeeEstimates(changeAddress, changeAddressCurve, UTXOIDs = []) {
+    async getTxFeeEstimates(changeAddress, changeAddressCurve, UTXOIDs = [], returnInsufficientOnGas) {
         try {
             if (this.Tx.getTx()["Fee"] === 0) {
                 throw "No Tx fee added to tx"
@@ -69,15 +73,19 @@ class Transaction {
             let vout = this.Tx.Vout.slice();
             let outValue = this.outValue.slice();
 
-            await this._createTxIns(changeAddress, changeAddressCurve, UTXOIDs);
+            let createTxIns = await this._createTxIns(changeAddress, changeAddressCurve, UTXOIDs, returnInsufficientOnGas);
             let fees = await this.Tx.estimateFees()
-            
+
+            // If createTxIns hoists an insufficient funds error, add that to the available estimates
+            if (!!createTxIns && createTxIns.errors) {
+                fees.errors = createTxIns.errors;
+            }
+
             this.Tx.Vin = [];
             this.Tx.txInOwners = [];
             this.Tx.txOutOwners = [];
             this.outValue = outValue;
             this.Tx.Vout = vout;
-            
             return fees;
 
         } catch (ex) {
@@ -333,8 +341,13 @@ class Transaction {
      * @param {hex} [changeAddress=false]
      * @param {hex} [changeAddressCurve=false]
      * @param {Object} [UTXOIDs=false]
+     * @param { Boolean } - returnInsufficientOnGas - Return insuffieicent amount errors in object form for insufficient funds per account, rather than throwing error
+     * @returns { Null || Object} - Returns an array of funding errors if requested as {}.errors or null for successful pass without a throw
      */
-    async _createTxIns(changeAddress, changeAddressCurve, UTXOIDs = []) {
+    async _createTxIns(changeAddress, changeAddressCurve, UTXOIDs = [], returnInsufficientOnGas) {
+
+        let insufficientFundErrors = [];
+
         try {
             let OutValue = this.outValue.slice();
             for (let i = 0; i < OutValue.length; i++) {
@@ -349,11 +362,13 @@ class Transaction {
                     }
                     await this.Wallet.Account._getAccountValueStores(account["address"], outValue["totalValue"]);
                 }
+
+                // Copy below for reward 318 - 320 -- See if index exists and calc the reward
                 for (let i = 0; i < outValue["dsIndex"].length; i++) {
                     let DS = await this.Wallet.Rpc.getDataStoreByIndex(account["address"], account["curve"], outValue["dsIndex"][i]["index"]);
                     // Skip if the store doesn't equal datastore for spending
                     if (DS && DS["DSLinker"]["DSPreImage"]["Index"] == outValue["dsIndex"][i]["index"]) {
-                        let reward = await this.Utils.remainingDeposit(DS, outValue["dsIndex"][i]["epoch"]);
+                        let reward = await this.Utils.remainigDeposit(DS, outValue["dsIndex"][i]["epoch"]);
                         if (reward) {
                             await this._createDataTxIn(account["address"], DS);
                             outValue["totalValue"] = BigInt(outValue["totalValue"]) - BigInt(reward);
@@ -361,9 +376,24 @@ class Transaction {
                     }
                 }
 
-                if (BigInt(outValue["totalValue"]) > BigInt(account["UTXO"]["Value"])) {
+                // Control error handling for any accounts with insufficient funds
+                let insufficientFunds = BigInt(outValue["totalValue"]) > BigInt(account["UTXO"]["Value"]);
+                if (insufficientFunds && returnInsufficientOnGas) {
+                    insufficientFundErrors.push({
+                        error: {
+                            msg: "Insufficient Funds",
+                            details: {
+                                account: account,
+                                outValue: outValue,
+                                totalFoundUtxoValue: BigInt(account["UTXO"]["Value"])
+                            }
+                        }
+                    })
+                    continue;
+                } else if (insufficientFunds) {
                     throw "Insufficient funds";
                 }
+
                 if (BigInt(outValue["totalValue"]) == BigInt(0)) {
                     return;
                 }
@@ -379,6 +409,8 @@ class Transaction {
                     await this._spendUTXO(account["UTXO"], account, outValue["totalValue"], changeAddress, changeAddressCurve);
                 }
             }
+            // If the for loop hasn't return on outValue["totalValue"]) == BigInt(0) assume an insufficient error has occurred and return them
+            return { errors: insufficientFundErrors }
         } catch (ex) {
             throw new Error("Transaction._createTxIns: " + String(ex));
         }
