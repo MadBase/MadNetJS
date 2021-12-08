@@ -57,7 +57,7 @@ class Transaction {
      * @param { String} changeAddress - Change address for the Tx
      * @param { Int } changeAddressCurve - Curve of the change address == 1 (SECP256k1) || 2 (BN)
      * @param {Array<String>} UTXOIDs - Array of UTXO ID strings
-     * @param { Boolean } - returnInsufficientOnGas - Return insufficinet amount error in object form for insufficient funds per account, rather than throwing error
+     * @param { Boolean } - returnInsufficientOnGas - Return insufficient amount error in object form for insufficient funds per account, rather than throwing error
      * @return { Object } - Fees from Tx.estimateFees()
      */
     async getTxFeeEstimates(changeAddress, changeAddressCurve, UTXOIDs = [], returnInsufficientOnGas) {
