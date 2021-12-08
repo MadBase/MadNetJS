@@ -260,7 +260,7 @@ class Tx {
      * Get estimate of fees
      * @return {Object} Fee Estimates
      */
-    async estimateFees() {
+     async estimateFees() {
         if (!this.Wallet.Rpc.rpcServer) {
             throw 'Cannot estimate fees without RPC'
         }
@@ -280,12 +280,13 @@ class Tx {
                     let dataSize = BigInt(Buffer.from(rawData, "hex").length)
                     let dsEpochs = await utils.calculateNumEpochs(dataSize, BigInt("0x" + this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Deposit"]))
                     thisTotal = await utils.calculateFee(BigInt("0x" + fees["DataStoreFee"]), BigInt(dsEpochs))
+                    thisTotal = BigInt(thisTotal) + BigInt(BigInt("0x" + this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Deposit"]));
                     let owner = await utils.extractOwner(this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Owner"])
                     let DS = await this.Wallet.Rpc.getDataStoreByIndex(owner[2], owner[1], this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Index"]);
                     if (DS && DS["DSLinker"]["DSPreImage"]["Index"] == this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Index"]) {
                         let reward = await utils.remainingDeposit(DS, this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["IssuedAt"]);
                         if (reward) {
-                            thisTotal = BigInt(thisTotal) + BigInt(BigInt("0x" + this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Deposit"]) - BigInt(reward));
+                            thisTotal = BigInt(thisTotal) - BigInt(reward);
                         }
                     }
                     total = BigInt(total) + BigInt(thisTotal)
