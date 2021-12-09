@@ -43,7 +43,6 @@ class Transaction {
             await this.Tx._createTx();
             let txHash = await this.Wallet.Rpc.sendTransaction(this.Tx.getTx())
             await this._reset();
-            throw("Badness! This error should be shown to user.");
             return txHash;
         } catch (ex) {
             this._reset();
