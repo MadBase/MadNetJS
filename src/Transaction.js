@@ -43,6 +43,7 @@ class Transaction {
             await this.Tx._createTx();
             let txHash = await this.Wallet.Rpc.sendTransaction(this.Tx.getTx())
             await this._reset();
+            throw("Badness! This error should be shown to user.");
             return txHash;
         } catch (ex) {
             this._reset();
@@ -368,7 +369,7 @@ class Transaction {
                     let DS = await this.Wallet.Rpc.getDataStoreByIndex(account["address"], account["curve"], outValue["dsIndex"][i]["index"]);
                     // Skip if the store doesn't equal datastore for spending
                     if (DS && DS["DSLinker"]["DSPreImage"]["Index"] == outValue["dsIndex"][i]["index"]) {
-                        let reward = await this.Utils.remainigDeposit(DS, outValue["dsIndex"][i]["epoch"]);
+                        let reward = await this.Utils.remainingDeposit(DS, outValue["dsIndex"][i]["epoch"]);
                         if (reward) {
                             await this._createDataTxIn(account["address"], DS);
                             outValue["totalValue"] = BigInt(outValue["totalValue"]) - BigInt(reward);
