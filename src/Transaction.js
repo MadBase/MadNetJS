@@ -342,7 +342,7 @@ class Transaction {
      * @param {hex} [changeAddressCurve=false]
      * @param {Object} [UTXOIDs=false]
      * @param { Boolean } - returnInsufficientOnGas - Return insuffieicent amount errors in object form for insufficient funds per account, rather than throwing error
-     * @returns { Null || Object} - Returns an array of funding errors if requested as {}.errors or null for successful pass without a throw
+     * @returns { Object } - Returns an array of funding errors if requested as {}.errors or null for successful pass without a throw
      */
     async _createTxIns(changeAddress, changeAddressCurve, UTXOIDs = [], returnInsufficientOnGas) {
 

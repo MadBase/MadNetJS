@@ -169,7 +169,7 @@ class RPC {
     * @param {hex} address
     * @param {number} curve
     * @param {number} minValue !optional
-    * @return {Array[utxos, totalValue]}
+    * @return {Array}
     */
     async getValueStoreUTXOIDs(address, curve, minValue = false) {
         try {
