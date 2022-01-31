@@ -159,5 +159,4 @@ var self = module.exports = {
             throw new Error("Validator.txtToHex: " + String(ex));
         }
     }
-
 }

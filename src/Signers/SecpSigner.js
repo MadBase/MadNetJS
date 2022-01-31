@@ -1,6 +1,5 @@
 const ethUtil = require('ethereumjs-util');
 const { ecdsaSign } = require('ethereum-cryptography/secp256k1')
-const validator = require('../Validator.js');
 /**
  * SECP256k1 signer
  * @class SecpSigner
@@ -10,8 +9,9 @@ class SecpSigner {
      * Creates an instance of SecpSigner.
      * @param {hex} privK
      */
-    constructor(privK) {
-        this.privK = validator.isHex(privK);
+    constructor(Wallet, privK) {
+        this.Wallet = Wallet;
+        this.privK = this.Wallet.Utils.isHex(privK);
     }
 
     /**
@@ -21,7 +21,7 @@ class SecpSigner {
      */
     async sign(msg) {
         try {
-            msg = validator.isHex(msg);
+            msg = this.Wallet.Utils.isHex(msg);
             if (!msg) {
                 throw "Bad argument type";
             }
@@ -46,6 +46,25 @@ class SecpSigner {
     }
 
     /**
+     * 
+     * @param {hex} msgs 
+     * @returns 
+     */
+    async signMulti(msgs) {
+        try {
+            let signed = [];
+            for (let i = 0; i < msgs.length; i++) {
+                let sig = await this.sign(msgs[i])
+                signed.push(sig)
+            }
+            return signed;
+        }
+        catch (ex) {
+            throw new Error("BNSigner.signMulti: " + String(ex));
+        }
+    }
+
+    /**
      *
      * Verify a signature
      * @param {hex} msg
@@ -54,8 +73,8 @@ class SecpSigner {
      */
     async verify(msg, sig) {
         try {
-            msg = validator.isHex(msg);
-            sig = validator.isHex(sig);
+            msg = this.Wallet.Utils.isHex(msg);
+            sig = this.Wallet.Utils.isHex(sig);
             if (!msg || !sig) {
                 throw "Bad argument type";
             }
@@ -91,5 +110,26 @@ class SecpSigner {
             throw new Error("SecpSigner.getPubK: " + String(ex));
         }
     }
+
+    /**
+     * Public key to Ethereum Address
+     * @param {hex} pubK
+     * @return {hex} address
+     */
+    async getAddress() {
+        try {
+            let pubK = await this.getPubK();
+            pubK = Buffer.from(pubK, "hex");
+            if (pubK.length === 32) {
+                return pubK.slice(12);
+            }
+            let address = ethUtil.pubToAddress(pubK);
+            return address.toString("hex");
+        }
+        catch (ex) {
+            throw new Error("MultiSigner.getAddress: " + String(ex));
+        }
+    }
+
 }
 module.exports = SecpSigner;
