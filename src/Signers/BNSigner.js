@@ -1,5 +1,5 @@
 const BNSignerWrapper = require('../GoWrappers/BNSignerWrapper.js')
-const validator = require('../Validator.js');
+const ethUtil = require('ethereumjs-util');
 /**
  * BNSigner
  * @class BNSigner
@@ -9,8 +9,10 @@ class BNSigner {
      * Creates an instance of BNSigner.
      * @param {hex} privK
      */
-    constructor(privK) {
-        this.privK = validator.isHex(privK);
+    constructor(Wallet, privK, multiSig) {
+        this.Wallet = Wallet;
+        this.multiSig = multiSig
+        this.privK = privK ? this.Wallet.Utils.isHex(privK) : false;
     }
 
     /**
@@ -20,19 +22,38 @@ class BNSigner {
      */
     async sign(msg) {
         try {
-            msg = validator.isHex(msg);
+            msg = this.Wallet.Utils.isHex(msg);
             if (!msg) {
                 throw "Bad argument type";
             }
             if (!this.privK) {
                 throw "Private key not set";
             }
-            let sig = await BNSignerWrapper.Sign({ "msg": String(msg), "privK": String(this.privK) });
+            let sig = await BNSignerWrapper.Sign(String(msg), String(this.privK));
             await this.verify(msg, sig);
             return sig;
         }
         catch (ex) {
             throw new Error("BNSigner.sign: " + String(ex));
+        }
+    }
+
+    /**
+    * 
+    * @param {hex} msgs 
+    * @returns 
+    */
+    async signMulti(msgs) {
+        try {
+            let signed = [];
+            for (let i = 0; i < msgs.length; i++) {
+                let sig = await this.sign(msgs[i])
+                signed.push(sig)
+            }
+            return signed;
+        }
+        catch (ex) {
+            throw new Error("BNSigner.signMulti: " + String(ex));
         }
     }
 
@@ -44,8 +65,8 @@ class BNSigner {
      */
     async verify(msg, sig) {
         try {
-            msg = validator.isHex(msg);
-            sig = validator.isHex(sig);
+            msg = this.Wallet.Utils.isHex(msg);
+            sig = this.Wallet.Utils.isHex(sig);
             if (!msg || !sig) {
                 throw "Bad argument type"
             }
@@ -56,6 +77,7 @@ class BNSigner {
             throw new Error("BNSigner.verify: " + String(ex));
         }
     }
+
 
     /**
      * Get public key from the private key
@@ -81,7 +103,7 @@ class BNSigner {
      */
     async pubFromSig(sig) {
         try {
-            sig = validator.isHex(sig);
+            sig = this.Wallet.Utils.isHex(sig);
             if (!sig) {
                 throw "Bad argument type"
             }
@@ -92,5 +114,24 @@ class BNSigner {
             throw new Error("BNSigner.pubFromSig: " + String(ex));
         }
     }
+
+    /**
+    *  Public key to a BN address
+    * @return {hex} address 
+    */
+    async getAddress(pubK) {
+        try {
+            if (!pubK) {
+                pubK = await this.getPubK();
+            }
+            let pubHash = ethUtil.keccak256(Buffer.from(pubK, "hex").slice(1));
+            let address = pubHash.slice(12);
+            return address.toString("hex");
+        }
+        catch (ex) {
+            throw new Error("MultiSigner.bnPubToAddres: " + String(ex));
+        }
+    }
+
 }
 module.exports = BNSigner;

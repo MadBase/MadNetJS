@@ -1,5 +1,4 @@
 const { default: Axios } = require('axios');
-const validator = require("./Validator.js");
 const constant = require("./Constants.js");
 /**
  * RPC request handler
@@ -43,7 +42,7 @@ class RPC {
      * @return {number} 
      */
     async getBlockHeader(height) {
-        height = validator.isNumber(height)
+        height = this.Wallet.Utils.isNumber(height)
         try {
             let BH = await this.request("get-block-header", { "Height": height });
             if (!BH["BlockHeader"]) {
@@ -112,14 +111,14 @@ class RPC {
      * @returns {Object} Fees
      */
     async getFees() {
-        try{
+        try {
             let fees = await this.request("get-fees")
             if (!fees["MinTxFee"]) {
                 throw "Could not get fees"
             }
             return fees;
         }
-        catch(ex) {
+        catch (ex) {
             throw new Error("RPC.getFees: " + String(ex))
         }
     }
@@ -176,13 +175,13 @@ class RPC {
             if (!address || !curve) {
                 throw "Invalid arguments"
             }
-            address = validator.isAddress(address)
-            curve = validator.isNumber(curve)
+            address = this.Wallet.Utils.isAddress(address)
+            curve = this.Wallet.Utils.isNumber(curve)
             if (!minValue) {
                 minValue = constant.MaxValue;
             }
             else {
-                minValue = validator.numToHex(minValue)
+                minValue = this.Wallet.Utils.numToHex(minValue)
             }
             let valueForOwner = { "CurveSpec": curve, "Account": address, "Minvalue": minValue, "PaginationToken": "" }
             let runningUtxos = [];
@@ -219,8 +218,8 @@ class RPC {
             if (!address || !curve) {
                 throw "Invalid arguments"
             }
-            address = validator.isAddress(address)
-            curve = validator.isNumber(curve)
+            address = this.Wallet.Utils.isAddress(address)
+            curve = this.Wallet.Utils.isNumber(curve)
             let getAll = false;
             if (!limit || limit > constant.MaxUTXOs) {
                 if (!limit) {
@@ -229,13 +228,13 @@ class RPC {
                 limit = constant.MaxUTXOs;
             }
             else {
-                limit = validator.isNumber(limit);
+                limit = this.Wallet.Utils.isNumber(limit);
             }
             if (!offset) {
                 offset = "";
             }
             else {
-                offset = validator.isHex(offset)
+                offset = this.Wallet.Utils.isHex(offset)
             }
             let DataStoreUTXOIDs = [];
             while (true) {
@@ -266,9 +265,9 @@ class RPC {
      */
     async getData(address, curve, index) {
         try {
-            address = validator.isAddress(address)
-            curve = validator.isNumber(curve);
-            index = validator.isHex(index);
+            address = this.Wallet.Utils.isAddress(address)
+            curve = this.Wallet.Utils.isNumber(curve);
+            index = this.Wallet.Utils.isHex(index);
             if (!address || !index || !curve) {
                 throw "Invalid arguments"
             }
@@ -383,7 +382,19 @@ class RPC {
         }
     }
 
-
+    async monitorPending(tx, countMax = 30, startDelay = 1000, currCount = 1) {
+        try {
+            await this.getMinedTransaction(tx);
+            return true;
+        }
+        catch (ex) {
+            if (currCount > 30) {
+                throw new Error("RPC.monitorPending: " + String(ex));;
+            }
+            await this.sleep(startDelay)
+            await this.monitorPending(tx, countMax, Math.floor(startDelay * 1.25), (currCount + 1))
+        }
+    }
 
     /**
      * Send a request to the rpc server
@@ -411,11 +422,11 @@ class RPC {
                 try {
                     resp = await Axios.post(this.rpcServer + route, data, { timeout: constant.ReqTimeout, validateStatus: function (status) { return status } });
                 } catch (ex) {
-                    [attempts, timeout] = await this.backOffRetry(attempts, timeout, lastErrorMsg.message);
+                    [attempts, timeout] = await this.backOffRetry(attempts, timeout);
                     continue;
                 }
-                if (!resp || !resp.data || resp.data["error"]) {
-                    [attempts, timeout] = await this.backOffRetry(attempts, timeout, String(resp.data["error"]));
+                if (!resp || !resp.data || resp.data["error"] || resp.data["code"]) {
+                    [attempts, timeout] = await this.backOffRetry(attempts, timeout);
                     continue;
                 }
                 break
@@ -427,24 +438,29 @@ class RPC {
         }
     }
 
-    async backOffRetry(attempts, timeout, lastErrorMsg) {
-        if (attempts >= 5) {
-            throw new Error("RPC.backOffRetry: RPC request attempt limit reached -- Last nested error: " + lastErrorMsg)
+    async backOffRetry(attempts, timeout) {
+        try {
+            if (attempts >= 5) {
+                throw new Error("RPC.backOffRetry: RPC request attempt limit reached")
+            }
+            if (!attempts) {
+                attempts = 1
+            }
+            else {
+                attempts++
+            }
+            if (!timeout) {
+                timeout = 1000;
+            }
+            else {
+                timeout = Math.floor(timeout * 1.25);
+            }
+            await this.sleep(timeout)
+            return [attempts, timeout];
         }
-        if (!attempts) {
-            attempts = 1
+        catch (ex) {
+            throw new Error("RPC.request: " + String(ex));
         }
-        else {
-            attempts++
-        }
-        if (!timeout) {
-            timeout = 1000;
-        }
-        else {
-            timeout = Math.floor(timeout * 1.25);
-        }
-        await this.sleep(timeout)
-        return [attempts, timeout];
     }
 
     async sleep(ms) {

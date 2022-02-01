@@ -1,5 +1,5 @@
 const constant = require("../Constants.js");
-const validator = require("../Validator.js");
+const validator = require("./Validator.js");
 var self = module.exports = {
     /**
      * Extract SVA | Curve | PubHash
