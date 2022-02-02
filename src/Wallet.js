@@ -1,7 +1,8 @@
 const Account = require("./Account.js")
 const Transaction = require("./Transaction.js")
 const RPC = require("./RPC.js");
-const validator = require("./Validator.js");
+const utils = require("./Util");
+
 /**
  * Wallet handler
  * @class Wallet
@@ -14,11 +15,11 @@ class Wallet {
      * @param {string} [rpcServer=false]
      */
     constructor(chainId, rpcServer = false) {
-        this.chainId = chainId ? validator.isNumber(chainId) : 1;
+        this.chainId = chainId ? utils.isNumber(chainId) : 1;
         this.Account = new Account(this)
         this.Transaction = new Transaction(this);
         this.Rpc = new RPC(this, rpcServer);
-        this.Validator = validator;
+        this.Utils = utils;
     }
 }
 module.exports = Wallet;

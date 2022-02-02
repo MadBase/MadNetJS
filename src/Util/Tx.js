@@ -1,5 +1,5 @@
 const constant = require("../Constants.js");
-const validator = require("../Validator.js");
+const validator = require("./Validator.js");
 var self = module.exports = {
     /**
      * Extract SVA | Curve | PubHash
@@ -76,7 +76,7 @@ var self = module.exports = {
      * @param {Object} DataStore
      * @return {number} deposit
      */
-    remainigDeposit: async(DataStore, thisEpoch) => {
+    remainingDeposit: async(DataStore, thisEpoch) => {
         try {
             // dspi.go - RemainingValue
             let issuedAt = DataStore["DSLinker"]["DSPreImage"]["IssuedAt"]
@@ -124,6 +124,21 @@ var self = module.exports = {
             return numEpochs
         } catch (ex) {
             throw "Transaction.calculateNumEpochs: " + String(ex);
+        }
+    },
+
+    /**
+     * Calculate the DataStore Fee
+     * @param {number} dsFee 
+     * @param {number} numEpochs 
+     * @returns {number} dsFee
+     */
+    calculateFee: async(dsFee, numEpochs) => {
+        try {
+            return BigInt(BigInt(dsFee) * BigInt(BigInt(numEpochs) + BigInt(2))).toString(10);
+        }
+        catch(ex) {
+            throw "Transaction.calculateFee: " + String(ex);
         }
     }
 }
