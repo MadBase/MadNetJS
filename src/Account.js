@@ -89,7 +89,7 @@ class Accounts {
      */
     async removeAccount(address) {
         try {
-            let acctIdx = this._getAccountIndex(address)
+            let acctIdx = await this._getAccountIndex(address)
             this.accounts.splice(acctIdx, 1);
         }
         catch (ex) {
@@ -120,7 +120,7 @@ class Accounts {
     /**
      * Get account index in accounts array by address
      * @param {hex} address
-     * @return {number}
+     * @return {Promise<Number>}
      */
     async _getAccountIndex(address) {
         try {
