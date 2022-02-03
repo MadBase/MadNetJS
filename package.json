@@ -10,16 +10,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.20.0",
-    "ethereumjs-util": "^7.0.4"
+    "axios": "0.20.0",
+    "ethereumjs-util": "7.0.4"
   },
   "devDependencies": {
-    "assert": "^2.0.0",
-    "better-docs": "^2.3.2",
-    "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1",
-    "dotenv": "^8.2.0",
-    "jsdoc": "^3.6.6",
-    "mocha": "^8.2.1"
+    "assert": "2.0.0",
+    "better-docs": "2.3.2",
+    "chai": "4.2.0",
+    "chai-as-promised": "7.1.1",
+    "dotenv": "8.2.0",
+    "jsdoc": "3.6.6",
+    "mocha": "8.2.1"
   }
 }
