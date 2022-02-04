@@ -330,14 +330,16 @@ class Tx {
         let total = BigInt(0);
         let thisTotal = BigInt(0)
         let voutCost = [];
+
         for (let i = 0; i < this.Vout.length; i++) {
             switch (Object.keys(this.Vout[i])[0]) {
-                case 'ValueStore':
+                case 'ValueStore': {
                     thisTotal = BigInt("0x" + fees["ValueStoreFee"]);
                     total = BigInt(total) + BigInt(thisTotal)
                     voutCost.push(thisTotal.toString())
                     break;
-                case 'DataStore':
+                }
+                case 'DataStore': {
                     let rawData = this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["RawData"]
                     let dataSize = BigInt(Buffer.from(rawData, "hex").length)
                     let dsEpochs = await utils.calculateNumEpochs(dataSize, BigInt("0x" + this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Deposit"]))
@@ -354,13 +356,16 @@ class Tx {
                     total = BigInt(total) + BigInt(thisTotal)
                     voutCost.push(thisTotal.toString())
                     break;
-                case 'AtomicSwap':
+                }
+                case 'AtomicSwap': {
                     thisTotal = BigInt("0x" + fees["AtomicSwapFee"]);
                     total = BigInt(total) + BigInt(thisTotal)
                     voutCost.push(thisTotal.toString())
                     break;
-                default:
+                }
+                default: {
                     throw "Could not inject get fee for undefined Vout object"
+                }
             }
         }
         total = BigInt(total) + BigInt("0x" + fees["MinTxFee"])
