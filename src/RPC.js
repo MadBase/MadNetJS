@@ -186,7 +186,7 @@ class RPC {
             let valueForOwner = { "CurveSpec": curve, "Account": address, "Minvalue": minValue, "PaginationToken": "" }
             let runningUtxos = [];
             let runningTotal = BigInt("0");
-            while (true) {
+            while (constant.ReqCondition) {
                 let value = await this.request("get-value-for-owner", valueForOwner)
                 if (!value["UTXOIDs"] || value["UTXOIDs"].length == 0 || !value["TotalValue"]) {
                     break;
@@ -237,7 +237,7 @@ class RPC {
                 offset = this.Wallet.Utils.isHex(offset)
             }
             let DataStoreUTXOIDs = [];
-            while (true) {
+            while (constant.ReqCondition) {
                 let reqData = { "CurveSpec": curve, "Account": address, "Number": limit, "StartIndex": offset }
                 let dataStoreIDs = await this.request("iterate-name-space", reqData);
                 if (!dataStoreIDs["Results"]) {
@@ -298,7 +298,7 @@ class RPC {
                 dsUTXOIDS.push(dsUTXOID[i]["UTXOID"])
             }
             if (dsUTXOIDS.length > 0) {
-                let [DS, VS, AS] = await this.getUTXOsByIds(dsUTXOIDS);
+                let [DS] = await this.getUTXOsByIds(dsUTXOIDS);
                 if (DS.length > 0) {
                     return DS[0];
                 }
@@ -418,7 +418,7 @@ class RPC {
             }
             let attempts, timeout = false;
             let resp;
-            while (true) {
+            while (constant.ReqCondition) {
                 try {
                     resp = await Axios.post(this.rpcServer + route, data, { timeout: constant.ReqTimeout, validateStatus: function (status) { return status } });
                 } catch (ex) {

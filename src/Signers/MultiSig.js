@@ -47,7 +47,7 @@ class MultiSig {
             return pub;
         }
         catch (ex) {
-
+            throw new Error("BNAggregate.getPubK" + String(ex));
         }
     }
 
@@ -65,7 +65,7 @@ class MultiSig {
             return pub;
         }
         catch (ex) {
-
+            throw new Error("BNAggregate.getAddress" + String(ex));
         }
     }
 

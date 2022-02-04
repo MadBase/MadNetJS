@@ -10,6 +10,9 @@ const EpochBlockSize = 1024;
 const EpochBoundary = 960;
 const MaxValue = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
 
+// Common
+const ReqCondition = true;
+
 module.exports = {
     MaxUTXOs,
     ReqTimeout,
@@ -18,5 +21,6 @@ module.exports = {
     DataStoreMinDeposit,
     EpochBlockSize,
     EpochBoundary,
-    MaxValue
+    MaxValue,
+    ReqCondition
 }
