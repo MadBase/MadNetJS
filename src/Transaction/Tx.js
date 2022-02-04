@@ -336,7 +336,7 @@ class Tx {
                     thisTotal = BigInt("0x" + fees["ValueStoreFee"]);
                     total = BigInt(total) + BigInt(thisTotal)
                     voutCost.push(thisTotal.toString())
-                    break;;
+                    break;
                 case 'DataStore':
                     let rawData = this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["RawData"]
                     let dataSize = BigInt(Buffer.from(rawData, "hex").length)
@@ -353,12 +353,12 @@ class Tx {
                     }
                     total = BigInt(total) + BigInt(thisTotal)
                     voutCost.push(thisTotal.toString())
-                    break;;
+                    break;
                 case 'AtomicSwap':
                     thisTotal = BigInt("0x" + fees["AtomicSwapFee"]);
                     total = BigInt(total) + BigInt(thisTotal)
                     voutCost.push(thisTotal.toString())
-                    break;;
+                    break;
                 default:
                     throw "Could not inject get fee for undefined Vout object"
             }

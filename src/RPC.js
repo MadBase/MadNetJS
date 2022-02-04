@@ -389,7 +389,7 @@ class RPC {
         }
         catch (ex) {
             if (currCount > 30) {
-                throw new Error("RPC.monitorPending: " + String(ex));;
+                throw new Error("RPC.monitorPending: " + String(ex));
             }
             await this.sleep(startDelay)
             await this.monitorPending(tx, countMax, Math.floor(startDelay * 1.25), (currCount + 1))
