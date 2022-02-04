@@ -1,4 +1,4 @@
-# MadWalletJS
+# MadNetJS
 
 ##### Requirements
 - `Nodejs 12+`
@@ -6,7 +6,7 @@
 ##
 
 ##### Install
-`npm install MadBase/MadNetWallet-JS`
+`npm install MadBase/MadNetJS`
 ##
 
 #### Usage
@@ -17,7 +17,7 @@
 > BN (curve = 2)
 ##### Require
 ```
-const MadWallet = require("madwalletjs");
+const MadWallet = require("madnetjs");
 const madWallet = new MadWallet(${CHAIN_ID}, ${MADNET_RPC})
 ```
 
