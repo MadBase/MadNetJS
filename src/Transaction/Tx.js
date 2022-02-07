@@ -64,7 +64,7 @@ class Tx {
             this.Tx["Vout"] = tx["Tx"]["Vout"];
             this.Tx["Fee"] = tx["Tx"]["Fee"];
             for (let i = 0; i < tx["Tx"]["Vin"].length; i++) {
-                let cTx = await madWallet.Rpc.getMinedTransaction(vin[l]["TXInLinker"]["TXInPreImage"]["ConsumedTxHash"])
+                let cTx = await this.Wallet.Rpc.getMinedTransaction(tx["Tx"]["Vin"][i]["TXInLinker"]["TXInPreImage"]["ConsumedTxHash"])
                 let isValueStore, address;
                 if (cTx["Tx"]["Vout"][parseInt(tx["Tx"]["Vin"][i]["TXInLinker"]["TXInPreImage"]["ConsumedTxIdx"])]["ValueStore"]) {
                     isValueStore = true;

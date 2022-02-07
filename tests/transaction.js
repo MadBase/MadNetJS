@@ -15,7 +15,7 @@ if (
     madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
 }
 else {
-    let madWallet = new MadWalletJS();
+    madWallet = new MadWalletJS();
 }
 if (process.env.PRIVATE_KEY) {
     privateKey = process.env.PRIVATE_KEY
