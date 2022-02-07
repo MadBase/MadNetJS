@@ -1,10 +1,7 @@
-const crypto = require("crypto");
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised)
-const expect = chai.expect
 let MadWalletJS = require("../index.js");
-const utils = require("../src/Util/Tx.js")
 //let madWallet = new MadWalletJS(42, "http://catmad.duckdns.org:20000/v1/");
 let madWallet = new MadWalletJS(42, "http://127.0.0.1:8884/v1/");
 
@@ -63,18 +60,20 @@ async function main() {
         console.log("--------------")
 
         let fees = await madWallet.Transaction.Tx.estimateFees();
+        console.log("Estimate Fees:", fees)
+        console.log("--------------")
 
         /*
-        console.log("Funding multisig address...")
-        await madWallet.Transaction.createValueStore(madWallet.Account.accounts[2]["address"], 10000, multiAcct.address, 2)
-        await madWallet.Transaction.createTxFee(madWallet.Account.accounts[2]["address"], 1, BigInt("0x" + fees.baseFees["MinTxFee"]))
-        await madWallet.Transaction.sendTx();
-        console.log("Done")
-        console.log("--------------------")
+            console.log("Funding multisig address...")
+            await madWallet.Transaction.createValueStore(madWallet.Account.accounts[2]["address"], 10000, multiAcct.address, 2)
+            await madWallet.Transaction.createTxFee(madWallet.Account.accounts[2]["address"], 1, BigInt("0x" + fees.baseFees["MinTxFee"]))
+            await madWallet.Transaction.sendTx();
+            console.log("Done")
+            console.log("--------------------")
 
-        process.exit()
-        await sleep(20000)
-*/
+            process.exit()
+            await sleep(20000)
+        */
 
         console.log("Creating multisig transaction...")
         await madWallet.Transaction.createValueStore(multiAcct.address, 1, acct1.address, 2)
@@ -102,9 +101,12 @@ async function main() {
     }
 }
 
+/**
 function sleep(ms) {
     return new Promise((resolve) => {
         setTimeout(resolve, ms);
     });
 }
+*/
+
 main();

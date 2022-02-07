@@ -298,7 +298,7 @@ class RPC {
                 dsUTXOIDS.push(dsUTXOID[i]["UTXOID"])
             }
             if (dsUTXOIDS.length > 0) {
-                let [DS, VS, AS] = await this.getUTXOsByIds(dsUTXOIDS);
+                let [DS] = await this.getUTXOsByIds(dsUTXOIDS);
                 if (DS.length > 0) {
                     return DS[0];
                 }
@@ -389,7 +389,7 @@ class RPC {
         }
         catch (ex) {
             if (currCount > 30) {
-                throw new Error("RPC.monitorPending: " + String(ex));;
+                throw new Error("RPC.monitorPending: " + String(ex));
             }
             await this.sleep(startDelay)
             await this.monitorPending(tx, countMax, Math.floor(startDelay * 1.25), (currCount + 1))

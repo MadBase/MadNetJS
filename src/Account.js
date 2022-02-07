@@ -207,10 +207,11 @@ class Accounts {
             let [valueUTXOIDs, TotalValue] = await this.Wallet.Rpc.getValueStoreUTXOIDs(address, this.accounts[accountIndex]["curve"], minValue)
             this.accounts[accountIndex]["UTXO"]["ValueStoreIDs"] = valueUTXOIDs;
             this.accounts[accountIndex]["UTXO"]["Value"] = BigInt("0x" + TotalValue);
-            let [DS, VS, AS] = await this.Wallet.Rpc.getUTXOsByIds(valueUTXOIDs)
+            let [,VS] = await this.Wallet.Rpc.getUTXOsByIds(valueUTXOIDs)
             this.accounts[accountIndex]["UTXO"]["ValueStores"] = VS;
         }
         catch (ex) {
+            throw new Error("Account._getAccountValueStores: " + String(ex));
         }
     }
 }

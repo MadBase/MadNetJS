@@ -1,9 +1,6 @@
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised)
-const expect = chai.expect
-let MadWalletJS = require("../index.js");
-let madWallet = new MadWalletJS();
+chai.use(chaiAsPromised);
 
 describe('Aggregate', () => {
     before(async () => {

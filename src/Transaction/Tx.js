@@ -64,7 +64,7 @@ class Tx {
             this.Tx["Vout"] = tx["Tx"]["Vout"];
             this.Tx["Fee"] = tx["Tx"]["Fee"];
             for (let i = 0; i < tx["Tx"]["Vin"].length; i++) {
-                let cTx = await madWallet.Rpc.getMinedTransaction(vin[l]["TXInLinker"]["TXInPreImage"]["ConsumedTxHash"])
+                let cTx = await this.Wallet.Rpc.getMinedTransaction(tx["Tx"]["Vin"][i]["TXInLinker"]["TXInPreImage"]["ConsumedTxHash"])
                 let isValueStore, address;
                 if (cTx["Tx"]["Vout"][parseInt(tx["Tx"]["Vin"][i]["TXInLinker"]["TXInPreImage"]["ConsumedTxIdx"])]["ValueStore"]) {
                     isValueStore = true;
@@ -330,14 +330,16 @@ class Tx {
         let total = BigInt(0);
         let thisTotal = BigInt(0)
         let voutCost = [];
+
         for (let i = 0; i < this.Vout.length; i++) {
             switch (Object.keys(this.Vout[i])[0]) {
-                case 'ValueStore':
+                case 'ValueStore': {
                     thisTotal = BigInt("0x" + fees["ValueStoreFee"]);
                     total = BigInt(total) + BigInt(thisTotal)
                     voutCost.push(thisTotal.toString())
-                    break;;
-                case 'DataStore':
+                    break;
+                }
+                case 'DataStore': {
                     let rawData = this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["RawData"]
                     let dataSize = BigInt(Buffer.from(rawData, "hex").length)
                     let dsEpochs = await utils.calculateNumEpochs(dataSize, BigInt("0x" + this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Deposit"]))
@@ -353,14 +355,17 @@ class Tx {
                     }
                     total = BigInt(total) + BigInt(thisTotal)
                     voutCost.push(thisTotal.toString())
-                    break;;
-                case 'AtomicSwap':
+                    break;
+                }
+                case 'AtomicSwap': {
                     thisTotal = BigInt("0x" + fees["AtomicSwapFee"]);
                     total = BigInt(total) + BigInt(thisTotal)
                     voutCost.push(thisTotal.toString())
-                    break;;
-                default:
+                    break;
+                }
+                default: {
                     throw "Could not inject get fee for undefined Vout object"
+                }
             }
         }
         total = BigInt(total) + BigInt("0x" + fees["MinTxFee"])

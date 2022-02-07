@@ -15,7 +15,7 @@ var self = module.exports = {
             let ownerBuf = Buffer.from(owner, "hex");
             if (ownerBuf.length != 22) {
                 throw 'Invalid owner'
-            };
+            }
             let validation = ownerBuf.slice(0, 1).toString("hex");
             let curve = ownerBuf.slice(1, 2).toString("hex");
             let pubHash = ownerBuf.slice(2, 22).toString("hex");

@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha tests --timeout 45000",
-    "build-docs": "npx jsdoc -R README.md src/ -r -d docs/ -c jsdoc.json"
+    "build-docs": "npx jsdoc -R README.md src/ -r -d docs/ -c jsdoc.json",
+    "lint": "eslint .",
+    "lint-fix": "eslint --fix ."
   },
   "author": "",
   "license": "ISC",
@@ -19,6 +21,7 @@
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",
     "dotenv": "8.2.0",
+    "eslint": "8.8.0",
     "jsdoc": "3.6.6",
     "mocha": "8.2.1"
   }

@@ -1,0 +1,6 @@
+/Go/*
+/docs/*
+
+# Ignore files with bundled JS
+/src/GoWrappers/BNSignerWrapper.js
+/src/GoWrappers/TxHasher.js
