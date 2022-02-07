@@ -521,7 +521,7 @@ class Transaction {
     async _spendUTXO(accountUTXO, account, currentValue, changeAddress, changeAddressCurve) {
         try {
             accountUTXO = accountUTXO["ValueStores"]
-            while (Constants.ReqCondition) {
+            while (true) {
                 let highestUnspent = false
                 for (let i = 0; i < accountUTXO.length; i++) {
                     if (!highestUnspent) {

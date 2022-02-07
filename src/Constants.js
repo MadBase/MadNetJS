@@ -1,5 +1,5 @@
 // RPC
-const MaxUTXOs = 255
+const MaxUTXOs = 255;
 const ReqTimeout = 8000;
 
 // Transaction
@@ -8,10 +8,7 @@ const BaseDatasizeConst = 376;
 const DataStoreMinDeposit = ((BaseDatasizeConst + 1) * 3);
 const EpochBlockSize = 1024;
 const EpochBoundary = 960;
-const MaxValue = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
-
-// Common
-const ReqCondition = true;
+const MaxValue = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 
 module.exports = {
     MaxUTXOs,
@@ -21,6 +18,5 @@ module.exports = {
     DataStoreMinDeposit,
     EpochBlockSize,
     EpochBoundary,
-    MaxValue,
-    ReqCondition
+    MaxValue
 }
