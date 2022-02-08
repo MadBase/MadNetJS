@@ -85,13 +85,13 @@ describe('Account', () => {
 describe('Signatures', () => {
     it('Success: BN', async () => {
         await expect(
-            madWallet.Account.accounts[1]["MultiSigner"].sign("0xc0ffeebabe")
+            madWallet.Account.accounts[1]["signer"].sign("0xc0ffeebabe")
         ).to.eventually.be.fulfilled;
     });
 
     it('Success: SECP', async () => {
         await expect(
-            madWallet.Account.accounts[0]["MultiSigner"].sign("0xc0ffeebabe")
+            madWallet.Account.accounts[0]["signer"].sign("0xc0ffeebabe")
         ).to.eventually.be.fulfilled;
     });
 });
