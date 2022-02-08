@@ -18,7 +18,7 @@ if (process.env.PRIVATE_KEY &&
 let blockNumber;
 
 describe('RPC: Query Data', () => {
-    before(async () => {
+    before(async function() {
         if (!privateKey) {
             this.skip();
         }
