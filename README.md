@@ -83,5 +83,11 @@ await madWallet.Transaction.sendTx(0x4240A00833065c29D1EB117e200a87c95D640289, 2
 #### Tests
 > Create .env in tests/ to specify account, chainId, and RPC  
   Some tests will be skipped if .env variables are not present
-- Run tests
+- Run all tests
 	- `npm test`
+- Run all tests with coverage
+	- `npm run test-coverage`
+- Run a single test
+	- `npm run test-single path/to/file.js`
+- Run a single test in watch mode
+	- `npm run test-single-watch path/to/file.js`
