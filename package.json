@@ -4,10 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha tests --require tests/hooks.js --timeout 45000",
+    "test": "mocha --recursive tests --timeout 45000",
+    "test-unit": "mocha --recursive tests/unit --timeout 45000",
+    "test-integration": "mocha --recursive tests/integration --timeout 45000",
     "test-single": "mocha --timeout 45000",
-    "test-single-watch": "mocha -R list -w --timeout 45000",
-    "test-coverage": "npx nyc@15.1.0 npm run test --reporter=lcov",
+    "test-coverage": "npx nyc@15.1.0 npm run test",
     "build-docs": "npx jsdoc -R README.md src/ -r -d docs/ -c jsdoc.json",
     "lint": "eslint .",
     "lint-fix": "eslint --fix ."

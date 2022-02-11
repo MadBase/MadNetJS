@@ -2,16 +2,16 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised)
 const expect = chai.expect
-let MadWalletJS = require("../index.js");
-
+let MadWalletJS = require("../../index.js");
 require('dotenv').config({ path: process.cwd() + '/tests/.env' });
 
-let privateKey, madWallet;
+let privateKey, rpcServer, madWallet;
 if (process.env.PRIVATE_KEY &&
     process.env.RPC &&
     process.env.CHAIN_ID
 ) {
     privateKey = process.env.PRIVATE_KEY;
+    rpcServer = process.env.RPC;
     madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
 }
 
@@ -22,6 +22,18 @@ describe('RPC: Query Data', () => {
         if (!privateKey) {
             this.skip();
         }
+    });
+
+    it('Success: Set Provider', async () => {
+        await expect(
+            madWallet.Rpc.setProvider(rpcServer)
+        ).to.eventually.be.fulfilled;
+    });
+
+    it('Fail: Set Provider', async () => {
+        await expect(
+            madWallet.Rpc.setProvider()
+        ).to.eventually.be.rejectedWith(Error);
     });
 
     it('Success: Get Block Number', async () => {
