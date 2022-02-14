@@ -25,9 +25,13 @@ class Accounts {
         try {
             privateKey = this.Wallet.Utils.isPrivateKey(privateKey)
             curve = this.Wallet.Utils.isCurve(curve)
+
+            // TODO Any validation error will be thrown in the lines above. 
+            // This block of code seems to be unreachable - Should it be removed?
             if (!privateKey || !curve) {
                 throw "Bad argument"
             }
+
             let signer;
             if (curve === 1) {
                 signer = new SecpSigner(this.Wallet, privateKey)
@@ -79,7 +83,8 @@ class Accounts {
             return acct;
         }
         catch(ex) {
-            console.log(ex)
+            console.log(ex);
+            throw new Error("Account.addMultiSig: " + String(ex));
         }
     }
 

@@ -3,9 +3,7 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 
 describe('Aggregate', () => {
-    before(async () => {
-
-    });
+    before(async function() {});
 
     it('Fail: Aggregate Public Keys using addresses', async () => {
 
