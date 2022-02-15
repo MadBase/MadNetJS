@@ -89,7 +89,7 @@ class Transaction {
             return ptx;
         }
         catch (ex) {
-            console.log(ex)
+            throw new Error("Transaction.createRawTransaction: " + String(ex));
         }
     }
 

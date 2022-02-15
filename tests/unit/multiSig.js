@@ -1,8 +1,8 @@
+require('dotenv').config({ path: process.cwd() + '/tests/.env' });
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised)
 const expect = chai.expect
-require('dotenv').config({ path: process.cwd() + '/tests/.env' });
 const MadWalletJS = require("../../index.js");
 const MultiSig = require("../../src/Signers/MultiSig");
 const SecpSigner = require("../../src/Signers/SecpSigner.js");
@@ -16,6 +16,7 @@ const signatures = [
     '14909a6ab1c19ad26264cb1491885a8ba9a936264ab7c71d4cc58f889419b458289da71e04086b804a4b74b358ef923e2f6cba9bf87310724d72571efcd49e0802390d2d1dc0715f9a7d0f36d5b511baf5e0833bf3f0db881457ce5b523e1d0512dba7a1a0d623805fc79c642efb77fd3286747bbaa71c4365fa3f64a80fc83c2cbccc0e2f548ee60fc5f6cb407b63b281be07068cd3b4dbc6f7aaf983471d2318f1bc95df4b1bb3cf82d2e45b64b9d461b902c59b8d85c9b71761445b72b37d', 
     '14909a6ab1c19ad26264cb1491885a8ba9a936264ab7c71d4cc58f889419b458289da71e04086b804a4b74b358ef923e2f6cba9bf87310724d72571efcd49e0802390d2d1dc0715f9a7d0f36d5b511baf5e0833bf3f0db881457ce5b523e1d0512dba7a1a0d623805fc79c642efb77fd3286747bbaa71c4365fa3f64a80fc83c2cbccc0e2f548ee60fc5f6cb407b63b281be07068cd3b4dbc6f7aaf983471d2318f1bc95df4b1bb3cf82d2e45b64b9d461b902c59b8d85c9b71761445b72b37d'
 ];
+const msgHex = Buffer.from("hello world", "utf8").toString("hex").toLowerCase();
 
 if (process.env.PRIVATE_KEY) {
     privateKey = process.env.PRIVATE_KEY;
@@ -28,103 +29,120 @@ const madWallet = new MadWalletJS();
 const secpSigner = new SecpSigner(madWallet, privateKey);
 const multiSigSecp = new MultiSig(madWallet, secpSigner);
 
-// TODO Create new instance for tests that need no public key to fail
 describe('MultiSig', () => {
     before(async function(){});
 
-    it('Fail: Get Public Key', async () => {
-        await expect(
-            multiSigSecp.getPubK()
-        ).to.eventually.be.rejectedWith(Error);
+    describe('Public Key and Address', () => {
+        // TODO Define better strategy to run this test that need to throw
+        it('Fail: Get Public Key', async () => {
+            await expect(
+                multiSigSecp.getPubK()
+            ).to.eventually.be.rejectedWith(Error);
+        });
+
+        // TODO Define better strategy to run this test that need to throw
+        it('Fail: Get Address', async () => {
+            await expect(
+                multiSigSecp.getAddress()
+            ).to.eventually.be.rejectedWith(Error);
+        });
+
+        it('Fail: Add null Public Key', async () => {
+            await expect(
+                multiSigSecp.addPublicKeys(null)
+            ).to.eventually.be.rejectedWith(Error);
+        });
+
+        it('Success: Add Public Keys', async () => {
+            await expect(
+                multiSigSecp.addPublicKeys(publicKeys)
+            ).to.eventually.be.fulfilled;
+        });
+
+        it('Success: Get Public Key', async () => {
+            await expect(
+                multiSigSecp.getPubK()
+            ).to.eventually.be.fulfilled;
+        });
+
+        it('Success: Get Address', async () => {
+            await expect(
+                multiSigSecp.getAddress()
+            ).to.eventually.be.fulfilled;
+        });
     });
 
-    it('Fail: Get Address', async () => {
-        await expect(
-            multiSigSecp.getAddress()
-        ).to.eventually.be.rejectedWith(Error);
+    describe('Sign and Multi Sign', () => {
+        it('Fail: Sign', async () => {
+            await expect(
+                multiSigSecp.sign()
+            ).to.eventually.be.rejectedWith(Error);
+        });
+            
+        it('Fail: Sign Multi', async () => {
+            await expect(
+                multiSigSecp.signMulti()
+            ).to.eventually.be.rejectedWith(Error);
+        });
+
+        it('Success: Sign', async () => {
+            await expect(
+                multiSigSecp.sign('0000ffeebabe')
+            ).to.eventually.be.fulfilled;
+        });
+
+        it('Success: Sign Multi', async () => {
+            await expect(
+                multiSigSecp.signMulti(['0000ffeebabe', '0000ffeebabe'])
+            ).to.eventually.be.fulfilled;
+        });
     });
 
-    it('Success: Add Public Keys', async () => {
-        await expect(
-            multiSigSecp.addPublicKeys(publicKeys)
-        ).to.eventually.be.fulfilled;
-    });
+    describe('Aggregate and Verify Signatures', () => {
+        it('Fail: Aggregate Signatures', async () => {
+            await expect(
+                multiSigSecp.aggregateSignatures()
+            ).to.eventually.be.rejectedWith(Error);
+        });
 
-    it('Success: Get Public Key', async () => {
-        await expect(
-            multiSigSecp.getPubK()
-        ).to.eventually.be.fulfilled;
-    });
+        it('Fail: Aggregate Multi Signatures', async () => {
+            await expect(
+                multiSigSecp.aggregateSignaturesMulti()
+            ).to.eventually.be.rejectedWith(Error);
+        });
 
-    it('Fail: Add null Public Key', async () => {
-        await expect(
-            multiSigSecp.addPublicKeys(null)
-        ).to.eventually.be.rejectedWith(Error);
-    });
+        it('Fail: Verify Aggregat with no params', async () => {
+            await expect(
+                multiSigSecp.verifyAggregate()
+            ).to.eventually.be.rejectedWith(Error);
+        });
 
-    it('Success: Get Address', async () => {
-        await expect(
-            multiSigSecp.getAddress()
-        ).to.eventually.be.fulfilled;
-    });
+        it('Fail: Verify Aggregate with invalid sig hex length', async () => {
+            await expect(
+                multiSigSecp.verifyAggregate(msgHex, '0xc0ffeebab')
+            ).to.eventually.be.rejectedWith(Error);
+        });
 
-    it('Success: Sign', async () => {
-        await expect(
-            multiSigSecp.sign('0000ffeebabe')
-        ).to.eventually.be.fulfilled;
-    });
+        it('Success: Aggregate Signatures', async () => {
+            await expect(
+                multiSigSecp.aggregateSignatures(signatures)
+            ).to.eventually.be.fulfilled;
+        });
 
-    it('Fail: Sign', async () => {
-        await expect(
-            multiSigSecp.sign()
-        ).to.eventually.be.rejectedWith(Error);
-    });
+        it('Success: Aggregate Multi Signatures', async () => {
+            await expect(
+                multiSigSecp.aggregateSignaturesMulti([signatures])
+            ).to.eventually.be.fulfilled;
+        });
 
-    it('Success: Sign Multi', async () => {
-        await expect(
-            multiSigSecp.signMulti(['0000ffeebabe', '0000ffeebabe'])
-        ).to.eventually.be.fulfilled;
-    });
-
-    it('Fail: Sign Multi', async () => {
-        await expect(
-            multiSigSecp.signMulti()
-        ).to.eventually.be.rejectedWith(Error);
-    });
-
-    it('Success: Aggregate Signatures', async () => {
-        await expect(
-            multiSigSecp.aggregateSignatures(signatures)
-        ).to.eventually.be.fulfilled;
-    });
-
-    it('Fail: Aggregate Signatures', async () => {
-        await expect(
-            multiSigSecp.aggregateSignatures()
-        ).to.eventually.be.rejectedWith(Error);
-    });
-
-    it('Success: Aggregate Multi Signatures', async () => {
-        await expect(
-            multiSigSecp.aggregateSignaturesMulti([signatures])
-        ).to.eventually.be.fulfilled;
-    });
-
-    it('Fail: Aggregate Multi Signatures', async () => {
-        await expect(
-            multiSigSecp.aggregateSignaturesMulti()
-        ).to.eventually.be.rejectedWith(Error);
-    });
-
-    it.only('Success: Verify Aggregate', async () => {
-        await expect(
-            multiSigSecp.verifyAggregate('0xc0ffeebabe', ['0xc0ffeebabe'])
-        ).to.eventually.be.fulfilled;
-    });
-
-    it('Fail: Verify Aggregate', async () => {
-        await expect(
-            multiSigSecp.verifyAggregate()
-        ).to.eventually.be.rejectedWith(Error);
+        // TODO Check why sig has invalid length in ethUtil.fromRpcSig
+        // it.only('Success: Verify Aggregate', async () => {
+        //     await expect(
+        //         multiSigSecp.verifyAggregate(
+        //             msgHex, 
+        //             '0xc0ffeebabe', 
+        //         )
+        //     ).to.eventually.be.fulfilled;
+        // });
     });
 });

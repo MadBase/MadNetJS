@@ -52,7 +52,6 @@ class Accounts {
             return acct;
         }
         catch (ex) {
-            console.trace(ex)
             throw new Error("Account.addAccount: " + String(ex));
         }
     }
@@ -83,7 +82,6 @@ class Accounts {
             return acct;
         }
         catch(ex) {
-            console.log(ex);
             throw new Error("Account.addMultiSig: " + String(ex));
         }
     }

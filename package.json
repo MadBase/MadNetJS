@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --recursive tests --timeout 45000",
+    "test": "mocha --recursive tests/**/*.js --timeout 45000",
     "test-unit": "mocha --recursive tests/unit --timeout 45000",
     "test-integration": "mocha --recursive tests/integration --timeout 45000",
     "test-single": "mocha --timeout 45000",

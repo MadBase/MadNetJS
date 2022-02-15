@@ -6,13 +6,10 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const MadWalletJS = require("../index.js");
-const madWallet = new MadWalletJS(42, "http://catmad.duckdns.org:20000/v1/");
-// const madWallet = new MadWalletJS(42, "http://127.0.0.1:8884/v1/");
+const madWallet = new MadWalletJS(42, process.env.PRIVATE_KEY || "http://127.0.0.1:8884/v1/");
 
 exports.mochaHooks = {
 	async beforeAll() {
-		// console.log('Hooks', madWallet);
-
 		// Check if PRIVATE_KEY is empty in .env file
 		if(!process.env.PRIVATE_KEY) {
 			throw new Error('You need to setup a funded Private Key in your .env file to run tests properly.');
