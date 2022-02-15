@@ -58,14 +58,7 @@ describe('Transaction: DataStore', () => {
             madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0xA", 1, "0xCOFFEE", 1)
         ).to.eventually.be.rejected;
     });
-
-    /*
-    it('Fail: Create DataStore - No IssuedAt && No RPC', async () => {
-        await expect(
-            madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0xA", 1, "0xC0FFEE")
-        ).to.eventually.be.rejected;
-    });
-    */
+    
     it('Success: Created DataStore - Hex index', async () => {
         await expect(
             madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0xA", 1, "COFFEE", 1)
@@ -93,7 +86,6 @@ describe('Transaction: DataStore', () => {
     it('Success: Vout length is correct', () => {
         expect(madWallet.Transaction.Tx.Vout).to.have.lengthOf(4) //account for fee object
     });
-
 });
 
 describe('Transaction: ValueStore', () => {
