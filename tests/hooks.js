@@ -6,7 +6,7 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const MadWalletJS = require("../index.js");
-const madWallet = new MadWalletJS(42, process.env.PRIVATE_KEY || "http://127.0.0.1:8884/v1/");
+const madWallet = new MadWalletJS(42, process.env.RPC || "http://127.0.0.1:8884/v1/");
 
 exports.mochaHooks = {
 	async beforeAll() {
