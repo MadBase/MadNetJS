@@ -79,8 +79,6 @@ class SecpSigner {
                 throw "Bad argument type";
             }
             msg = ethUtil.toBuffer("0x" + String(msg));
-            // TODO Check if this is needed
-            // sig = ethUtil.toBuffer("0x" + String(sig));
             let msgHash = ethUtil.hashPersonalMessage(msg);
             let signature = ethUtil.toBuffer(sig);
             let sigParams = ethUtil.fromRpcSig(signature);

@@ -25,6 +25,9 @@ describe('Account', () => {
     before(async function(){});
 
     describe('Add Account', () => {
+        // TODO Undefined - Test addAccount() Any validation error will be thrown in the lines 26,27. 
+            // The block of code in line 29 seems to be unreachable - Should it be removed?
+        
         it('Fail: Invalid private key length', async () => {
             await expect(
                 madWallet.Account.addAccount(privateKey.slice(0, -1), 1)
@@ -134,35 +137,6 @@ describe('Account', () => {
                 madWallet.Account._getAccountIndex(madWallet.Account.accounts[0]["address"])
             ).to.eventually.be.fulfilled;
         });
-    });
-
-    describe('Get Account Values Stores', () => {
-        it('Fail: Get account value stores', async () => {
-            await expect(
-                madWallet.Account._getAccountValueStores(accountAddress, 0)
-            ).to.eventually.be.rejectedWith(Error);
-        });
-    });
-
-    describe('Get Account UTXOs', () => {
-        it('Fail: Get UTXO', async () => {
-            await expect(
-                madWallet.Account._getAccountUTXOs(accountAddress, 0)
-            ).to.eventually.be.rejectedWith(Error);
-        });
-
-        it('Fail: Get Account UTXO by ids', async () => {
-            await expect(
-                madWallet.Account._getAccountUTXOsByIds(accountAddress, 1)
-            ).to.eventually.be.rejectedWith(Error);
-        });
-
-        // TODO This requires RPC which should be covered in the integration tests -- Remove after that
-        // it('Success: Get UTXO', async () => {
-        //     await expect(
-        //         madWallet.Account._getAccountUTXOs(madWallet.Account.accounts[0]["address"], 0)
-        //     ).to.eventually.be.fulfilled;
-        // });
     });
 
     describe('Signatures', () => {

@@ -33,14 +33,27 @@ describe('MultiSig', () => {
     before(async function(){});
 
     describe('Public Key and Address', () => {
-        // TODO Define better strategy to run this test that need to throw
+        // TODO Hard - Define better strategy to run this test that need to throw
+        // TODO Hard - Define better strategy to run this test that need to throw
+        // TODO Undefined - Check why sig has invalid length in ethUtil.fromRpcSig
+            // it.only('Success: Verify Aggregate', async () => {
+            //     await expect(
+            //         multiSigSecp.verifyAggregate(
+            //             msgHex, 
+            //             '0xc0ffeebabe', 
+            //         )
+            //     ).to.eventually.be.fulfilled;
+            // });
+        // TODO Undefined - Test verifyAggregate(msg, sig) 
+            // Check if this is needed sig = ethUtil.toBuffer("0x" + String(sig)); in SecpSigner verify method
+        // TODO Medium - Test verifyAggregateSingle(msg, groupPubKey, sig) for Errors
+
         it('Fail: Get Public Key', async () => {
             await expect(
                 multiSigSecp.getPubK()
             ).to.eventually.be.rejectedWith(Error);
         });
 
-        // TODO Define better strategy to run this test that need to throw
         it('Fail: Get Address', async () => {
             await expect(
                 multiSigSecp.getAddress()
@@ -134,15 +147,5 @@ describe('MultiSig', () => {
                 multiSigSecp.aggregateSignaturesMulti([signatures])
             ).to.eventually.be.fulfilled;
         });
-
-        // TODO Check why sig has invalid length in ethUtil.fromRpcSig
-        // it.only('Success: Verify Aggregate', async () => {
-        //     await expect(
-        //         multiSigSecp.verifyAggregate(
-        //             msgHex, 
-        //             '0xc0ffeebabe', 
-        //         )
-        //     ).to.eventually.be.fulfilled;
-        // });
     });
 });

@@ -29,6 +29,32 @@ describe('Transaction: DataStore', () => {
         await madWallet.Account.addAccount(privateKey, 1);
     });
 
+    // TODO Medium - Test sendSignedTx(Tx) for this.Tx.Vin.length <= 0
+    // TODO Medium - Test createTxFee(payeerAddress, payeerCurve, fee = false) for Errors
+    // TODO Medium - Test createValueStore(...args) for value <= BigInt(0)
+    // TODO Medium - Test createValueStore(...args) for if (fee)
+    // TODO Medium - Test createValueStore(...args) for if (!fee) Error
+    // TODO Medium - Test createValueStore(...args) for !account["curve"] Error
+    // TODO Medium - Test createDataStore(...args) for duration <= BigInt(0) Error
+    // TODO Medium - Test createDataStore(...args) for !account Error
+    // TODO Medium - Test createDataStore(...args) for !this.Wallet.Rpc.rpcServer Error
+    // TODO Medium - Test createDataStore(...args) for issuedAt++
+    // TODO Medium - Test createDataStore(...args) for index.length > 64 Error
+    // TODO Medium - Test createDataStore(...args) for if (fee)
+    // TODO Easy - Test createDataStore(...args) for if (!fee) Error
+    // TODO Medium - Test _getFees() for Errors
+    // TODO Easy - Test _addOutValue(value, ownerAddress, dsIndex) for Errors
+    // TODO Medium - Test _createTxIns(..args) for UTXOIDs.length > 0
+    // TODO Medium - Test _createTxIns(..args) for !this.fees
+    // TODO Medium - Test _createTxIns(..args) for insufficientFunds && returnInsufficientOnGas
+    // TODO Medium - Test _createTxIns(..args) for BigInt(outValue["totalValue"]) == BigInt(0)
+    // TODO Medium - Test _createTxIns(..args) for BigInt(outValue["totalValue"]) < BigInt(0)
+    // TODO Easy - Test _createValueTxIn(address, utxo) for Errors
+    // TODO Easy - Test _createDataTxIn(address, utxo) for Errors
+    // TODO Medium - Test _spendUTXO(...args) for !highestUnspent Errors
+    // TODO Medium - Test _spendUTXO(...args) for remaining > BigInt(0)
+    // TODO Easy - Test _spendUTXO(...args) for Errors
+
     it('Fail: Create DataStore - Missing inputs', async () => {
         await expect(
             madWallet.Transaction.createDataStore("0x0")

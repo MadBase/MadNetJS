@@ -26,8 +26,6 @@ class Accounts {
             privateKey = this.Wallet.Utils.isPrivateKey(privateKey)
             curve = this.Wallet.Utils.isCurve(curve)
 
-            // TODO Any validation error will be thrown in the lines above. 
-            // This block of code seems to be unreachable - Should it be removed?
             if (!privateKey || !curve) {
                 throw "Bad argument"
             }
