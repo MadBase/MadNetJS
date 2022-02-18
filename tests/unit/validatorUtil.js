@@ -1,8 +1,8 @@
 require('dotenv').config({ path: process.cwd() + '/tests/.env' });
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised)
-const expect = chai.expect
+chai.use(chaiAsPromised);
+const expect = chai.expect;
 const Validator = require("../../src/Util/Validator");
 
 let privateKey, address, validHex;
