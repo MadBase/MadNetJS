@@ -34,7 +34,7 @@ describe('Account', () => {
             ).to.eventually.be.rejectedWith(Error);
         });
 
-        // TODO Investigate TypeError: Cannot read property \'Index\' of undefined'
+        // TODO Hard - Investigate TypeError: Cannot read property \'Index\' of undefined'
         // it.only('Success: Get UTXO', async () => {
         //     await expect(
         //         madWallet.Account._getAccountUTXOs(

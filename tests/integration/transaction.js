@@ -25,12 +25,11 @@ else {
 
 describe('Transaction: DataStore', () => {
 
-    before(async () => {
+    before(async function() {
         await madWallet.Account.addAccount(privateKey, 1);
     });
 
     // TODO Medium - Test sendSignedTx(Tx) for this.Tx.Vin.length <= 0
-    // TODO Medium - Test createTxFee(payeerAddress, payeerCurve, fee = false) for Errors
     // TODO Medium - Test createValueStore(...args) for value <= BigInt(0)
     // TODO Medium - Test createValueStore(...args) for if (fee)
     // TODO Medium - Test createValueStore(...args) for if (!fee) Error
@@ -41,19 +40,42 @@ describe('Transaction: DataStore', () => {
     // TODO Medium - Test createDataStore(...args) for issuedAt++
     // TODO Medium - Test createDataStore(...args) for index.length > 64 Error
     // TODO Medium - Test createDataStore(...args) for if (fee)
-    // TODO Easy - Test createDataStore(...args) for if (!fee) Error
     // TODO Medium - Test _getFees() for Errors
-    // TODO Easy - Test _addOutValue(value, ownerAddress, dsIndex) for Errors
     // TODO Medium - Test _createTxIns(..args) for UTXOIDs.length > 0
     // TODO Medium - Test _createTxIns(..args) for !this.fees
     // TODO Medium - Test _createTxIns(..args) for insufficientFunds && returnInsufficientOnGas
+    // TODO Undefined - Test _addOutValue(value, ownerAddress, dsIndex) for Errors
     // TODO Medium - Test _createTxIns(..args) for BigInt(outValue["totalValue"]) == BigInt(0)
     // TODO Medium - Test _createTxIns(..args) for BigInt(outValue["totalValue"]) < BigInt(0)
-    // TODO Easy - Test _createValueTxIn(address, utxo) for Errors
-    // TODO Easy - Test _createDataTxIn(address, utxo) for Errors
     // TODO Medium - Test _spendUTXO(...args) for !highestUnspent Errors
     // TODO Medium - Test _spendUTXO(...args) for remaining > BigInt(0)
-    // TODO Easy - Test _spendUTXO(...args) for Errors
+    // TODO Medium - Test createDataStore(...args) for if (!fee) Error
+    
+    // TODO Clean up here
+    it('Fail: Call createTxFee with invalid arguments', async () => {
+        await expect(
+            madWallet.Transaction.createTxFee('invalidpayeraddress')
+        ).to.eventually.be.rejectedWith(Error);
+    });
+
+    it('Fail: Call _createValueTxIn with invalid arguments', async () => {
+        await expect(
+            madWallet.Transaction._createValueTxIn('invalidaddress')
+        ).to.eventually.be.rejectedWith(Error);
+    });
+
+    it('Fail: Call _createDataTxIn with invalid arguments', async () => {
+        await expect(
+            madWallet.Transaction._createDataTxIn('invalidaddress')
+        ).to.eventually.be.rejectedWith(Error);
+    });
+
+    it('Fail: Call _spendUTXO with invalid arguments', async () => {
+        await expect(
+            madWallet.Transaction._spendUTXO('wrongAccountUTXO')
+        ).to.eventually.be.rejectedWith(Error);
+    });
+    // TODO Clean up here
 
     it('Fail: Create DataStore - Missing inputs', async () => {
         await expect(
