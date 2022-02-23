@@ -13,6 +13,7 @@ class RPC {
     constructor(Wallet, rpcServer) {
         this.Wallet = Wallet;
         this.rpcServer = rpcServer ? rpcServer : false;
+        this.latestReqMsg = "";
     }
 
     /**
@@ -422,10 +423,12 @@ class RPC {
                 try {
                     resp = await Axios.post(this.rpcServer + route, data, { timeout: constant.ReqTimeout, validateStatus: function (status) { return status } });
                 } catch (ex) {
+                    this.latestReqMsg = String(ex);
                     [attempts, timeout] = await this.backOffRetry(attempts, timeout);
                     continue;
                 }
                 if (!resp || !resp.data || resp.data["error"] || resp.data["code"]) {
+                    this.latestReqMsg = resp.data ? (resp.data["error"] || resp.data["message"]) : "Unable to parse RPC Error Msg";
                     [attempts, timeout] = await this.backOffRetry(attempts, timeout);
                     continue;
                 }
@@ -459,7 +462,7 @@ class RPC {
             return [attempts, timeout];
         }
         catch (ex) {
-            throw new Error("RPC.request: " + String(ex));
+            throw new Error("Max Attempts Made! :: Last ParsedError: " + String(this.latestReqMsg));
         }
     }
 
