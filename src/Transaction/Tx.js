@@ -423,7 +423,7 @@ class Tx {
             return { "Vin": vinSignatures, "Vout": voutSignatures };
         }
         catch (ex) {
-            console.log(ex)
+            throw new Error("Tx.getSignatures: " + String(ex));
         }
     }
 
@@ -551,7 +551,7 @@ class Tx {
             }
         }
         catch (ex) {
-            console.log(ex)
+            throw new Error("Tx.injectSignaturesAggregate: " + String(ex));
         }
     }
 
@@ -604,7 +604,7 @@ class Tx {
             }
         }
         catch (ex) {
-            console.log(ex)
+            throw new Error("Tx.injectSignatures: " + String(ex));
         }
     }
 }
