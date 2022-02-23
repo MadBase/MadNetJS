@@ -422,11 +422,12 @@ class RPC {
                 try {
                     resp = await Axios.post(this.rpcServer + route, data, { timeout: constant.ReqTimeout, validateStatus: function (status) { return status } });
                 } catch (ex) {
-                    [attempts, timeout] = await this.backOffRetry(attempts, timeout);
+                    [attempts, timeout] = await this.backOffRetry(attempts, timeout, String(ex) );
                     continue;
                 }
                 if (!resp || !resp.data || resp.data["error"] || resp.data["code"]) {
-                    [attempts, timeout] = await this.backOffRetry(attempts, timeout);
+                    let parsedErr = resp.data ? (resp.data["error"] || resp.data["message"]) : "Unable to parse RPC Error Msg";
+                    [attempts, timeout] = await this.backOffRetry(attempts, timeout, parsedErr);
                     continue;
                 }
                 break
@@ -438,10 +439,10 @@ class RPC {
         }
     }
 
-    async backOffRetry(attempts, timeout) {
+    async backOffRetry(attempts, timeout, latestErr) {
         try {
             if (attempts >= 5) {
-                throw new Error("RPC.backOffRetry: RPC request attempt limit reached")
+                throw new Error("RPC.backOffRetry: RPC request attempt limit reached -- Latest error: " + latestErr)
             }
             if (!attempts) {
                 attempts = 1
