@@ -1,6 +1,9 @@
 module.exports = {
     hexToUint256Array: (hex) => {
         try {
+            if (hex.startsWith("0x")) {
+                hex = hex.slice(2);
+            }
             if (hex.length % 64 != 0) {
                 throw "Invalid length";
             }
