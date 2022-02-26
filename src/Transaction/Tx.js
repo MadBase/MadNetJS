@@ -41,9 +41,9 @@ class Tx {
      */
     async importTransaction(tx) {
         try {
-            this.Tx["Vin"] = tx["Tx"]["Vin"];
-            this.Tx["Vout"] = tx["Tx"]["Vin"];
-            this.Tx["Fee"] = tx["Tx"]["Fee"];
+            this.Vin = tx["Tx"]["Vin"];
+            this.Vout = tx["Tx"]["Vout"];
+            this.Fee = tx["Tx"]["Fee"];
         }
         catch (ex) {
             throw new Error("Tx.importTransaction: " + String(ex));
@@ -60,9 +60,9 @@ class Tx {
             if (!this.Wallet.Rpc.rpcServer) {
                 throw "RPC server must be set to fetch Vin data"
             }
-            this.Tx["Vin"] = tx["Tx"]["Vin"];
-            this.Tx["Vout"] = tx["Tx"]["Vout"];
-            this.Tx["Fee"] = tx["Tx"]["Fee"];
+            this.Vin = tx["Tx"]["Vin"];
+            this.Vout = tx["Tx"]["Vout"];
+            this.Fee = tx["Tx"]["Fee"];
             for (let i = 0; i < tx["Tx"]["Vin"].length; i++) {
                 let cTx = await this.Wallet.Rpc.getMinedTransaction(tx["Tx"]["Vin"][i]["TXInLinker"]["TXInPreImage"]["ConsumedTxHash"])
                 let isValueStore, address;
@@ -75,7 +75,7 @@ class Tx {
                     let owner = cTx["Tx"]["Vout"][parseInt(tx["Tx"]["Vin"][i]["TXInLinker"]["TXInPreImage"]["ConsumedTxIdx"])]["DataStore"]["DSLinker"]["DSPreImage"]["Owner"];
                     address = owner[2]
                 }
-                this.Tx.txInOwners.push({
+                this.txInOwners.push({
                     "address": address,
                     "txOutIdx": isValueStore ? (
                         tx["Tx"]["Vin"][i]["VSPreImage"]["TXOutIdx"] ?
@@ -93,7 +93,7 @@ class Tx {
             }
         }
         catch (ex) {
-            throw new Error("Tx.importTransaction: " + String(ex));
+            throw new Error("Tx.importRawTransaction: " + String(ex));
         }
     }
 
@@ -371,7 +371,7 @@ class Tx {
         total = BigInt(total) + BigInt("0x" + fees["MinTxFee"])
         total = total.toString()
         let feesInt = JSON.parse(JSON.stringify(fees));
-        for (let i = 0; i < Object.keys(feesInt); i++) {
+        for (let i = 0; i < Object.keys(feesInt).length; i++) {
             feesInt[Object.keys(feesInt)[i]] = BigInt("0x" + feesInt[Object.keys(feesInt)[i]]);
         }
         return {

@@ -6,6 +6,8 @@ const expect = chai.expect
 const MadWalletJS = require("../../index.js");
 
 const madWallet = new MadWalletJS(42, process.env.RPC);
+const madWalletTwo = new MadWalletJS(1, process.env.RPC);
+const madWalletThree = new MadWalletJS(11, process.env.RPC);
 let privateKey;
 
 if (process.env.PRIVATE_KEY) {
@@ -18,12 +20,70 @@ else {
 describe('Transaction/Tx', () => {
     before(async function(){
         await madWallet.Account.addAccount(privateKey, 1);
+        await madWalletTwo.Account.addAccount(privateKey, 1);
+        await madWalletThree.Account.addAccount(privateKey, 1);
+    });
+    
+    // TODO Undefined - Unreachable Test estimateFees() for if (reward)
+
+    // Hard - Test injectSignaturesAggregate(vinSignatures, voutSignatures) for Success and Errors
+    // Hard - Test injectSignatures(vinSignatures, voutSignatures) for Success and Errors
+    it('Success: Calls injectSignatures', async () => {
+        const validHex = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
+
+        await expect(
+            madWalletTwo.Transaction.Tx.injectSignatures(validHex, validHex)
+        ).to.eventually.be.fulfilled;
     });
 
-    // TODO Hard - Test injectSignaturesAggregate(vinSignatures, voutSignatures) for Success and Errors
-    // TODO Hard - Test injectSignatures(vinSignatures, voutSignatures) for Success and Errors
+    it('Fail: Calls injectSignatures TxIn owner could not be found', async () => {
+        const validHex = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
+        madWalletTwo.Transaction.Tx.TxIn(validHex, validHex);
+
+        await expect(
+            madWalletTwo.Transaction.Tx.injectSignatures([], [])
+        ).to.eventually.be.rejectedWith('TxIn owner could not be found');
+    });
+
+    it('Success: Calls injectSignaturesAggregate', async () => {
+        const validHex = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
+
+        await expect(
+            madWalletThree.Transaction.Tx.injectSignaturesAggregate(validHex, validHex)
+        ).to.eventually.be.fulfilled;
+    });
+
+    it('Fail: Calls injectSignaturesAggregate TxIn owner could not be found', async () => {
+        const validHex = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
+        madWalletThree.Transaction.Tx.TxIn(validHex, validHex);
+
+        await expect(
+            madWalletThree.Transaction.Tx.injectSignaturesAggregate([], [])
+        ).to.eventually.be.rejectedWith('TxIn owner could not be found');
+    });
     
-    // TODO Medium - Test _signTx() for Errors
+    it('Fail: Calls _signTx without txInOwners', async () => {
+        const validHex = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
+        madWalletTwo.Transaction.Tx.TxIn(validHex, validHex);
+
+        await expect(
+            madWalletTwo.Transaction.Tx._signTx(madWalletTwo.Transaction.Tx.getTx())
+        ).to.eventually.be.rejectedWith('TxIn owner could not be found');
+    });
+
+    it('Success: Calls getSignatures', async () => {
+        await expect(
+            madWallet.Transaction.Tx.getSignatures()
+        ).to.eventually.be.fulfilled;
+    });
+        
+    it('Success: Calls createRawTx', async () => {
+        await expect(
+            madWallet.Transaction.Tx.createRawTx()
+        ).to.eventually.be.fulfilled;
+    });
+        
+    // Medium - Test _signTx() for Errors
     it('Fail: Calls _signTx with Invalid Tx', async () => {
         const tx = {};
 
@@ -31,18 +91,20 @@ describe('Transaction/Tx', () => {
             madWallet.Transaction.Tx._signTx(tx)
         ).to.eventually.be.rejectedWith(Error);
     });
-    
-    // TODO Medium - Test estimateFees() for case 'AtomicSwap' and default throw
-    // TODO Medium - Test estimateFees() for feesInt[Object.keys(feesInt)[i]]..
-    // TODO Medium - Test estimateFees() for if (reward)
-    // it('Fail: Calls estimateFees with ValueStore', async () => {
-    //     await madWallet.Transaction.Tx.ValueStore(1, 1, 1, 1)
-    //     await expect(
-    //         madWallet.Transaction.Tx.estimateFees()
-    //     ).to.eventually.be.fulfilled;
-    // });
-    
-    // TODO Medium - Test estimateFees() for Errors
+
+    // Medium - Test estimateFees() for feesInt[Object.keys(feesInt)[i]]..
+    // Medium - Test estimateFees() for case 'AtomicSwap' and default throw
+    it('Success: Calls estimateFees with AtomicSwap', async () => {
+        // Clean up here
+        const validHex = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
+        madWallet.Transaction.Tx.AtomicSwap(1, 1, 1, 1,validHex, validHex);
+        
+        await expect(
+            madWallet.Transaction.Tx.estimateFees()
+        ).to.eventually.be.fulfilled;
+    });
+            
+    // Medium - Test estimateFees() for Errors
     it('Fail: Calls estimateFees without RPC Server', async () => {
         const madWalletWithoutRPC = new MadWalletJS(null, null);
 
@@ -51,7 +113,13 @@ describe('Transaction/Tx', () => {
         ).to.eventually.be.rejectedWith('Cannot estimate fees without RPC');
     });
     
-    // TODO Easy - Test importTransaction(tx) for Success and Errors
+    // Easy - Test importTransaction(tx) for Success and Errors
+    it('Success: Calls importTransaction with valid Tx', async () => {
+        await expect(
+            madWallet.Transaction.Tx.importTransaction(madWallet.Transaction.Tx.getTx())
+        ).to.eventually.be.fulfilled;
+    });
+
     it('Fail: Calls importTransaction with Invalid Tx', async () => {
         const tx = {};
 
@@ -60,8 +128,24 @@ describe('Transaction/Tx', () => {
         ).to.eventually.be.rejectedWith(Error);
     });
 
+    it('Success: Calls importRawTransaction with valid Tx', async () => {
+        madWallet.Transaction.Tx.getTx();
+
+        await expect(
+            madWallet.Transaction.Tx.importRawTransaction(madWallet.Transaction.Tx.getTx())
+        ).to.eventually.be.fulfilled;
+    });
+
+    it('Fail: Calls importRawTransaction with Invalid Tx', async () => {
+        const madWalletWithoutRPC = new MadWalletJS(42, null);
+
+        await expect(
+            madWalletWithoutRPC.Transaction.Tx.importRawTransaction(madWalletWithoutRPC.Transaction.Tx.getTx())
+        ).to.eventually.be.rejectedWith(Error);
+    });
+
     // TODO It seems that the property this.Tx is used wrongly thus the test won't pass. needs checked. 
-    // it.only('Success: Calls importTransaction with valid Tx', async () => {
+    // it('Success: Calls importTransaction with valid Tx', async () => {
     //     const tx = {
     //         "Tx": {
     //             "Vin": [1],
@@ -74,7 +158,7 @@ describe('Transaction/Tx', () => {
     //     ).to.eventually.be.fulfilled;
     // });
 
-    // TODO Easy - Test AtomicSwap(...args) for Success and Errors
+    // Easy - Test AtomicSwap(...args) for Success and Errors
     it('Fail: Calls AtomicSwap with valid arguments', async () => {
         const atomicSwapResult = {
             "AtomicSwap": {
@@ -96,7 +180,7 @@ describe('Transaction/Tx', () => {
         ).to.deep.eql(atomicSwapResult);
     });
 
-    // TODO Easy - Test ASPreImage(...args) for Success and Errors
+    // Easy - Test ASPreImage(...args) for Success and Errors
     it('Fail: Calls ASPreImage with valid arguments', async () => {
         const preImageResult = {
             "ChainID": 42,
@@ -113,7 +197,7 @@ describe('Transaction/Tx', () => {
         ).to.deep.eql(preImageResult);
     });
     
-    // TODO Easy - Test _signTx(Tx) for Errors
+    // Easy - Test _signTx(Tx) for Errors
     it('Fail: Calls _signTx with Invalid Tx', async () => {
         await expect(
             madWallet.Transaction.Tx._signTx(undefined)

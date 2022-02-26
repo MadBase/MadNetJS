@@ -41,13 +41,58 @@ describe('Transaction: DataStore', () => {
     // TODO Clean up here
 
     // TODO Undefined - Test _addOutValue(value, ownerAddress, dsIndex) for Errors
-    // TODO Medium - Test _createTxIns(..args) for UTXOIDs.length > 0
-    // TODO Medium - Test _createTxIns(..args) for !this.fees
-    // TODO Medium - Test _createTxIns(..args) for insufficientFunds && returnInsufficientOnGas
-    // TODO Medium - Test _createTxIns(..args) for BigInt(outValue["totalValue"]) == BigInt(0)
-    // TODO Medium - Test _createTxIns(..args) for BigInt(outValue["totalValue"]) < BigInt(0)
+    // TODO Undefined - Unreachable Test _createTxIns(..args) for BigInt(outValue["totalValue"]) < BigInt(0)
+    // TODO Undefined - Unreachable Test _createTxIns(..args) for insufficientFunds && returnInsufficientOnGas
+    
 
-    // TODO Medium - Test sendSignedTx(Tx) for this.Tx.Vin.length <= 0
+    // it('Success: Call _createTxIns with insufficientFunds && returnInsufficientOnGas', async () => {
+    //     madWallet.Transaction.outValue.push({ 
+    //         address: madWallet.Account.accounts[0]['address'],
+    //         totalValue: 0,
+    //         dsIndex: []
+    //     });
+        
+    //     // console.log(madWallet.Transaction)
+        
+    //     await expect(
+    //         madWallet.Transaction._createTxIns(madWallet.Account.accounts[0]['address'], madWallet.Account.accounts[1]['address'], [], true)
+    //     ).to.eventually.be.fulfilled;
+    // });
+
+    // TODO Medium - Needs a UTXOID Test _createTxIns(..args) for UTXOIDs.length > 0
+    // it.only('Success: Call _createTxIns with UTXOIDs.length > 0', async () => {
+    //     madWallet.Transaction.outValue.push({ 
+    //         address: madWallet.Account.accounts[0]['address'],
+    //         totalValue: 1,
+    //         dsIndex: []
+    //     });
+
+    //     console.log(madWallet.Account.accounts[0])
+
+    //     await expect(
+    //         madWallet.Transaction._createTxIns(madWallet.Account.accounts[0]['address'], madWallet.Account.accounts[1]['address'], [txHash], false)
+    //     ).to.eventually.be.fulfilled;
+    // });
+        
+    // Medium - Test _createTxIns(..args) for !this.fees
+    // Medium - Test _createTxIns(..args) for BigInt(outValue["totalValue"]) == BigInt(0)
+    it('Success: Call _createTxIns with totalValue == BigInt(0)', async () => {
+        const madWalletSigned = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
+        await madWalletSigned.Account.addAccount(privateKey, 1);
+        await madWalletSigned.Account.addAccount(privateKey, 2);
+        madWalletSigned.Transaction.Tx.Vin = -1;
+        madWalletSigned.Transaction.outValue.push({ 
+            address: madWalletSigned.Account.accounts[0]['address'],
+            totalValue: 0,
+            dsIndex: []
+        });
+
+        await expect(
+            madWalletSigned.Transaction._createTxIns(madWalletSigned.Account.accounts[0]['address'], madWalletSigned.Account.accounts[1]['address'], [], false)
+        ).to.eventually.be.fulfilled;
+    });
+
+    // Medium - Test sendSignedTx(Tx) for this.Tx.Vin.length <= 0
     it('Fail: Call sendSignedTx with Vin length less than 0', async () => {
         // Clean up here
         const madWalletSigned = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
@@ -59,7 +104,7 @@ describe('Transaction: DataStore', () => {
         ).to.eventually.be.rejectedWith('No Vouts for transaction');
     });
 
-    // TODO Medium - Test _getFees() for Errors
+    // Medium - Test _getFees() for Errors
     it('Fail: Call _getFees without RPC server', async () => {
         // Clean up here
         const madWalletWithoutRPC = new MadWalletJS(42, null);
@@ -70,7 +115,7 @@ describe('Transaction: DataStore', () => {
         ).to.eventually.be.rejectedWith('No rpc provider');
     });
 
-    // TODO Medium - Test createValueStore(...args) for value <= BigInt(0)
+    // Medium - Test createValueStore(...args) for value <= BigInt(0)
     it('Fail: Call createValueStore with a value less than 0', async () => {
         await expect(
             madWallet.Transaction.createValueStore(
@@ -83,7 +128,7 @@ describe('Transaction: DataStore', () => {
         ).to.eventually.be.rejectedWith('Invalid value');
     });
 
-    // TODO Medium - Test createValueStore(...args) for if (!fee) Error
+    // Medium - Test createValueStore(...args) for if (!fee) Error
     it('Fail: Call createValueStore without Fee', async () => {
         // Clean up here
         const madWalletWithoutRPC = new MadWalletJS(42, null);
@@ -100,7 +145,7 @@ describe('Transaction: DataStore', () => {
         ).to.eventually.be.rejectedWith('RPC server must be set to fetch fee');
     });
     
-    // TODO Medium - Test createValueStore(...args) for if (fee)
+    // Medium - Test createValueStore(...args) for if (fee)
     it('Success: Call createValueStore with acceptable Fee', async () => {
         await expect(
             madWallet.Transaction.createValueStore(
@@ -125,7 +170,7 @@ describe('Transaction: DataStore', () => {
         ).to.eventually.be.rejectedWith('Fee too low');
     });
 
-    // TODO Medium - Test createValueStore(...args) for !account["curve"] Error
+    // Medium - Test createValueStore(...args) for !account["curve"] Error
     it('Fail: Call createValueStore with invalid account curve', async () => {
         madWallet.Account.accounts[2]['curve'] = null;
 
@@ -140,7 +185,7 @@ describe('Transaction: DataStore', () => {
         ).to.eventually.be.rejectedWith('Cannot get curve');
     });
 
-    // TODO Medium - Test _spendUTXO(...args) for !highestUnspent Errors
+    // Medium - Test _spendUTXO(...args) for !highestUnspent Errors
     it('Fail: Call _spendUTXO with invalid highest unspent', async () => {
         const accountUTXO = {
             "ValueStores": {
@@ -176,14 +221,14 @@ describe('Transaction: DataStore', () => {
     //     ).to.eventually.be.fulfilled;
     // });
     
-    // TODO Medium - Test createDataStore(...args) for duration <= BigInt(0) Error
+    // Medium - Test createDataStore(...args) for duration <= BigInt(0) Error
     it('Success: Call createDataStore with invalid duration', async () => {
         await expect(
             madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]['address'], 'stringwithlessthan64', BigInt(-1), 'rawData', 1, 8)
         ).to.eventually.be.rejectedWith('Invalid duration');
     });
 
-    // TODO Medium - Test createDataStore(...args) for !account Error
+    // Medium - Test createDataStore(...args) for !account Error
     it('Fail: Call createDataStore without from/account', async () => {
         const wrongFromAddress = '91f174784ba0edd9df3051deb0a53fddca8a150e';
 
@@ -192,7 +237,7 @@ describe('Transaction: DataStore', () => {
         ).to.eventually.be.rejectedWith('Could not find account');
     });
 
-    // TODO Medium - Test createDataStore(...args) for !this.Wallet.Rpc.rpcServer Error
+    // Medium - Test createDataStore(...args) for !this.Wallet.Rpc.rpcServer Error
     it('Fail: Call createDataStore without issuedAt', async () => {
         // Clean up here
         const madWalletWithoutRPC = new MadWalletJS(42, null);
@@ -203,14 +248,14 @@ describe('Transaction: DataStore', () => {
         ).to.eventually.be.rejectedWith('RPC server must be set to fetch epoch');
     });
     
-    // TODO Medium - Test createDataStore(...args) for issuedAt++
+    // Medium - Test createDataStore(...args) for issuedAt++
     it('Success: Call createDataStore with issuedAt', async () => {
         await expect(
             madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]['address'], 'stringwithlessthan64', BigInt(1), 'rawData', 1, 8)
         ).to.eventually.be.fulfilled;
     });
 
-    // TODO Medium - Test createDataStore(...args) for index.length > 64 Error
+    // Medium - Test createDataStore(...args) for index.length > 64 Error
     it('Success: Call createDataStore with index length different than 64', async () => {
         await expect(
             madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]['address'], 'stringwithlessthan64', BigInt(1), 'rawData', false, 8)
@@ -223,21 +268,21 @@ describe('Transaction: DataStore', () => {
         ).to.eventually.be.rejectedWith('Index too large');
     });
 
-    // TODO Medium - Test createDataStore(...args) for if (fee)
+    // Medium - Test createDataStore(...args) for if (fee)
     it('Success: Call createDataStore with fee', async () => {
         await expect(
             madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]['address'], 'index', BigInt(1), 'rawData', false, 8)
         ).to.eventually.be.fulfilled;
     });
 
-    // TODO Medium - Test createDataStore(...args) for if (fee) with fee being invalid
+    // Medium - Test createDataStore(...args) for if (fee) with fee being invalid
     it('Fail: Call createDataStore with fee', async () => {
         await expect(
             madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]['address'], 'index', BigInt(1), 'rawData', false, 100)
         ).to.eventually.be.rejectedWith('Invalid fee');
     });
 
-    // TODO Medium - Test createDataStore(...args) for if (!fee) Error
+    // Medium - Test createDataStore(...args) for if (!fee) Error
     it('Success: Call createDataStore with fee not definded', async () => {
         await expect(
             madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]['address'], 'index', BigInt(1), 'rawData', false, undefined)
