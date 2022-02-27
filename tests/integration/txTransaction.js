@@ -30,10 +30,45 @@ describe('Transaction/Tx', () => {
     // Hard - Test injectSignatures(vinSignatures, voutSignatures) for Success and Errors
     it('Success: Calls injectSignatures', async () => {
         const validHex = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
-
         await expect(
             madWalletTwo.Transaction.Tx.injectSignatures(validHex, validHex)
         ).to.eventually.be.fulfilled;
+    });
+
+    // TODO Get a valid txHash for this.txInOwners
+    // it('Success: Calls injectSignatures with txInOwners', async () => {
+    //     const validHex = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
+    //     madWalletTwo.Transaction.Tx.TxIn(validHex, validHex);
+    //     madWalletTwo.Transaction.Tx.importRawTransaction(madWalletTwo.Transaction.Tx.getTx());
+
+    //     await expect(
+    //         madWalletTwo.Transaction.Tx.injectSignatures(validHex, validHex)
+    //     ).to.eventually.be.fulfilled;
+    // });
+        
+    // TODO Hard - Test failing on a valid address - extractOwner util needs checked
+    // it('Success: Calls injectSignatures valid owner', async () => {
+    //      const generateHex = size => [...Array(size)].map(
+    //          () => Math.floor(Math.random() * 16).toString(16)
+    //      ).join('');
+
+    //      const validHex = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
+    //     // const validOwnerHex = generateHex(43);
+        
+    //     await madWalletTwo.Transaction.Tx.DataStore(validHex, 1, 1, validHex, 1, madWallet.Account.accounts[0]["address"], 5); 
+    //     console.log(madWallet.Account.accounts[0]["address"])
+    //     await expect(
+    //         madWalletTwo.Transaction.Tx.injectSignatures(validHex, validHex)
+    //     ).to.eventually.be.fulfilled;
+    // });
+
+    it('Fail: Calls injectSignatures invalid owner', async () => {
+        const validHex = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
+        
+        await madWalletTwo.Transaction.Tx.DataStore(validHex, 1, 1, validHex, 1, madWalletTwo.Account.accounts[0]['address'], 5); 
+        await expect(
+            madWalletTwo.Transaction.Tx.injectSignatures(validHex, validHex)
+        ).to.eventually.be.rejectedWith('Invalid owner');
     });
 
     it('Fail: Calls injectSignatures TxIn owner could not be found', async () => {
@@ -51,6 +86,25 @@ describe('Transaction/Tx', () => {
         await expect(
             madWalletThree.Transaction.Tx.injectSignaturesAggregate(validHex, validHex)
         ).to.eventually.be.fulfilled;
+    });
+
+    it('Fail: Calls injectSignaturesAggregate DataStore without voutSignatures', async () => {
+        const validHex = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
+        await madWalletThree.Transaction.Tx.DataStore(validHex, 1, 1, validHex, 1, madWalletThree.Account.accounts[0]["address"], 5); 
+        
+        await expect(
+            madWalletThree.Transaction.Tx.injectSignaturesAggregate(validHex, [null])
+        ).to.eventually.be.rejectedWith('Missing signature in Vout');
+    });
+
+    it('Fail: Calls injectSignaturesAggregate ValueStore', async () => {
+        const validHex = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
+        await madWalletThree.Transaction.Tx.DataStore(validHex, 1, 1, validHex, 1, madWalletThree.Account.accounts[0]["address"], 5); 
+        await madWalletThree.Transaction.Tx.ValueStore(1, 1, madWalletThree.Account.accounts[0]["address"], 5); 
+        
+        await expect(
+            madWalletThree.Transaction.Tx.injectSignaturesAggregate(validHex, validHex)
+        ).to.eventually.be.rejectedWith('encoding/hex: odd length hex string');
     });
 
     it('Fail: Calls injectSignaturesAggregate TxIn owner could not be found', async () => {
@@ -71,9 +125,19 @@ describe('Transaction/Tx', () => {
         ).to.eventually.be.rejectedWith('TxIn owner could not be found');
     });
 
-    it('Success: Calls getSignatures', async () => {
+    it('Success: Calls getSignatures Without DataStore and TxIn', async () => {
         await expect(
             madWallet.Transaction.Tx.getSignatures()
+        ).to.eventually.be.fulfilled;
+    });
+
+    it('Success: Calls getSignatures With DataStore and TxIn', async () => {
+        const validHex = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
+        madWalletTwo.Transaction.Tx.TxIn(validHex, validHex);
+        await madWalletTwo.Transaction.Tx.DataStore(validHex, 1, 1, validHex, 1, madWalletTwo.Account.accounts[0]["address"], 5); 
+
+        await expect(
+            madWalletTwo.Transaction.Tx.getSignatures()
         ).to.eventually.be.fulfilled;
     });
         
@@ -81,6 +145,14 @@ describe('Transaction/Tx', () => {
         await expect(
             madWallet.Transaction.Tx.createRawTx()
         ).to.eventually.be.fulfilled;
+    });
+        
+    it('Fail: Calls createRawTx', async () => {
+        madWalletTwo.Transaction.Tx.Vin = null;
+
+        await expect(
+            madWalletTwo.Transaction.Tx.createRawTx()
+        ).to.eventually.be.rejected;
     });
         
     // Medium - Test _signTx() for Errors

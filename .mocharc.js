@@ -1,4 +1,4 @@
 module.exports = {
-  // require: 'tests/hooks.js',
+  require: 'tests/hooks.js',
   timeout: 450000
 };
