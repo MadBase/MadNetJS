@@ -1,61 +1,57 @@
 require('dotenv').config({ path: process.cwd() + '/tests/.env' });
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised)
-const expect = chai.expect
+chai.use(chaiAsPromised);
+const expect = chai.expect;
 const MadWalletJS = require("../../index.js");
 
-const waitingTime = 40 * 1000; // 40 * 1000
-const testTimeout = 100 * 1000; // 100 * 1000
+describe('Integration/RPC:', () => {
+    // TODO - Improve test description
+    // TODO - Move common vars to before hook when possible or to a helper
+    // TODO Get txHash programatically - line 26
+    let privateKey, madWallet, txHash, blockNumber, fees, wait;
+    const waitingTime = 40 * 1000; // 40 * 1000
+    const testTimeout = 100 * 1000; // 100 * 1000
 
-let privateKey, madWallet;
-if (process.env.PRIVATE_KEY &&
-    process.env.RPC &&
-    process.env.CHAIN_ID
-) {
-    privateKey = process.env.PRIVATE_KEY;
-    madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
-}
-
-let txHash, blockNumber, fees, wait;
-
-describe('RPC', () => {
     before(async function() {
+        if (process.env.PRIVATE_KEY && process.env.RPC && process.env.CHAIN_ID) {
+            privateKey = process.env.PRIVATE_KEY;
+            madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
+        }
+
         await madWallet.Account.addAccount(privateKey, 1);
         await madWallet.Account.addAccount(privateKey, 2);
+        
         fees = await madWallet.Rpc.getFees();
-        // TODO Get hash programatically
         txHash = '59e792f9409d45701f2505ef27bf0f2c15e6f24e51bd8075323aa846a98b37d4';
         wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     });
 
-    describe('RPC: Query Data', () => {
-        // TODO Medium - Test request error for request('get-block-number')
-        // TODO Medium - Test request error for request('get-block-header')
-        // TODO Medium - Test request error for request('get-chain-id')
-        // TODO Medium - Test request error for request('get-epoch-number')
-        // TODO Medium - Test request error for request('get-fees')
-        // TODO Hard - Test getUTXOsByIds() for utxos["UTXOs"] = []
-        // TODO Hard - Test getUTXOsByIds() for utxo["AtomicSwap"]
-        // TODO Medium - Test getDataStoreUTXOIDs() for utxo["AtomicSwap"]
-        // TODO Medium - Test getData() for Valid Index
-        // TODO Medium - Test request error for request('send-transaction')
-        // TODO Medium - Test getPendingTransaction(txHash) for valid argument
-        // TODO Medium - Test request(route, data) for !this.Wallet.chainId && this.rpcServer case
-        // TODO Medium - Test request(route, data) for !this.rpcServer
-        // TODO Medium - Test request(route, data) for !route
-
-        // TODO Clean up here
-        it('Fail: Get Mined Transaction with invalid argument', async () => {
+    describe('Set Provider', () => {
+        it('Fail: Set Provider', async () => {
             await expect(
-                madWallet.Rpc.getMinedTransaction(null)
+                madWallet.Rpc.setProvider()
             ).to.eventually.be.rejectedWith(Error);
         });
 
-        it('Fail: Get Pending Transaction with invalid argument', async () => {
+        it('Success: Set Provider', async () => {
             await expect(
-                madWallet.Rpc.getPendingTransaction(null)
+                madWallet.Rpc.setProvider(process.env.RPC)
+            ).to.eventually.be.fulfilled;
+        });
+    });
+
+    describe('Get Block', () => {
+        it('Fail: Get TX BlockHeihgt with invalid argument', async () => {
+            await expect(
+                madWallet.Rpc.getTxBlockHeight(null)
             ).to.eventually.be.rejectedWith(Error);
+        });
+
+        it('Fail: Get Block Header for bad block number', async () => {
+            await expect(
+                madWallet.Rpc.getBlockHeader("6666666666666666666666666666666666666")
+            ).to.eventually.be.rejected;
         });
 
         it('Success: Get TX BlockHeihgt with valid argument', async () => {
@@ -64,37 +60,6 @@ describe('RPC', () => {
             ).to.eventually.be.fulfilled;
         });
 
-        it('Fail: Get TX BlockHeihgt with invalid argument', async () => {
-            await expect(
-                madWallet.Rpc.getTxBlockHeight(null)
-            ).to.eventually.be.rejectedWith(Error);
-        });
-
-        it('Success: Monitor Pending with invalid argument', async () => {
-            await expect(
-                madWallet.Rpc.monitorPending(txHash)
-            ).to.eventually.be.fulfilled;
-        });
-
-        it('Fail: Monitor Pending with invalid argument', async () => {
-            await expect(
-                madWallet.Rpc.monitorPending(null, 1, 1, 30)
-            ).to.eventually.be.rejectedWith(Error);
-        });
-        // TODO Clean up here
-
-        it('Success: Set Provider', async () => {
-            await expect(
-                madWallet.Rpc.setProvider(process.env.RPC)
-            ).to.eventually.be.fulfilled;
-        });
-
-        it('Fail: Set Provider', async () => {
-            await expect(
-                madWallet.Rpc.setProvider()
-            ).to.eventually.be.rejectedWith(Error);
-        });
-        
         it('Success: Get Block Number', async () => {
             await expect(
                 madWallet.Rpc.getBlockNumber()
@@ -107,13 +72,9 @@ describe('RPC', () => {
                 madWallet.Rpc.getBlockHeader(blockNumber)
             ).to.eventually.be.fulfilled;
         });
-
-        it('Fail: Get Block Header for bad block number', async () => {
-            await expect(
-                madWallet.Rpc.getBlockHeader("6666666666666666666666666666666666666")
-            ).to.eventually.be.rejected;
-        });
-
+    });
+    
+    describe('Chain ID, Epochs, Fees', () => {
         it('Success: Get Chain ID', async () => {
             await expect(
                 madWallet.Rpc.getChainId()
@@ -131,13 +92,9 @@ describe('RPC', () => {
                 madWallet.Rpc.getFees()
             ).to.eventually.be.fulfilled;
         });
-
-        it('Success: Get UTXO by Ids', async () => {
-            await expect(
-                madWallet.Rpc.getUTXOsByIds([])
-            ).to.eventually.be.fulfilled;
-        });
-
+    });
+    
+    describe('UTXOs', () => {
         it('Fail: Get UTXO with invalid Ids', async () => {
             await expect(
                 madWallet.Rpc.getUTXOsByIds([1])
@@ -162,18 +119,26 @@ describe('RPC', () => {
             ).to.eventually.be.rejectedWith(Error);
         });
 
-        it('Success: Get Data Store UTXO invalid arguments', async () => {
-            await expect(
-                madWallet.Rpc.getDataStoreUTXOIDs(madWallet.Account.accounts[0]['address'], 1, 1)
-            ).to.eventually.be.fulfilled;
-        });
-
         it('Fail: Get Data Store UTXO invalid arguments', async () => {
             await expect(
                 madWallet.Rpc.getDataStoreUTXOIDs(madWallet.Account.accounts[0]['address'], 1)
             ).to.eventually.be.rejectedWith(Error);
         });
 
+        it('Success: Get Data Store UTXO invalid arguments', async () => {
+            await expect(
+                madWallet.Rpc.getDataStoreUTXOIDs(madWallet.Account.accounts[0]['address'], 1, 1)
+            ).to.eventually.be.fulfilled;
+        });
+
+        it('Success: Get UTXO by Ids', async () => {
+            await expect(
+                madWallet.Rpc.getUTXOsByIds([])
+            ).to.eventually.be.fulfilled;
+        });
+    });
+    
+    describe('Data', () => {
         it('Fail: Get Raw Data invalid arguments', async () => {
             await expect(
                 madWallet.Rpc.getData(madWallet.Account.accounts[0]['address'])
@@ -187,7 +152,33 @@ describe('RPC', () => {
         });
     });
 
-    describe('RPC: Send Transaction', () => {
+    describe('Monitoring', () => {
+        it('Fail: Monitor Pending with invalid argument', async () => {
+            await expect(
+                madWallet.Rpc.monitorPending(null, 1, 1, 30)
+            ).to.eventually.be.rejectedWith(Error);
+        });
+
+        it('Success: Monitor Pending with invalid argument', async () => {
+            await expect(
+                madWallet.Rpc.monitorPending(txHash)
+            ).to.eventually.be.fulfilled;
+        });
+    });
+
+    describe('Transaction', () => {
+        it('Fail: Get Mined Transaction with invalid argument', async () => {
+            await expect(
+                madWallet.Rpc.getMinedTransaction(null)
+            ).to.eventually.be.rejectedWith(Error);
+        });
+
+        it('Fail: Get Pending Transaction with invalid argument', async () => {
+            await expect(
+                madWallet.Rpc.getPendingTransaction(null)
+            ).to.eventually.be.rejectedWith(Error);
+        });
+
         it('Fail: Send Transaction Error', async () => {
             await expect(
                 madWallet.Rpc.sendTransaction()
