@@ -56,7 +56,7 @@ class Accounts {
 
     /**
      * Add multisig account
-     * @param {Array<hex} publicKeys
+     * @param {Array<hex>} publicKeys
      * @return {Object} account
      */
     async addMultiSig(publicKeys) {

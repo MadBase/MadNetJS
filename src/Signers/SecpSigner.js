@@ -48,7 +48,7 @@ class SecpSigner {
     /**
      * 
      * @param {hex} msgs 
-     * @returns 
+     * @returns {Array.hex} signedMsgs
      */
     async signMulti(msgs) {
         try {
