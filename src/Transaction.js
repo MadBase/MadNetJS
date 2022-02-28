@@ -1,5 +1,6 @@
 const Tx = require('./Transaction/Tx.js');
 const Constants = require('./Constants.js');
+const Wallet = require('./Wallet.js');
 /**
  * Transaction handler
  * @class Transaction
@@ -7,18 +8,22 @@ const Constants = require('./Constants.js');
 class Transaction {
     /**
      * Creates an instance of Transaction.
-     * @param {Object} Wallet
+     * @param { Wallet } Wallet Instance
      */
     constructor(Wallet) {
+        /** @property { Wallet } Wallet - Wallet instance see {@link Wallet} */
         this.Wallet = Wallet;
+        /** @property { Wallet } Tx - Tx instance see {@link Tx} */
         this.Tx = new Tx(Wallet);
-
+        /** @type { RpcFee } */
         this.fees = false;
+
         this.outValue = [];
     }
 
     /**
      * Create TxIns and send the transaction
+     * @property {Function} sendTx - Create TxIns and send the current this.Tx object via RPC method
      * @param {hex} [changeAddress=false]
      * @param {hex} [changeAddressCurve=false]
      * @param {Object} [UTXOIDs=[]]
@@ -356,8 +361,8 @@ class Transaction {
     /**
      * Track TxOut running total
      * @param {number} value
-     * @param {hex} ownerAddress
-     * @param {hex} [dsIndex=false]
+     * @param { Hex20 } ownerAddress 
+     * @param {} [dsIndex=false]
      */
     async _addOutValue(value, ownerAddress, dsIndex) {
         try {
