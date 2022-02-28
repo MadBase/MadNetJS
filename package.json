@@ -5,19 +5,19 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha tests --timeout 45000",
-    "build-docs": "npx jsdoc -R README.md src/ -r -d docs/ -c jsdoc.json",
+    "build-docs": "jsdoc -c jsdoc.json",
     "lint": "eslint .",
     "lint-fix": "eslint --fix ."
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "0.20.0",
-    "ethereumjs-util": "7.0.4"
+    "axios": "0.26.0",
+    "ethereumjs-util": "7.0.4",
+    "mad-doc-template": "git+https://github.com/MadBase/mad-doc-template.git"
   },
   "devDependencies": {
     "assert": "2.0.0",
-    "better-docs": "2.3.2",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",
     "dotenv": "8.2.0",

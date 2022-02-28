@@ -494,8 +494,8 @@ class Tx {
  * Aggreate the signatures from multiple signers and inject them into the transaction
  * [ [txidx_0_signature, txidx_1_signature] signer1 , txidx_0_signature, txidx_1_signature] signer2 ] vinSignatures
  * [ [txidx_0_signature, txidx_1_signature] signer1 , txidx_0_signature, txidx_1_signature] signer2 ] voutSignatures
- * @param {Array<Array<hex>} vinSignatures 
- * @param {Array<Array<hex>} voutSignatures 
+ * @param {Array} vinSignatures - Array<Array<hex> 
+ * @param {Array} voutSignatures - Array<Array<hex>
  */
     async injectSignaturesAggregate(vinSignatures, voutSignatures) {
         try {

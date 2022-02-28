@@ -41,7 +41,7 @@ class BNSigner {
     /**
     * 
     * @param {hex} msgs 
-    * @returns 
+    * @returns { Array }
     */
     async signMulti(msgs) {
         try {
