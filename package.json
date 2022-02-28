@@ -13,7 +13,8 @@
   "license": "ISC",
   "dependencies": {
     "axios": "0.26.0",
-    "ethereumjs-util": "7.0.4"
+    "ethereumjs-util": "7.0.4",
+    "mad-doc-template": "git+https://github.com/MadBase/mad-doc-template.git"
   },
   "devDependencies": {
     "assert": "2.0.0",
