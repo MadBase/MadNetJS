@@ -6,8 +6,6 @@ const expect = chai.expect
 const MadWalletJS = require("../../index.js");
 
 describe('Unit/Account:', () => {
-    // TODO - Improve test description
-    // TODO - Move common var to before hook when possible or to a helper
     let privateKey;
     const madWallet = new MadWalletJS();
     const publicKeys = [
@@ -17,64 +15,59 @@ describe('Unit/Account:', () => {
     const accountAddress = "0xc2f89cbbcdcc7477442e7250445f0fdb3238259b";
 
     before(async function() {
-        if (process.env.PRIVATE_KEY) {
-            privateKey = process.env.PRIVATE_KEY;
-        }
-        else {
-            privateKey = "6B59703273357638792F423F4528482B4D6251655468576D5A7134743677397A"
-        }
+        privateKey = process.env.PRIVATE_KEY || "6B59703273357638792F423F4528482B4D6251655468576D5A7134743677397A";
     });
 
     describe('Add Account', () => {
-        it('Fail: Invalid private key length', async () => {
+        it('Fail: Reject when called with invalid Private Key length', async () => {
             await expect(
                 madWallet.Account.addAccount(privateKey.slice(0, -1), 1)
             ).to.eventually.be.rejectedWith(Error);
         });
 
-        it('Fail: Invalid private key data type', async () => {
+        it('Fail: Reject when called with invalid Private Key data type', async () => {
             await expect(
                 madWallet.Account.addAccount(Number(privateKey), 1)
             ).to.eventually.be.rejectedWith(Error);
         });
 
-        it('Fail: Invalid private key character', async () => {
+        it('Fail: Reject when called with invalid Private Key character', async () => {
             await expect(
                 madWallet.Account.addAccount(privateKey.slice(0, -1) + "Z", 1)
             ).to.eventually.be.rejectedWith(Error);
         });
 
-        it('Fail: Invalid curve spec', async () => {
+        it('Fail: Reject when called with invalid Curve spec', async () => {
             await expect(
                 madWallet.Account.addAccount(privateKey, 3)
             ).to.eventually.be.rejectedWith(Error);
         });
 
-        it('Success: Valid private key, curve = 1', async () => {
+        it('Success: Add Account when Private Key is valid and curve = 1', async () => {
             await expect(
                 madWallet.Account.addAccount(privateKey, 1)
             ).to.eventually.be.fulfilled;
         });
 
-        it('Success: Valid private key, curve = 2', async () => {
+        it('Success: Add Account when Private Key is valid and curve = 2', async () => {
             await expect(
                 madWallet.Account.addAccount(privateKey, 2)
             ).to.eventually.be.fulfilled;
         });
 
-        it('Success: Valid private key starting with 0x', async () => {
+        it('Success: Add Account when Private Key starting with 0x', async () => {
             await expect(
                 madWallet.Account.addAccount(privateKey.slice(0, -1) + "B", 1)
             ).to.eventually.be.fulfilled;
         });
 
-        it('Success: Valid private key, no curve spec (default = 1)', async () => {
+        it('Success: Add Account when Private Key is valid and no Curve spec (default = 1)', async () => {
             await expect(
                 madWallet.Account.addAccount(privateKey.slice(0, -1) + "C")
             ).to.eventually.be.fulfilled;
         });
 
-        it('Fail: Private key already added', async() => {
+        it('Fail: Reject when Private key already added', async() => {
             await expect(
                 madWallet.Account.addAccount(privateKey, 1)
             ).to.eventually.be.rejectedWith(Error);
@@ -82,13 +75,13 @@ describe('Unit/Account:', () => {
     });
 
     describe('Add MultiSig', () => {
-        it('Fail: Invalid publicKeys in addMultiSig', async () => {
+        it('Fail: Reject when called with invalid publicKeys', async () => {
             await expect(
                 madWallet.Account.addMultiSig(undefined)
             ).to.eventually.be.rejectedWith(Error);
         });
 
-        it('Success: Valid publicKeys', async () => {
+        it('Success: Add Multi Sig when called with valid publicKeys', async () => {
             await expect(
                 madWallet.Account.addMultiSig(publicKeys)
             ).to.eventually.be.fulfilled;
@@ -96,7 +89,7 @@ describe('Unit/Account:', () => {
     });
 
     describe('Remove Account', () => {
-        it('Fail: Throw error when null address', async () => {
+        it('Fail: Reject when called with invalid Address', async () => {
             await expect(
                 madWallet.Account.removeAccount(null)
             ).to.eventually.be.rejectedWith(Error);
@@ -110,13 +103,13 @@ describe('Unit/Account:', () => {
     });
 
     describe('Get Account', () => {
-        it('Fail: Get account from address not added', async () => {
+        it('Fail: Reject when address not added', async () => {
             await expect(
                 madWallet.Account.getAccount(accountAddress)
             ).to.eventually.be.rejectedWith(Error);
         });
 
-        it('Success: Get account from address', async () => {
+        it('Success: Get Account when address is valid', async () => {
             await expect(
                 madWallet.Account.getAccount(madWallet.Account.accounts[0]["address"])
             ).to.eventually.be.fulfilled;
@@ -124,10 +117,10 @@ describe('Unit/Account:', () => {
     });
 
     describe('Get Account Index', () => {
-        it('Fail: Get index for account by address not added', async () => {
+        it('Fail: Reject when address index not found', async () => {
             await expect(
                 madWallet.Account._getAccountIndex(accountAddress)
-            ).to.eventually.be.rejectedWith(Error);
+            ).to.eventually.be.rejectedWith('Could not find account index');
         });
 
         it('Success: Get index for account by address', async () => {
@@ -138,13 +131,13 @@ describe('Unit/Account:', () => {
     });
 
     describe('Signatures', () => {
-        it('Success: BN', async () => {
+        it('Success: Sign a message with BN signer', async () => {
             await expect(
                 madWallet.Account.accounts[1]["signer"].sign("0xc0ffeebabe")
             ).to.eventually.be.fulfilled;
         });
 
-        it('Success: SECP', async () => {
+        it('Success: Sign  a message with SECP signer', async () => {
             await expect(
                 madWallet.Account.accounts[0]["signer"].sign("0xc0ffeebabe")
             ).to.eventually.be.fulfilled;

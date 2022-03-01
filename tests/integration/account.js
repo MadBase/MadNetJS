@@ -6,20 +6,12 @@ const expect = chai.expect;
 const MadWalletJS = require("../../index.js");
 
 describe('Integration/Account:', () => {
-    // TODO - Improve test description
-    // TODO - Move common var to before hook when possible or to a helper
-    let privateKey;
-    const madWallet = new MadWalletJS(42, process.env.RPC);
-    const wrongAccountAddress = "0xc2f89cbbcdcc7477442e7250445f0fdb3238259b";
-
+    let privateKey, madWallet, wrongAccountAddress;
+    
     before(async function() {
-        if (process.env.PRIVATE_KEY) {
-            privateKey = process.env.PRIVATE_KEY;
-        }
-        else {
-            privateKey = "6B59703273357638792F423F4528482B4D6251655468576D5A7134743677397A";
-        }
-
+        privateKey = process.env.PRIVATE_KEY || "6B59703273357638792F423F4528482B4D6251655468576D5A7134743677397A";
+        madWallet = new MadWalletJS(42, process.env.RPC);
+        wrongAccountAddress = "0xc2f89cbbcdcc7477442e7250445f0fdb3238259b";
         await madWallet.Account.addAccount(privateKey, 1);
     });
 

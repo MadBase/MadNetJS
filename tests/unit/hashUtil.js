@@ -6,8 +6,6 @@ const expect = chai.expect;
 const Hash = require("../../src/Util/Hash");
 
 describe('Unit/Util/Hash:', () => {
-    // TODO - Improve test description
-    // TODO - Move common var to before hook when possible or to a helper
     let validHex, expectedHash;
 
     before(async function() {
@@ -16,11 +14,11 @@ describe('Unit/Util/Hash:', () => {
     });
     
     describe('Hash', () => {  
-        it('Success: Calls hash with valid msg', () => {
+        it('Success: Return the correct hash', () => {
             expect(Hash.hash(validHex)).to.equal(expectedHash);
         });
         
-        it('fail: Calls hash with invalid msg', () => {
+        it('fail: Throws an error if called with invalid msg', () => {
             expect(() => Hash.hash('invalidhexmsg')).to.throws();
         });
     });

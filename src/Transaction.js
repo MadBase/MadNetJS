@@ -1,6 +1,5 @@
 const Tx = require('./Transaction/Tx.js');
 const Constants = require('./Constants.js');
-const Wallet = require('./Wallet.js');
 /**
  * Transaction handler
  * @class Transaction

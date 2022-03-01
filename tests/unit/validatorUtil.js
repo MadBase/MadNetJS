@@ -6,8 +6,6 @@ const expect = chai.expect;
 const Validator = require("../../src/Util/Validator");
 
 describe('Unit/Util/Validator:', () => {
-    // TODO - Improve test description
-    // TODO - Move common var to before hook when possible or to a helper
     let privateKey, address, validHex;
 
     before(async function() {
@@ -17,35 +15,35 @@ describe('Unit/Util/Validator:', () => {
     });
     
     describe('Private Key, Number and Address', () => {  
-        it('Fail: Calls isPrivateKey with invalid Private Key length', () => {
+        it('Fail: isPrivateKey throws and error if Private Key length is invalid', () => {
             expect(() => Validator.isPrivateKey(privateKey.slice(0, -1))).to.throw('Invalid length');
         });
 
-        it('Fail: Calls isNumber with invalid Number', () => {
+        it('Fail: isNumber throws an error if Number is invalid', () => {
             expect(() => Validator.isNumber('not a number')).to.throw('Invalid number');
         });
         
-        it('Fail: calls isAddress with invalid Address length', () => {
+        it('Fail: isAddress throws an error if Address length is invalid', () => {
             expect(() => Validator.isAddress(address.slice(0, -2))).to.throw('Invalid length');
         });
     });
     
     describe('Hex', () => {  
-        it('Fail: Calls hexToInt with Invalid Hex', () => {
+        it('Fail: hexToInt throws an error if Hex is invalid', () => {
             expect(() => Validator.hexToInt('notAHex')).to.throw();
         });
         
-        it('Fail: Calls hexToTxt with invalid argument', () => {
+        it('Fail: hexToTxt throws an error if Hex is invalid', () => {
             expect(() => Validator.hexToTxt(Number('notAHex'))).to.throw();
         });
         
-        it('Success: Calls hexToTxt with valid argument', () => {
-            const validHexresult = Buffer.from(validHex, "hex").toString("utf8"); 
-            expect(Validator.hexToTxt(validHex)).to.equal(validHexresult);
+        it('Fail: txtToHex throws an error if string is invalid', () => {
+            expect(() => Validator.txtToHex(Number('notAHex'))).to.throw();
         });
         
-        it('Fail: Calls txtToHex with invalid argument', () => {
-            expect(() => Validator.txtToHex(Number('notAHex'))).to.throw();
+        it('Success: Call hexToTxt with valid Hex', () => {
+            const validHexResult = Buffer.from(validHex, "hex").toString("utf8"); 
+            expect(Validator.hexToTxt(validHex)).to.equal(validHexResult);
         });
     });
 });

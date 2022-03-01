@@ -6,12 +6,9 @@ const expect = chai.expect;
 const MadWalletJS = require("../../index.js");
 
 describe('Integration/RPC:', () => {
-    // TODO - Improve test description
-    // TODO - Move common vars to before hook when possible or to a helper
-    // TODO Get txHash programatically - line 26
     let privateKey, madWallet, txHash, blockNumber, fees, wait;
-    const waitingTime = 40 * 1000; // 40 * 1000
-    const testTimeout = 100 * 1000; // 100 * 1000
+    const waitingTime = 40 * 1000; 
+    const testTimeout = 100 * 1000;
 
     before(async function() {
         if (process.env.PRIVATE_KEY && process.env.RPC && process.env.CHAIN_ID) {
@@ -50,7 +47,7 @@ describe('Integration/RPC:', () => {
 
         it('Fail: Get Block Header for bad block number', async () => {
             await expect(
-                madWallet.Rpc.getBlockHeader("6666666666666666666666666666666666666")
+                madWallet.Rpc.getBlockHeader("6987234012981234981273128721312987312")
             ).to.eventually.be.rejected;
         });
 
