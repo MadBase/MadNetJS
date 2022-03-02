@@ -2,7 +2,7 @@
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
 <coverage lines-valid="1129" lines-covered="916" line-rate="0.8112999999999999" branches-valid="491" branches-covered="355" branch-rate="0.723" timestamp="1646183031132" complexity="0" version="0.1">
   <sources>
-    <source>/Users/evertonrenan/Dev/clevertech/madnet/MadNetJS</source>
+    <source>MadNetJS</source>
   </sources>
   <packages>
     <package name="MadNetJS" line-rate="1" branch-rate="1">
