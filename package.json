@@ -8,7 +8,7 @@
     "test-unit": "mocha --recursive tests/unit",
     "test-integration": "mocha --recursive tests/integration",
     "test-single": "mocha",
-    "test-coverage": "npx nyc@15.1.0 --exclude=src/GoWrappers/** --exclude=**/tests/** npm run test",
+    "test-coverage": "npx nyc@15.1.0 --exclude=src/GoWrappers/** --exclude=**/tests/** --reporter=cobertura --reporter=text npm run test",
     "test-unit-coverage": "npx nyc@15.1.0 --exclude=src/GoWrappers/** --exclude=**/tests/** npm run test-unit",
     "test-integration-coverage": "npx nyc@15.1.0 --exclude=src/GoWrappers/** --exclude=**/tests/** npm run test-integration",
     "build-docs": "jsdoc -c jsdoc.json",

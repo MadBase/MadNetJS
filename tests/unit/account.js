@@ -137,7 +137,7 @@ describe('Unit/Account:', () => {
             ).to.eventually.be.fulfilled;
         });
 
-        it('Success: Sign  a message with SECP signer', async () => {
+        it('Success: Sign a message with SECP signer', async () => {
             await expect(
                 madWallet.Account.accounts[0]["signer"].sign("0xc0ffeebabe")
             ).to.eventually.be.fulfilled;

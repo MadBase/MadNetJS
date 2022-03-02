@@ -4,4 +4,3 @@ docs/*
 !docs/.gitkeep
 tests/.env
 .nyc_output/
-coverage/
