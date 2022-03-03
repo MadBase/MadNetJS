@@ -4,6 +4,7 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 const MadWalletJS = require("../../index.js");
+const { tryIt } = require('../tryIt.js');
 
 describe('Integration/RPC:', () => {
     let privateKey, madWallet, txHash, blockNumber, fees, wait;
@@ -18,14 +19,18 @@ describe('Integration/RPC:', () => {
 
         await madWallet.Account.addAccount(privateKey, 1);
         await madWallet.Account.addAccount(privateKey, 2);
-        
-        fees = await madWallet.Rpc.getFees();
+
+        fees = await madWallet.Rpc.getFees(); 
         txHash = '59e792f9409d45701f2505ef27bf0f2c15e6f24e51bd8075323aa846a98b37d4';
         wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     });
 
     describe('Set Provider', () => {
         it('Fail: Set Provider', async () => {
+
+            // tryIt( async () => {await madWallet.Rpc.setProvider() });
+            // Check for specific Error Message -- used above to print it for you here ^
+
             await expect(
                 madWallet.Rpc.setProvider()
             ).to.eventually.be.rejectedWith(Error);
@@ -39,7 +44,11 @@ describe('Integration/RPC:', () => {
     });
 
     describe('Get Block', () => {
+
+        
         it('Fail: Get TX BlockHeihgt with invalid argument', async () => {
+            // tryIt( async () => {await madWallet.Rpc.getTxBlockHeight(null) });
+            // check for expected message 
             await expect(
                 madWallet.Rpc.getTxBlockHeight(null)
             ).to.eventually.be.rejectedWith(Error);

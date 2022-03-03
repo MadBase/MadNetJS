@@ -57,13 +57,13 @@ class Transaction {
      */
     async sendSignedTx(Tx) {
         try {
-            if (this.Tx.getTx()["Fee"] === 0) {
+            if (Tx.Tx["Fee"] === 0) {
                 throw "No Tx fee added"
             }
-            if (this.Tx.Vout.length <= 0) {
+            if (Tx.Tx.Vout.length <= 0) {
                 throw "No Vouts for transaction"
             }
-            if (this.Tx.Vin.length <= 0) {
+            if (Tx.Tx.Vin.length <= 0) {
                 throw "No Vouts for transaction"
             }
             let txHash = await this.Wallet.Rpc.sendTransaction(Tx)

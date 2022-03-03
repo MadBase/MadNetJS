@@ -7,6 +7,7 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const MadWalletJS = require("../index.js");
 const madWallet = new MadWalletJS(42, process.env.RPC || "http://127.0.0.1:8884/v1/");
+const { tryIt } = require('./tryIt.js');
 
 exports.mochaHooks = {
 	async beforeAll() {
@@ -15,6 +16,10 @@ exports.mochaHooks = {
 			if(!process.env.PRIVATE_KEY) {
 				throw 'You need to setup a funded Private Key in your .env file to run tests properly.';
 			}
+
+            // Why are we testing multisig functionality in a beforeAll?
+
+            /*
 
 			// add 2 bn curve addresses
 			await madWallet.Account.addAccount("6aea45ee1273170fb525da34015e4f20ba39fe792f486ba74020bcacc9badfc1", 2);
@@ -91,6 +96,8 @@ exports.mochaHooks = {
 			console.log("Sending multisig transaction...");
 			let txHash = await madWallet.Transaction.sendSignedTx(madWallet.Transaction.Tx.getTx());
 			console.log("TxHash:", txHash)
+
+            */
 	
 		}
 		catch (ex) {
