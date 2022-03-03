@@ -453,7 +453,7 @@ class Transaction {
                 }
                 if (BigInt(outValue["totalValue"]) < BigInt(0)) {
                     if (BigInt(BigInt(BigInt(outValue["totalValue"]) * BigInt(-1)) + BigInt("0x" + this.fees["ValueStoreFee"])) > BigInt(account["UTXO"]["Value"])) {
-                        this.Tx.TxFee(BigInt(BigInt(BigInt(outValue["totalValue"]) * BigInt(-1)) + BigInt(this.Tx.Vout[0]["TxFee"]["TFPreImage"]["Fee"])).toString(10));
+                        this.Tx.Fee = BigInt(BigInt(BigInt(outValue["totalValue"]) * BigInt(-1)) + BigInt(this.Tx.Vout[0]["TxFee"]["TFPreImage"]["Fee"])).toString(10)
                         continue;
                     }
                     await this.createValueStore(account["address"], BigInt(BigInt(outValue["totalValue"]) * BigInt(-1)), changeAddress ? changeAddress : account["address"], changeAddressCurve ? changeAddressCurve : account["curve"])
@@ -553,7 +553,7 @@ class Transaction {
                 let remaining = BigInt(BigInt(highestUnspent["VSPreImage"]["Value"]) - BigInt(currentValue));
                 if (remaining > BigInt(0)) {
                     if (BigInt(BigInt(remaining) - BigInt("0x" + this.fees["ValueStoreFee"])) == BigInt(0)) {
-                        this.Tx.TxFee(BigInt(BigInt(remaining) + BigInt(this.Tx.Vout[0]["TxFee"]["TFPreImage"]["Fee"])).toString(10));
+                        this.Tx.Fee = BigInt(BigInt(remaining) + BigInt(this.Tx.Vout[0]["TxFee"]["TFPreImage"]["Fee"])).toString(10)
                         break;
                     }
                     remaining = BigInt(BigInt(remaining) - BigInt("0x" + this.fees["ValueStoreFee"]));
