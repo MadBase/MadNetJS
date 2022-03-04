@@ -1,4 +1,4 @@
-require('dotenv').config({ path: process.cwd() + '/tests/.env' });
+require('dotenv').config({ path: process.cwd() + '/.env' });
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
@@ -11,7 +11,7 @@ describe('Integration/Transaction:', () => {
    
     before(async function() {
         madWallet = (process.env.RPC && process.env.CHAIN_ID) ? new MadWalletJS(process.env.CHAIN_ID, process.env.RPC) : new MadWalletJS();
-        privateKey = process.env.PRIVATE_KEY || "6B59703273357638792F423F4528482B4D6251655468576D5A7134743677397A";
+        privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
         secondPrivateKey = '6aea45ee1273170fb525da34015e4f20ba39fe792f486ba74020bcacc9badfc2';
         wrongFromAddress = '91f174784ba0edd9df3051deb0a53fddca8a150e';
         accountUTXO = {

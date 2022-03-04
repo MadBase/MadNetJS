@@ -8,9 +8,9 @@
     "test-unit": "mocha --recursive tests/unit",
     "test-integration": "mocha --recursive tests/integration",
     "test-single": "mocha",
-    "test-coverage": "npx nyc@15.1.0 --exclude=src/GoWrappers/** --exclude=**/tests/** --reporter=cobertura --reporter=text npm run test",
-    "test-unit-coverage": "npx nyc@15.1.0 --exclude=src/GoWrappers/** --exclude=**/tests/** npm run test-unit",
-    "test-integration-coverage": "npx nyc@15.1.0 --exclude=src/GoWrappers/** --exclude=**/tests/** npm run test-integration",
+    "test-coverage": "nyc --exclude=src/GoWrappers/** --exclude=**/tests/** --reporter=cobertura --reporter=text npm run test",
+    "test-unit-coverage": "nyc --exclude=src/GoWrappers/** --exclude=**/tests/** npm run test-unit",
+    "test-integration-coverage": "nyc --exclude=src/GoWrappers/** --exclude=**/tests/** npm run test-integration",
     "build-docs": "jsdoc -c jsdoc.json",
     "lint": "eslint .",
     "lint-fix": "eslint --fix ."
@@ -29,6 +29,7 @@
     "dotenv": "8.2.0",
     "eslint": "8.8.0",
     "jsdoc": "3.6.6",
-    "mocha": "8.2.1"
+    "mocha": "8.2.1",
+    "nyc": "15.1.0"
   }
 }

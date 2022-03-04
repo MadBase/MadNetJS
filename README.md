@@ -81,14 +81,15 @@ await madWallet.Transaction.sendTx(0x4240A00833065c29D1EB117e200a87c95D640289, 2
 ##
 
 #### Tests
-> Create .env in tests/ to specify account, chainId, and RPC  
-  Some tests will be skipped if .env variables are not present
+> Create `.env` file in the root folder to specify account, chainId, and RPC.  
+  It is required that your `.env` has a key `OPTIONAL_TEST_SUITE_PRIVATE_KEY` with a funded private key value.
+
 - Run all tests
 	- `npm test`
 - Run only unit tests
 	- `npm run test-unit`
 - Run only integration tests
-	- `npm run test-unit`
+	- `npm run test-integration`
 - Run a single test
 	- `npm run test-single path/to/file.js`
 - Run all tests with coverage
@@ -97,3 +98,6 @@ await madWallet.Transaction.sendTx(0x4240A00833065c29D1EB117e200a87c95D640289, 2
 	- `npm run test-unit-coverage`
 - Run only integration tests with coverage
 	- `npm run test-integration-coverage`
+
+#### Test Coverage
+> When you run `npm run test-coverage` it generates a file under `coverage/cobertura-coverage.xml` with a general test coverage output.

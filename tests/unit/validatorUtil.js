@@ -1,4 +1,4 @@
-require('dotenv').config({ path: process.cwd() + '/tests/.env' });
+require('dotenv').config({ path: process.cwd() + '/.env' });
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
@@ -9,7 +9,7 @@ describe('Unit/Util/Validator:', () => {
     let privateKey, address, validHex;
 
     before(async function() {
-        privateKey = process.env.PRIVATE_KEY || "6B59703273357638792F423F4528482B4D6251655468576D5A7134743677397A";
+        privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
         address = '91f174784ba0edd9df3051deb0a53fddca8a150e';
         validHex = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
     });

@@ -1,4 +1,4 @@
-require('dotenv').config({ path: process.cwd() + '/tests/.env' });
+require('dotenv').config({ path: process.cwd() + '/.env' });
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
@@ -12,8 +12,8 @@ describe('Integration/RPC:', () => {
     const testTimeout = 100 * 1000;
 
     before(async function() {
-        if (process.env.PRIVATE_KEY && process.env.RPC && process.env.CHAIN_ID) {
-            privateKey = process.env.PRIVATE_KEY;
+        if (process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY && process.env.RPC && process.env.CHAIN_ID) {
+            privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
             madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
         }
 

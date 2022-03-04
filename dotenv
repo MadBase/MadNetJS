@@ -1,0 +1,5 @@
+CHAIN_ID=""
+RPC=""
+PRIVATE_KEY=""
+# Key for the testing suite to use if running tests
+OPTIONAL_TEST_SUITE_PRIVATE_KEY=""

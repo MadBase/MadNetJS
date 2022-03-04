@@ -1,4 +1,4 @@
-require('dotenv').config({ path: process.cwd() + '/tests/.env' });
+require('dotenv').config({ path: process.cwd() + '/.env' });
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
