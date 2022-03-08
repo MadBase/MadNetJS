@@ -12,8 +12,6 @@ chai.use(chaiAsPromised);
 exports.mochaHooks = {
 	async beforeAll() {
 		try {
-			console.log(process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY)
-			// Check if OPTIONAL_TEST_SUITE_PRIVATE_KEY is empty in .env file
 			if(!process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY) {
 				throw 'You need to setup a funded Private Key in your .env file to run tests properly.';
 			}

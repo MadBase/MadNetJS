@@ -240,7 +240,9 @@ class RPC {
             while (true) {
                 let reqData = { "CurveSpec": curve, "Account": address, "Number": limit, "StartIndex": offset }
                 let dataStoreIDs = await this.request("iterate-name-space", reqData);
-                if (!dataStoreIDs["Results"]) {
+                // TODO This !dataStoreIDs["Results"].length fix error RPC.getDataStoreUTXOIDs: TypeError: Cannot read property \'Index\' of undefined
+                // TODO Check for side effects 
+                if (!dataStoreIDs["Results"].length) {
                     break
                 }
                 DataStoreUTXOIDs = DataStoreUTXOIDs.concat(dataStoreIDs["Results"]);

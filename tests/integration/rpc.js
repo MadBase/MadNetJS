@@ -4,39 +4,56 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 const MadWalletJS = require("../../index.js");
-const { tryIt } = require('../tryIt.js');
 
 describe('Integration/RPC:', () => {
-    let privateKey, madWallet, txHash, blockNumber, fees, wait;
+    let privateKey, secondaryPrivateKey, madWallet, validTxHash, invalidTxHash, invalidTx,  blockNumber, fees, wait;
     const waitingTime = 40 * 1000; 
     const testTimeout = 100 * 1000;
 
     before(async function() {
         if (process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY && process.env.RPC && process.env.CHAIN_ID) {
             privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
+            secondaryPrivateKey = process.env.OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY;
             madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
         }
 
-        await madWallet.Account.addAccount(privateKey, 1);
         await madWallet.Account.addAccount(privateKey, 2);
+        await madWallet.Account.addAccount(privateKey, 1);
+        await madWallet.Account.addAccount(secondaryPrivateKey, 2);
+        
+        // TODO Check if it could be simplified -- Get txHash programmatically
+        const acct1 = await madWallet.Account.getAccount(madWallet.Account.accounts[0]["address"]);
+        const acct1p = await acct1.signer.getPubK();
+        const acct2 = await madWallet.Account.getAccount(madWallet.Account.accounts[2]["address"]);
+        const acct2p = await acct2.signer.getPubK();
+        const multiAcct = await madWallet.Account.addMultiSig([acct1p, acct2p]);
+        const multiPubK = await multiAcct.signer.getPubK();
+        await madWallet.Transaction.createValueStore(multiAcct.address, 1, acct1.address, 2);
+        await madWallet.Transaction.createTxFee(multiAcct.address, 2);
+        await madWallet.Transaction.createRawTransaction();
+
+        const sigMsgs = await madWallet.Transaction.Tx.getSignatures();
+        const sigs1Vin = await acct1.signer.multiSig.signMulti(sigMsgs["Vin"], multiPubK);
+        const sigs1Vout = await acct1.signer.multiSig.signMulti(sigMsgs["Vout"], multiPubK);
+        const sigs2Vin = await acct2.signer.multiSig.signMulti(sigMsgs["Vin"], multiPubK);
+        const sigs2Vout = await acct2.signer.multiSig.signMulti(sigMsgs["Vout"], multiPubK);
+        await madWallet.Transaction.Tx.injectSignaturesAggregate([sigs1Vin, sigs2Vin], [sigs1Vout, sigs2Vout]);
+        validTxHash = await madWallet.Transaction.sendSignedTx(madWallet.Transaction.Tx.getTx());
 
         fees = await madWallet.Rpc.getFees(); 
-        txHash = '59e792f9409d45701f2505ef27bf0f2c15e6f24e51bd8075323aa846a98b37d4';
+        invalidTxHash = '59e792f9409d45701f2505ef27bf0f2c15e6f24e51bd8075323aa846a98b37d7';
+        invalidTx = { "Tx": {  "Vin": [], "Vout": [], "Fee": "" } };
         wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     });
 
     describe('Set Provider', () => {
-        it('Fail: Set Provider', async () => {
-
-            // tryIt( async () => {await madWallet.Rpc.setProvider() });
-            // Check for specific Error Message -- used above to print it for you here ^
-
+        it('Fail: Cannot set provider with missing argument', async () => {
             await expect(
                 madWallet.Rpc.setProvider()
-            ).to.eventually.be.rejectedWith(Error);
+            ).to.eventually.be.rejectedWith('RPC server not provided');
         });
 
-        it('Success: Set Provider', async () => {
+        it('Success: Set provider with valid argument', async () => {
             await expect(
                 madWallet.Rpc.setProvider(process.env.RPC)
             ).to.eventually.be.fulfilled;
@@ -44,25 +61,21 @@ describe('Integration/RPC:', () => {
     });
 
     describe('Get Block', () => {
-
-        
-        it('Fail: Get TX BlockHeihgt with invalid argument', async () => {
-            // tryIt( async () => {await madWallet.Rpc.getTxBlockHeight(null) });
-            // check for expected message 
+        it('Fail: Cannot get TX BlockHeight when txHash is invalid', async () => {
             await expect(
-                madWallet.Rpc.getTxBlockHeight(null)
-            ).to.eventually.be.rejectedWith(Error);
+                madWallet.Rpc.getTxBlockHeight(invalidTxHash)
+            ).to.eventually.be.rejectedWith('Key not found');
         });
 
         it('Fail: Get Block Header for bad block number', async () => {
             await expect(
                 madWallet.Rpc.getBlockHeader("6987234012981234981273128721312987312")
-            ).to.eventually.be.rejected;
+            ).to.eventually.be.rejectedWith('invalid value for uint32');
         });
 
         it('Success: Get TX BlockHeihgt with valid argument', async () => {
             await expect(
-                madWallet.Rpc.getTxBlockHeight(txHash)
+                madWallet.Rpc.getTxBlockHeight(validTxHash)
             ).to.eventually.be.fulfilled;
         });
 
@@ -82,9 +95,8 @@ describe('Integration/RPC:', () => {
     
     describe('Chain ID, Epochs, Fees', () => {
         it('Success: Get Chain ID', async () => {
-            await expect(
-                madWallet.Rpc.getChainId()
-            ).to.eventually.be.fulfilled;
+            const chainId = await madWallet.Rpc.getChainId();
+            expect(chainId).to.equal(Number(process.env.CHAIN_ID));
         });
 
         it('Success: Get Current Epoch', async () => {
@@ -94,6 +106,7 @@ describe('Integration/RPC:', () => {
         });
 
         it('Success: Get Fees', async () => {
+            // console.log(fees);
             await expect(
                 madWallet.Rpc.getFees()
             ).to.eventually.be.fulfilled;
@@ -101,37 +114,31 @@ describe('Integration/RPC:', () => {
     });
     
     describe('UTXOs', () => {
-        it('Fail: Get UTXO with invalid Ids', async () => {
+        it('Fail: Cannot get UTXOs with invalid Ids', async () => {
             await expect(
-                madWallet.Rpc.getUTXOsByIds([1])
-            ).to.eventually.be.rejectedWith(Error);
+                madWallet.Rpc.getUTXOsByIds(['utxoInvalidId'])
+            ).to.eventually.be.rejectedWith('invalid length');
         });
 
-        it('Fail: Get UTXO by Ids', async () => {
+        it('Fail: Cannot get UTXOs by Ids with missing argument', async () => {
             await expect(
                 madWallet.Rpc.getUTXOsByIds()
-            ).to.eventually.be.rejectedWith(Error);
+            ).to.eventually.be.rejectedWith('Invalid arguments');
         });
         
-        it('Fail: Get Value Store UTXO invalid arguments', async () => {
+        it('Fail: Cannot get Value Store UTXOs with missing arguments', async () => {
             await expect(
                 madWallet.Rpc.getValueStoreUTXOIDs()
-            ).to.eventually.be.rejectedWith(Error);
+            ).to.eventually.be.rejectedWith('Invalid arguments');
         });
 
-        it('Fail: Get Data Store UTXO invalid arguments', async () => {
+        it('Fail: Cannot get Data Store UTXOs with missing arguments', async () => {
             await expect(
                 madWallet.Rpc.getDataStoreUTXOIDs()
-            ).to.eventually.be.rejectedWith(Error);
+            ).to.eventually.be.rejectedWith('Invalid arguments');
         });
 
-        it('Fail: Get Data Store UTXO invalid arguments', async () => {
-            await expect(
-                madWallet.Rpc.getDataStoreUTXOIDs(madWallet.Account.accounts[0]['address'], 1)
-            ).to.eventually.be.rejectedWith(Error);
-        });
-
-        it('Success: Get Data Store UTXO invalid arguments', async () => {
+        it('Success: Get Data Store UTXO with valid arguments', async () => {
             await expect(
                 madWallet.Rpc.getDataStoreUTXOIDs(madWallet.Account.accounts[0]['address'], 1, 1)
             ).to.eventually.be.fulfilled;
@@ -145,72 +152,86 @@ describe('Integration/RPC:', () => {
     });
     
     describe('Data', () => {
-        it('Fail: Get Raw Data invalid arguments', async () => {
+        it('Fail: Cannot get Raw Data if curve and index are missing', async () => {
             await expect(
                 madWallet.Rpc.getData(madWallet.Account.accounts[0]['address'])
-            ).to.eventually.be.rejectedWith(Error);
+            ).to.eventually.be.rejectedWith('No input provided');
         });
 
-        it('Fail: Get DataStore by index', async () => {
+        it('Fail: Cannot get DataStore by index if curve is missing', async () => {
             await expect(
-                madWallet.Rpc.getDataStoreByIndex(madWallet.Account.accounts[0]['address'])
-            ).to.eventually.be.rejectedWith(Error);
+                madWallet.Rpc.getDataStoreByIndex(madWallet.Account.accounts[0]['address'], null)
+            ).to.eventually.be.rejectedWith('Invalid arguments');
+        });
+
+        it('Success: Get DataStore by index with valid arguments', async () => {
+            await expect(
+                madWallet.Rpc.getDataStoreByIndex(madWallet.Account.accounts[0]['address'], 1)
+            ).to.eventually.be.fulfilled;
         });
     });
 
     describe('Monitoring', () => {
-        it('Fail: Monitor Pending with invalid argument', async () => {
+        it('Fail: Monitor pending transaction with a invalid txHash', async () => {
             await expect(
-                madWallet.Rpc.monitorPending(null, 1, 1, 30)
-            ).to.eventually.be.rejectedWith(Error);
+                madWallet.Rpc.monitorPending(invalidTxHash, 1, 1, 30)
+            ).to.eventually.be.rejectedWith('unknown transaction');
         });
 
-        it('Success: Monitor Pending with invalid argument', async () => {
+        it('Success: Monitor pending transaction with a valid txHash', async () => {
             await expect(
-                madWallet.Rpc.monitorPending(txHash)
+                madWallet.Rpc.monitorPending(validTxHash)
             ).to.eventually.be.fulfilled;
         });
     });
 
     describe('Transaction', () => {
-        it('Fail: Get Mined Transaction with invalid argument', async () => {
+        it('Fail: Get Mined Transaction with a invalid argument', async () => {
             await expect(
-                madWallet.Rpc.getMinedTransaction(null)
-            ).to.eventually.be.rejectedWith(Error);
+                madWallet.Rpc.getMinedTransaction(invalidTxHash)
+            ).to.eventually.be.rejectedWith('unknown transaction');
         });
 
-        it('Fail: Get Pending Transaction with invalid argument', async () => {
+        it('Fail: Cannot get pending transaction with a invalid txHash', async () => {
             await expect(
-                madWallet.Rpc.getPendingTransaction(null)
-            ).to.eventually.be.rejectedWith(Error);
+                madWallet.Rpc.getPendingTransaction(invalidTxHash)
+            ).to.eventually.be.rejectedWith('unknown transaction');
         });
 
-        it('Fail: Send Transaction Error', async () => {
+        it('Fail: Cannot send transaction with a invalid Tx object', async () => {
             await expect(
-                madWallet.Rpc.sendTransaction()
-            ).to.eventually.be.rejectedWith(Error);
+                madWallet.Rpc.sendTransaction(invalidTx)
+            ).to.eventually.be.rejectedWith('the object is invalid');
         })
 
         it('Fail: Insufficient funds', async () => {
-            await madWallet.Transaction.createValueStore(madWallet.Account.accounts[0]["address"], 1000000000, madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"])
+            await madWallet.Transaction.createValueStore(
+                madWallet.Account.accounts[0]["address"], 1000000000, madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"]
+            );
             await expect(
                 madWallet.Transaction.sendTx()
-            ).to.eventually.be.rejected;
+            ).to.eventually.be.rejectedWith('Insufficient funds');
         });
     
         it('Success: SECP Create & Send DataStore', async () => {
-            await madWallet.Transaction.createTxFee(madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"], BigInt("0x" + fees["MinTxFee"]).toString())
-            await madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0x02", 1, "0x02")
-            await expect(
-                madWallet.Transaction.sendTx()
-            ).to.eventually.be.fulfilled;
+            await madWallet.Transaction.createTxFee(
+                madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
+            );
+            await madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0x02", 1, "0x02");
+            const transactionHash = await madWallet.Transaction.sendTx()
+
+            // TODO Check if exists a txhash format validator
+            expect(transactionHash).to.exist;
         }).timeout(testTimeout);
     
         it('Success: SECP Create & Send ValueStore', async () => {
             await wait(waitingTime);
-            await madWallet.Transaction.createTxFee(madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"], BigInt("0x" + fees["MinTxFee"]).toString())
-            await madWallet.Transaction.createValueStore(madWallet.Account.accounts[0]["address"], 9995, madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"])
-            
+            await madWallet.Transaction.createTxFee(
+                madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
+            );
+            await madWallet.Transaction.createValueStore(
+                madWallet.Account.accounts[0]["address"], 9995, madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"]
+            );
             await expect(
                 madWallet.Transaction.sendTx()
             ).to.eventually.be.fulfilled;
@@ -218,8 +239,10 @@ describe('Integration/RPC:', () => {
     
         it('Success: BN Create & Send DataStore', async () => {
             await wait(waitingTime);
-            await madWallet.Transaction.createDataStore(madWallet.Account.accounts[1]["address"], "0x03", 2, "0x02")
-            await madWallet.Transaction.createTxFee(madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"], BigInt("0x" + fees["MinTxFee"]).toString())
+            await madWallet.Transaction.createDataStore(madWallet.Account.accounts[1]["address"], "0x03", 2, "0x02");
+            await madWallet.Transaction.createTxFee(
+                madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
+            );
             await expect(
                 madWallet.Transaction.sendTx()
             ).to.eventually.be.fulfilled;
@@ -227,8 +250,12 @@ describe('Integration/RPC:', () => {
     
         it('Success: BN Create & Send ValueStore', async () => {
             await wait(waitingTime);
-            await madWallet.Transaction.createValueStore(madWallet.Account.accounts[1]["address"], 1, madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"])
-            await madWallet.Transaction.createTxFee(madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"], BigInt("0x" + fees["MinTxFee"]).toString())
+            await madWallet.Transaction.createValueStore(
+                madWallet.Account.accounts[1]["address"], 1, madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"]
+            );
+            await madWallet.Transaction.createTxFee(
+                madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
+            );
             await expect(
                 madWallet.Transaction.sendTx()
             ).to.eventually.be.fulfilled;
