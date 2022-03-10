@@ -82,7 +82,7 @@ await madWallet.Transaction.sendTx(0x4240A00833065c29D1EB117e200a87c95D640289, 2
 
 #### Tests
 > Create `.env` file in the root folder to specify account, chainId, and RPC.  
-  It is required that your `.env` has a key `OPTIONAL_TEST_SUITE_PRIVATE_KEY` with a funded private key value.
+  It is required that your `.env` has a key `OPTIONAL_TEST_SUITE_PRIVATE_KEY` and `OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY` both with a funded private key value.
 
 - Run all tests
 	- `npm test`
