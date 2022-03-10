@@ -22,6 +22,34 @@ describe('Integration/RPC:', () => {
         await madWallet.Account.addAccount(secondaryPrivateKey, 2);
         
         // TODO Check if it could be simplified -- Get txHash programmatically
+        // TODO Use Adam's example
+
+        
+         // Create value store object for tx
+        //     await madwallet.Transaction.createValueStore(madwallet.Account.accounts[0].address, 10000, sendTarget, isBN ? 2 : 1);
+        //     // Create tx fee
+        //     await madwallet.Transaction.createTxFee(madwallet.Account.accounts[0].address, 1, false);
+        //     try {
+        //         let txHash = await madwallet.Transaction.sendTx(madwallet.Account.accounts[0].address, 1);
+        //         console.log("\nFunding request received for: ", sendTarget, " transfer tx sent w/ respective hash: ", txHash);
+        //         return await waitForTx(txHash);
+        //     } catch (ex) {
+        //         console.log(ex);
+        //     }
+        //     async function waitForTx(txHash) {
+        //     console.log("Polling for txStatus of: ", txHash);
+        //     try {
+        //         let res = await madwallet.Rpc.request('get-mined-transaction', { TxHash: txHash });
+        //         console.log("txhash mined: ", txHash);
+        //         return res;
+        //     } catch (ex) {
+        //         if (ex.message.indexOf("unknown transaction:")) {
+        //             console.log(txHash + " not mined yet.");
+        //             return waitForTx(txHash);
+        //         }
+        //     }
+        // }
+
         const acct1 = await madWallet.Account.getAccount(madWallet.Account.accounts[0]["address"]);
         const acct1p = await acct1.signer.getPubK();
         const acct2 = await madWallet.Account.getAccount(madWallet.Account.accounts[2]["address"]);
@@ -39,10 +67,9 @@ describe('Integration/RPC:', () => {
         const sigs2Vout = await acct2.signer.multiSig.signMulti(sigMsgs["Vout"], multiPubK);
         await madWallet.Transaction.Tx.injectSignaturesAggregate([sigs1Vin, sigs2Vin], [sigs1Vout, sigs2Vout]);
         validTxHash = await madWallet.Transaction.sendSignedTx(madWallet.Transaction.Tx.getTx());
-
-        fees = await madWallet.Rpc.getFees(); 
         invalidTxHash = '59e792f9409d45701f2505ef27bf0f2c15e6f24e51bd8075323aa846a98b37d7';
         invalidTx = { "Tx": {  "Vin": [], "Vout": [], "Fee": "" } };
+        fees = await madWallet.Rpc.getFees(); 
         wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     });
 
@@ -105,11 +132,17 @@ describe('Integration/RPC:', () => {
             ).to.eventually.be.fulfilled;
         });
 
-        it('Success: Get Fees', async () => {
-            // console.log(fees);
-            await expect(
-                madWallet.Rpc.getFees()
-            ).to.eventually.be.fulfilled;
+        it('Success: Return Fees with the correct keys', async () => {
+            expect(fees).to.be.an('object').that.has.all.keys(
+                'MinTxFee', 
+                'ValueStoreFee', 
+                'DataStoreFee', 
+                'AtomicSwapFee'
+            );
+        });
+
+        it('Success: Return Fees with the correct length', async () => {
+            expect(Object.keys(fees).length).to.equal(4);
         });
     });
     
@@ -139,14 +172,19 @@ describe('Integration/RPC:', () => {
         });
 
         it('Success: Get Data Store UTXO with valid arguments', async () => {
+            // TODO Create new Data Store to generate new utxoids
+            await madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0xA", 1, "COFFEE", 1)
+            console.log(await madWallet.Rpc.getDataStoreUTXOIDs(madWallet.Account.accounts[0]['address'], 1))
             await expect(
-                madWallet.Rpc.getDataStoreUTXOIDs(madWallet.Account.accounts[0]['address'], 1, 1)
+                madWallet.Rpc.getDataStoreUTXOIDs(madWallet.Account.accounts[0]['address'], 1)
             ).to.eventually.be.fulfilled;
         });
 
         it('Success: Get UTXO by Ids', async () => {
+            const utxoIds = await madWallet.Rpc.getDataStoreUTXOIDs(madWallet.Account.accounts[0]['address'], 1, 1);
+            console.log(utxoIds);
             await expect(
-                madWallet.Rpc.getUTXOsByIds([])
+                madWallet.Rpc.getUTXOsByIds(utxoIds)
             ).to.eventually.be.fulfilled;
         });
     });
@@ -223,6 +261,8 @@ describe('Integration/RPC:', () => {
             // TODO Check if exists a txhash format validator
             expect(transactionHash).to.exist;
         }).timeout(testTimeout);
+
+        // TODO abstract and check values and object structures
     
         it('Success: SECP Create & Send ValueStore', async () => {
             await wait(waitingTime);

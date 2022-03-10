@@ -13,6 +13,7 @@ describe('Integration/Account:', () => {
         madWallet = new MadWalletJS(42, process.env.RPC);
         wrongAccountAddress = "0xc2f89cbbcdcc7477442e7250445f0fdb3238259b";
         await madWallet.Account.addAccount(privateKey, 1);
+        await madWallet.Account.addAccount(privateKey, 2);
     });
 
     describe('UTXOs', () => {
@@ -28,18 +29,19 @@ describe('Integration/Account:', () => {
             ).to.eventually.be.rejectedWith('Could not find account index');
         });
 
-        // TODO These tests below should if fixed -> Error: RPC.getDataStoreUTXOIDs: TypeError: Cannot read property \‘Index\’ of undefined’
-        // it.only('Success: Poll UTXOs for an added account', async () => {
-        //     await expect(
-        //         madWallet.Account._getAccountUTXOs(madWallet.Account.accounts[0]['address'], 0)
-        //     ).to.eventually.be.fulfilled;
-        // });
+        // TODO Check why still not passing
+        it.only('Success: Poll UTXOs for an added account', async () => {
+            await expect(
+                madWallet.Account._getAccountUTXOs(madWallet.Account.accounts[0]['address'], 0)
+            ).to.eventually.be.fulfilled;
+        });
 
-        // it.only('Success: Poll UTXOs for an added account by utxoIds', async () => {
-        //     await expect(
-        //         madWallet.Account._getAccountUTXOsByIds(madWallet.Account.accounts[0]['address'], '8b3e48e84656f2aff164370bfc62bd282d21bf18c66006de863ce6427b800287')
-        //     ).to.eventually.be.fulfilled;
-        // });
+        it('Success: Poll UTXOs for an added account by utxoIds', async () => {
+            await expect(
+                // TODO Get utxoid programatically
+                madWallet.Account._getAccountUTXOsByIds(madWallet.Account.accounts[0]['address'], '8b3e48e84656f2aff164370bfc62bd282d21bf18c66006de863ce6427b800287')
+            ).to.eventually.be.fulfilled;
+        });
     });
 
     describe('Value Stores', () => {
@@ -55,10 +57,11 @@ describe('Integration/Account:', () => {
             ).to.eventually.be.fulfilled;
         });
 
-        // TODO Check if constant.MinValue will change at some point -- if so this test can be affected
-        it('Success: Get account value stores for an added account with minValue higher than 0', async () => {
-            await madWallet.Account._getAccountValueStores(madWallet.Account.accounts[0]["address"], 255)
-            expect(madWallet.Account.accounts[0]['UTXO']['ValueStoreIDs']).to.not.have.lengthOf(256);
+        it('Success: Get account value stores for an added account with minValue greater than 0', async () => {
+            await madWallet.Account._getAccountValueStores(madWallet.Account.accounts[0]["address"], 1);
+            expect(
+                madWallet.Account.accounts[0]['UTXO']['ValueStoreIDs'].length
+            ).to.be.greaterThan(0);
         });
     });
 });

@@ -21,5 +21,9 @@ describe('Unit/Util/Hash:', () => {
         it('fail: Throws an error if called with invalid msg', () => {
             expect(() => Hash.hash('invalidhexmsg')).to.throws();
         });
+        
+        it('fail: Throws an error if called without a msg', () => {
+            expect(() => Hash.hash(null)).to.throws();
+        });
     });
 });
