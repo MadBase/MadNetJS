@@ -174,7 +174,6 @@ describe('Integration/RPC:', () => {
         it('Success: Get Data Store UTXO with valid arguments', async () => {
             // TODO Create new Data Store to generate new utxoids
             await madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0xA", 1, "COFFEE", 1)
-            console.log(await madWallet.Rpc.getDataStoreUTXOIDs(madWallet.Account.accounts[0]['address'], 1))
             await expect(
                 madWallet.Rpc.getDataStoreUTXOIDs(madWallet.Account.accounts[0]['address'], 1)
             ).to.eventually.be.fulfilled;
@@ -182,7 +181,6 @@ describe('Integration/RPC:', () => {
 
         it('Success: Get UTXO by Ids', async () => {
             const utxoIds = await madWallet.Rpc.getDataStoreUTXOIDs(madWallet.Account.accounts[0]['address'], 1, 1);
-            console.log(utxoIds);
             await expect(
                 madWallet.Rpc.getUTXOsByIds(utxoIds)
             ).to.eventually.be.fulfilled;

@@ -155,7 +155,6 @@ class Accounts {
             UTXOIDs = UTXOIDs.concat(valueUTXOIDs)
             let dataUTXOIDs = await this.Wallet.Rpc.getDataStoreUTXOIDs(address, this.accounts[accountIndex]["curve"], false, false)
             this.accounts[accountIndex]["UTXO"]["DataStoreIDs"] = dataUTXOIDs;
-            console.log({UTXOIDs, dataUTXOIDs})
             UTXOIDs = UTXOIDs.concat(dataUTXOIDs)
             let [DS, VS, AS] = await this.Wallet.Rpc.getUTXOsByIds(UTXOIDs)
             this.accounts[accountIndex]["UTXO"]["DataStores"] = DS;

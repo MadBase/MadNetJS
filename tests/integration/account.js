@@ -30,7 +30,7 @@ describe('Integration/Account:', () => {
         });
 
         // TODO Check why still not passing
-        it.only('Success: Poll UTXOs for an added account', async () => {
+        it('Success: Poll UTXOs for an added account', async () => {
             await expect(
                 madWallet.Account._getAccountUTXOs(madWallet.Account.accounts[0]['address'], 0)
             ).to.eventually.be.fulfilled;
