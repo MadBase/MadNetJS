@@ -171,6 +171,7 @@ describe('Integration/RPC:', () => {
             ).to.eventually.be.rejectedWith('Invalid arguments');
         });
 
+        // TODO Expect objects w/ expected properties in the UTXOStrings&Indices function and only strings from this one.
         it('Success: Get Data Store UTXO with valid arguments', async () => {
             // TODO Create new Data Store to generate new utxoids
             await madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0xA", 1, "COFFEE", 1)

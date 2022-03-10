@@ -139,10 +139,6 @@ class RPC {
             let ValueStores = [];
             let AtomicSwaps = [];
             for (let i = 0; i < minrequests; i++) { 
-                // console.log({ sliceIn: (i * constant.MaxUTXOs), sliceEnd: ((i + 1) * constant.MaxUTXOs) }, UTXOIDs.slice(255, 500))
-                // console.log(UTXOIDs.slice((i * constant.MaxUTXOs), ((i + 1) * constant.MaxUTXOs)), UTXOIDs.length)
-                // let reqData = { "UTXOIDs": UTXOIDs.slice(0, 255) }
-                
                 let reqData = { "UTXOIDs": UTXOIDs.slice((i * constant.MaxUTXOs), ((i + 1) * constant.MaxUTXOs)) }
                 let utxos = await this.request("get-utxo", reqData)
                 if (!utxos["UTXOs"]) {

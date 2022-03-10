@@ -29,7 +29,6 @@ describe('Integration/Account:', () => {
             ).to.eventually.be.rejectedWith('Could not find account index');
         });
 
-        // TODO Check why still not passing
         it('Success: Poll UTXOs for an added account', async () => {
             await expect(
                 madWallet.Account._getAccountUTXOs(madWallet.Account.accounts[0]['address'], 0)
@@ -37,9 +36,9 @@ describe('Integration/Account:', () => {
         });
 
         it('Success: Poll UTXOs for an added account by utxoIds', async () => {
+            const utxoids = await madWallet.Rpc.getDataStoreUTXOIDs(madWallet.Account.accounts[0]['address'], 1);
             await expect(
-                // TODO Get utxoid programatically
-                madWallet.Account._getAccountUTXOsByIds(madWallet.Account.accounts[0]['address'], '8b3e48e84656f2aff164370bfc62bd282d21bf18c66006de863ce6427b800287')
+                madWallet.Account._getAccountUTXOsByIds(madWallet.Account.accounts[0]['address'], utxoids)
             ).to.eventually.be.fulfilled;
         });
     });
