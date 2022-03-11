@@ -6,9 +6,11 @@ const expect = chai.expect;
 const MadWalletJS = require("../../index.js");
 
 describe('Integration/Transaction:', () => {
-    let privateKey, secondPrivateKey, madWallet, madWalletWithoutRPC, madWalletSigned;
-    let wrongFromAddress, accountUTXO, valueStoreVoutLength, dataStoreVoutLength, hexFrom;
-   
+    let privateKey, secondPrivateKey, madWallet, madWalletWithoutRPC, madWalletSigned, fees;
+    let wrongFromAddress, accountUTXO, valueStoreVoutLength, dataStoreVoutLength, hexFrom, wait;
+    const waitingTime = 40 * 1000; 
+    const testTimeout = 100 * 1000;
+
     before(async function() {
         madWallet = (process.env.RPC && process.env.CHAIN_ID) ? new MadWalletJS(process.env.CHAIN_ID, process.env.RPC) : new MadWalletJS();
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
@@ -29,10 +31,13 @@ describe('Integration/Transaction:', () => {
         await madWallet.Account.addAccount(privateKey, 2);
         await madWallet.Account.addAccount(secondPrivateKey, 1);
         await madWallet.Account.addAccount(secondPrivateKey, 2);
+
+        fees = await madWallet.Rpc.getFees(); 
+        wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     });
 
     beforeEach(async function() {
-        madWalletWithoutRPC = new MadWalletJS(42, null);
+        madWalletWithoutRPC = new MadWalletJS(process.env.CHAIN_ID, null);
         madWalletSigned = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
     });
 
@@ -316,6 +321,75 @@ describe('Integration/Transaction:', () => {
             await madWallet.Transaction.Tx._createTx();
             expect(madWallet.Transaction.Tx.Vout).to.have.lengthOf(valueStoreVoutLength)
         });
+
+        // TODO Organize better these
+        it('Fail: Insufficient funds', async () => {
+            await madWallet.Transaction.createValueStore(
+                madWallet.Account.accounts[0]["address"], 1000000000, madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"]
+            );
+            await expect(
+                madWallet.Transaction.sendTx()
+            ).to.eventually.be.rejectedWith('Insufficient funds');
+        });
+    
+        it('Success: SECP Create & Send DataStore', async () => {
+            await madWallet.Transaction.createTxFee(
+                madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
+            );
+            await madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0x02", 1, "0x02");
+            const transactionHash = await madWallet.Transaction.sendTx()
+
+            expect(transactionHash).to.exist;
+            expect(transactionHash).to.be.an('string');
+        }).timeout(testTimeout);
+
+        // TODO abstract and check values and object structures
+        /**
+         *  -- From github comment --
+         * We may want to add test cases that individually check the ability to create data or value stores so that we can verify the 
+         * integrity of those objects as a test case itself rather than assuming that those objects are correct and passing them forward
+         */
+    
+        it('Success: SECP Create & Send ValueStore', async () => {
+            await wait(waitingTime);
+            await madWallet.Transaction.createTxFee(
+                madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
+            );
+            await madWallet.Transaction.createValueStore(
+                madWallet.Account.accounts[0]["address"], 9995, madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"]
+            );
+            await expect(
+                madWallet.Transaction.sendTx()
+            ).to.eventually.be.fulfilled;
+        }).timeout(testTimeout);
+    
+        it('Success: BN Create & Send DataStore', async () => {
+            await wait(waitingTime);
+            await madWallet.Transaction.createDataStore(madWallet.Account.accounts[1]["address"], "0x03", 2, "0x02");
+            await madWallet.Transaction.createTxFee(
+                madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
+            );
+            await expect(
+                madWallet.Transaction.sendTx()
+            ).to.eventually.be.fulfilled;
+        }).timeout(testTimeout);
+    
+        /**
+         * -- From github comment --
+         * Same thing here possibly have test abstractions like: can create data stores with BN. Address, can create value stores with BN address, etc
+         */
+        it('Success: BN Create & Send ValueStore', async () => {
+            await wait(waitingTime);
+            await madWallet.Transaction.createValueStore(
+                madWallet.Account.accounts[1]["address"], 1, madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"]
+            );
+            await madWallet.Transaction.createTxFee(
+                madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
+            );
+            await expect(
+                madWallet.Transaction.sendTx()
+            ).to.eventually.be.fulfilled;
+        }).timeout(testTimeout);
     });  
 });
 

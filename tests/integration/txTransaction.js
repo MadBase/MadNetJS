@@ -7,7 +7,7 @@ const MadWalletJS = require("../../index.js");
 
 describe('Integration/Transaction/Tx:', () => {
     let privateKey, validHex;
-    const madWallet = new MadWalletJS(42, process.env.RPC);
+    const madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
     const madWalletTwo = new MadWalletJS(1, process.env.RPC);
     const madWalletThree = new MadWalletJS(11, process.env.RPC);
 
@@ -192,7 +192,7 @@ describe('Integration/Transaction/Tx:', () => {
         });
 
         it('Fail: Reject Import Raw Transaction when Tx is invalid', async () => {
-            const madWalletWithoutRPC = new MadWalletJS(42, null);
+            const madWalletWithoutRPC = new MadWalletJS(process.env.CHAIN_ID, null);
             await expect(
                 madWalletWithoutRPC.Transaction.Tx.importRawTransaction(madWalletWithoutRPC.Transaction.Tx.getTx())
             ).to.eventually.be.rejectedWith(Error);

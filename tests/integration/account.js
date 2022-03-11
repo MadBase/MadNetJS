@@ -10,7 +10,7 @@ describe('Integration/Account:', () => {
     
     before(async function() {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
-        madWallet = new MadWalletJS(42, process.env.RPC);
+        madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
         wrongAccountAddress = "0xc2f89cbbcdcc7477442e7250445f0fdb3238259b";
         await madWallet.Account.addAccount(privateKey, 1);
         await madWallet.Account.addAccount(privateKey, 2);

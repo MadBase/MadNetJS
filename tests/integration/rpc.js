@@ -6,71 +6,47 @@ const expect = chai.expect;
 const MadWalletJS = require("../../index.js");
 
 describe('Integration/RPC:', () => {
-    let privateKey, secondaryPrivateKey, madWallet, validTxHash, invalidTxHash, invalidTx,  blockNumber, fees, wait;
-    const waitingTime = 40 * 1000; 
-    const testTimeout = 100 * 1000;
+    let privateKey,  madWallet, validTxHash, invalidTxHash, invalidTx,  blockNumber, fees;
 
     before(async function() {
         if (process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY && process.env.RPC && process.env.CHAIN_ID) {
             privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
-            secondaryPrivateKey = process.env.OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY;
             madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
         }
 
         await madWallet.Account.addAccount(privateKey, 2);
         await madWallet.Account.addAccount(privateKey, 1);
-        await madWallet.Account.addAccount(secondaryPrivateKey, 2);
+       
+        // Create value store object for tx
+        const sendTarget = madWallet.Account.accounts[1].address;
+        await madWallet.Transaction.createValueStore(madWallet.Account.accounts[0].address, 1000, sendTarget,1);
         
-        // TODO Check if it could be simplified -- Get txHash programmatically
-        // TODO Use Adam's example
-
+        // Create tx fee
+        await madWallet.Transaction.createTxFee(madWallet.Account.accounts[0].address, 1, false);
         
-         // Create value store object for tx
-        //     await madwallet.Transaction.createValueStore(madwallet.Account.accounts[0].address, 10000, sendTarget, isBN ? 2 : 1);
-        //     // Create tx fee
-        //     await madwallet.Transaction.createTxFee(madwallet.Account.accounts[0].address, 1, false);
-        //     try {
-        //         let txHash = await madwallet.Transaction.sendTx(madwallet.Account.accounts[0].address, 1);
-        //         console.log("\nFunding request received for: ", sendTarget, " transfer tx sent w/ respective hash: ", txHash);
-        //         return await waitForTx(txHash);
-        //     } catch (ex) {
-        //         console.log(ex);
-        //     }
-        //     async function waitForTx(txHash) {
-        //     console.log("Polling for txStatus of: ", txHash);
-        //     try {
-        //         let res = await madwallet.Rpc.request('get-mined-transaction', { TxHash: txHash });
-        //         console.log("txhash mined: ", txHash);
-        //         return res;
-        //     } catch (ex) {
-        //         if (ex.message.indexOf("unknown transaction:")) {
-        //             console.log(txHash + " not mined yet.");
-        //             return waitForTx(txHash);
-        //         }
-        //     }
-        // }
+        // Retrieve valid txHash
+        try {
+            let txHash = await madWallet.Transaction.sendTx(madWallet.Account.accounts[0].address, 1);
+            validTxHash = await waitForTx(txHash);
+        } catch (ex) {
+            console.log(ex);
+        }
 
-        const acct1 = await madWallet.Account.getAccount(madWallet.Account.accounts[0]["address"]);
-        const acct1p = await acct1.signer.getPubK();
-        const acct2 = await madWallet.Account.getAccount(madWallet.Account.accounts[2]["address"]);
-        const acct2p = await acct2.signer.getPubK();
-        const multiAcct = await madWallet.Account.addMultiSig([acct1p, acct2p]);
-        const multiPubK = await multiAcct.signer.getPubK();
-        await madWallet.Transaction.createValueStore(multiAcct.address, 1, acct1.address, 2);
-        await madWallet.Transaction.createTxFee(multiAcct.address, 2);
-        await madWallet.Transaction.createRawTransaction();
-
-        const sigMsgs = await madWallet.Transaction.Tx.getSignatures();
-        const sigs1Vin = await acct1.signer.multiSig.signMulti(sigMsgs["Vin"], multiPubK);
-        const sigs1Vout = await acct1.signer.multiSig.signMulti(sigMsgs["Vout"], multiPubK);
-        const sigs2Vin = await acct2.signer.multiSig.signMulti(sigMsgs["Vin"], multiPubK);
-        const sigs2Vout = await acct2.signer.multiSig.signMulti(sigMsgs["Vout"], multiPubK);
-        await madWallet.Transaction.Tx.injectSignaturesAggregate([sigs1Vin, sigs2Vin], [sigs1Vout, sigs2Vout]);
-        validTxHash = await madWallet.Transaction.sendSignedTx(madWallet.Transaction.Tx.getTx());
+        // Wait txHash to be mined
+        async function waitForTx(txHash) {
+            try {
+                await madWallet.Rpc.request('get-mined-transaction', { TxHash: txHash });
+                return txHash;
+            } catch (ex) {
+                if (ex.message.indexOf("unknown transaction:")) {
+                    return waitForTx(txHash);
+                }
+            }
+        }
+        
         invalidTxHash = '59e792f9409d45701f2505ef27bf0f2c15e6f24e51bd8075323aa846a98b37d7';
         invalidTx = { "Tx": {  "Vin": [], "Vout": [], "Fee": "" } };
         fees = await madWallet.Rpc.getFees(); 
-        wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     });
 
     describe('Set Provider', () => {
@@ -171,20 +147,25 @@ describe('Integration/RPC:', () => {
             ).to.eventually.be.rejectedWith('Invalid arguments');
         });
 
-        // TODO Expect objects w/ expected properties in the UTXOStrings&Indices function and only strings from this one.
-        it('Success: Get Data Store UTXO with valid arguments', async () => {
-            // TODO Create new Data Store to generate new utxoids
-            await madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0xA", 1, "COFFEE", 1)
+        it('Fail: Cannot get Data Store UTXOs IDS and indices with missing arguments', async () => {
             await expect(
-                madWallet.Rpc.getDataStoreUTXOIDs(madWallet.Account.accounts[0]['address'], 1)
-            ).to.eventually.be.fulfilled;
+                madWallet.Rpc.getDataStoreUTXOIDsAndIndices()
+            ).to.eventually.be.rejectedWith('Invalid arguments');
         });
 
-        it('Success: Get UTXO by Ids', async () => {
-            const utxoIds = await madWallet.Rpc.getDataStoreUTXOIDs(madWallet.Account.accounts[0]['address'], 1, 1);
-            await expect(
-                madWallet.Rpc.getUTXOsByIds(utxoIds)
-            ).to.eventually.be.fulfilled;
+        it('Success: Get Data Store UTXOs IDS and indices', async () => {
+            const dataStoreUTXOIDsAndIndices = await madWallet.Rpc.getDataStoreUTXOIDsAndIndices(madWallet.Account.accounts[0]['address'], 2, 1);
+            expect(dataStoreUTXOIDsAndIndices).to.be.an('array');
+            expect(dataStoreUTXOIDsAndIndices[0]).to.be.an('object').that.has.all.keys(
+                'Index', 
+                'UTXOID'
+            );
+        });
+
+        it('Success: Get Data Store UTXOs and return an array of strings', async () => {
+            const dataStoreUTXOIDs = await madWallet.Rpc.getDataStoreUTXOIDs(madWallet.Account.accounts[0]['address'], 2);
+            expect(dataStoreUTXOIDs).to.be.an('array');
+            expect(dataStoreUTXOIDs[0]).to.be.an('string');
         });
     });
     
@@ -240,64 +221,5 @@ describe('Integration/RPC:', () => {
                 madWallet.Rpc.sendTransaction(invalidTx)
             ).to.eventually.be.rejectedWith('the object is invalid');
         })
-
-        it('Fail: Insufficient funds', async () => {
-            await madWallet.Transaction.createValueStore(
-                madWallet.Account.accounts[0]["address"], 1000000000, madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"]
-            );
-            await expect(
-                madWallet.Transaction.sendTx()
-            ).to.eventually.be.rejectedWith('Insufficient funds');
-        });
-    
-        it('Success: SECP Create & Send DataStore', async () => {
-            await madWallet.Transaction.createTxFee(
-                madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
-            );
-            await madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0x02", 1, "0x02");
-            const transactionHash = await madWallet.Transaction.sendTx()
-
-            // TODO Check if exists a txhash format validator
-            expect(transactionHash).to.exist;
-        }).timeout(testTimeout);
-
-        // TODO abstract and check values and object structures
-    
-        it('Success: SECP Create & Send ValueStore', async () => {
-            await wait(waitingTime);
-            await madWallet.Transaction.createTxFee(
-                madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
-            );
-            await madWallet.Transaction.createValueStore(
-                madWallet.Account.accounts[0]["address"], 9995, madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"]
-            );
-            await expect(
-                madWallet.Transaction.sendTx()
-            ).to.eventually.be.fulfilled;
-        }).timeout(testTimeout);
-    
-        it('Success: BN Create & Send DataStore', async () => {
-            await wait(waitingTime);
-            await madWallet.Transaction.createDataStore(madWallet.Account.accounts[1]["address"], "0x03", 2, "0x02");
-            await madWallet.Transaction.createTxFee(
-                madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
-            );
-            await expect(
-                madWallet.Transaction.sendTx()
-            ).to.eventually.be.fulfilled;
-        }).timeout(testTimeout);
-    
-        it('Success: BN Create & Send ValueStore', async () => {
-            await wait(waitingTime);
-            await madWallet.Transaction.createValueStore(
-                madWallet.Account.accounts[1]["address"], 1, madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"]
-            );
-            await madWallet.Transaction.createTxFee(
-                madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
-            );
-            await expect(
-                madWallet.Transaction.sendTx()
-            ).to.eventually.be.fulfilled;
-        }).timeout(testTimeout);
     });
 });
