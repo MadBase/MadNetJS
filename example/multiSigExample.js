@@ -59,14 +59,16 @@ async function main() {
         console.log("Estimate Fees:", fees)
         console.log("--------------")
 
-        // console.log("Funding multisig address...")
-        // await madWallet.Transaction.createValueStore(madWallet.Account.accounts[2]["address"], 10000, multiAcct.address, 2)
-        // await madWallet.Transaction.createTxFee(madWallet.Account.accounts[2]["address"], 1, BigInt("0x" + fees.baseFees["MinTxFee"]))
-        // await madWallet.Transaction.sendTx();
-        // console.log("Done")
-        // console.log("--------------------")
-        // process.exit()
-        // await sleep(20000)
+        /*
+            console.log("Funding multisig address...")
+            await madWallet.Transaction.createValueStore(madWallet.Account.accounts[2]["address"], 10000, multiAcct.address, 2)
+            await madWallet.Transaction.createTxFee(madWallet.Account.accounts[2]["address"], 1, BigInt("0x" + fees.baseFees["MinTxFee"]))
+            await madWallet.Transaction.sendTx();
+            console.log("Done")
+            console.log("--------------------")
+            process.exit()
+            await sleep(20000)
+        */
 
         console.log("Creating multisig transaction...")
         await madWallet.Transaction.createValueStore(multiAcct.address, 1, acct1.address, 2)
@@ -94,10 +96,12 @@ async function main() {
     }
 }
 
-// function sleep(ms) {
-//     return new Promise((resolve) => {
-//         setTimeout(resolve, ms);
-//     });
-// }
+/**
+function sleep(ms) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
+}
+*/
 
 main();
