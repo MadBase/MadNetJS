@@ -7,7 +7,7 @@ const MadWalletJS = require("../../index.js");
 
 describe('Integration/Transaction:', () => {
     let privateKey, secondPrivateKey, madWallet, madWalletWithoutRPC, madWalletSigned, fees;
-    let wrongFromAddress, accountUTXO, valueStoreVoutLength, dataStoreVoutLength, hexFrom, wait;
+    let wrongFromAddress, valueStoreVoutLength, dataStoreVoutLength, invalidHexFrom, wait;
     const waitingTime = 40 * 1000; 
     const testTimeout = 100 * 1000;
 
@@ -15,22 +15,16 @@ describe('Integration/Transaction:', () => {
         madWallet = (process.env.RPC && process.env.CHAIN_ID) ? new MadWalletJS(process.env.CHAIN_ID, process.env.RPC) : new MadWalletJS();
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
         secondPrivateKey = '6aea45ee1273170fb525da34015e4f20ba39fe792f486ba74020bcacc9badfc2';
-        wrongFromAddress = '91f174784ba0edd9df3051deb0a53fddca8a150e';
-        accountUTXO = {
-            "ValueStores": {
-                "VSPreImage": {
-                    "Value": 1
-                }
-            },
-        };
-        valueStoreVoutLength = 11;
-        dataStoreVoutLength = 8;
-        hexFrom = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
 
         await madWallet.Account.addAccount(privateKey, 1);
         await madWallet.Account.addAccount(privateKey, 2);
         await madWallet.Account.addAccount(secondPrivateKey, 1);
         await madWallet.Account.addAccount(secondPrivateKey, 2);
+
+        wrongFromAddress = '91f174784ba0edd9df3051deb0a53fddca8a150e';
+        valueStoreVoutLength = 11;
+        dataStoreVoutLength = 8;
+        invalidHexFrom = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
 
         fees = await madWallet.Rpc.getFees(); 
         wait = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -50,24 +44,32 @@ describe('Integration/Transaction:', () => {
         });
 
         it('Success: Get the current fees and store them', async () => {
-            await expect(
-                madWallet.Transaction.Tx.estimateFees()
-            ).to.eventually.be.fulfilled;
+            await madWallet.Transaction._getFees();
+            const currentFees = madWallet.Transaction.fees;
+            expect(currentFees).to.be.an('object').that.has.all.keys(
+                'MinTxFee', 
+                'ValueStoreFee', 
+                'DataStoreFee', 
+                'AtomicSwapFee'
+            );
         });
     });
 
     describe('UTXO', () => {
-        it('Fail: Reject _spendUTXO when highest unspent is invalid', async () => {
+        it('Fail: Cannot consume UTXOs if highest value not found', async () => {
+            const account = await madWallet.Account.getAccount(madWallet.Account.accounts[0]['address']);
             await expect(
-                madWallet.Transaction._spendUTXO(accountUTXO, madWallet.Account.accounts[0])
+                madWallet.Transaction._spendUTXO(account['UTXO'], madWallet.Account.accounts[0])
             ).to.eventually.be.rejectedWith('Could not find highest value UTXO');
         });
     
-        it('Fail: Reject _spendUTXO when arguments are invalid', async () => {
+        it('Fail: Cannot consume UTXOs when argument accountUTXO is invalid', async () => {
             await expect(
-                madWallet.Transaction._spendUTXO('wrongAccountUTXO')
-            ).to.eventually.be.rejectedWith(Error);
+                madWallet.Transaction._spendUTXO(null)
+            ).to.eventually.be.rejectedWith('Cannot read property');
         });
+
+        // TODO Test the inverse of the above fail examples
     });
     
     describe('Data Store', () => {
@@ -96,10 +98,9 @@ describe('Integration/Transaction:', () => {
             ).to.eventually.be.fulfilled;
         });
 
-        it('Success: Create a DataStore with index length different than 64', async () => {
-            await expect(
-                madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]['address'], 'stringwithlessthan64', BigInt(1), 'rawData', false, 8)
-            ).to.eventually.be.fulfilled;
+        it('Success: Create a DataStore with index length less than 64', async () => {
+            const { DataStore = null } = await madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]['address'], 'stringwithlessthan64', BigInt(1), 'rawData', false, 8);
+            expect(DataStore.DSLinker.DSPreImage.Index).to.have.lengthOf(64);
         });
 
         it('Fail: Reject createDataStore when index length higher than 64', async () => {
@@ -120,64 +121,83 @@ describe('Integration/Transaction:', () => {
             ).to.eventually.be.rejectedWith('Invalid fee');
         });
 
-        it('Success: Create a DataStore with fee not definded', async () => {
-            await expect(
-                madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]['address'], 'index', BigInt(1), 'rawData', false, undefined)
-            ).to.eventually.be.fulfilled;
+        it('Success: Create a DataStore with fee undefined and non-hex rawData', async () => {
+            const duration = BigInt(1);
+            const rawData = 'rawData';
+            const { DataStore = null } = await madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]['address'], 'index', duration, rawData, false, undefined);
+            const currentDSFee = madWallet.Utils.numToHex(
+                await madWallet.Utils.calculateFee(
+                    madWallet.Utils.hexToInt(
+                        madWallet.Transaction.fees['DataStoreFee']
+                    ),
+                    duration
+                )
+            );
+            const rawDataToHex = madWallet.Utils.txtToHex(rawData);
+            expect(DataStore.DSLinker.DSPreImage.Fee).to.equal(currentDSFee);
+            expect(DataStore.DSLinker.DSPreImage.RawData).to.equal(rawDataToHex);
         });
 
-        it('Fail: Create DataStore - Missing inputs', async () => {
+        it('Fail: Cannot create DataStore with missing arguments', async () => {
             await expect(
                 madWallet.Transaction.createDataStore("0x0")
-            ).to.eventually.be.rejected;
+            ).to.eventually.be.rejectedWith('Missing arguments');
         });
 
-        it('Fail: Create DataStore - Invalid address', async () => {
+        it('Fail: Cannot create DataStore with invalid address', async () => {
             await expect(
-                madWallet.Transaction.createDataStore(hexFrom, "0xA", 1, "0xC0FFEE", 1)
-            ).to.eventually.be.rejected;
+                madWallet.Transaction.createDataStore(invalidHexFrom, "0xA", 1, "0xC0FFEE", 1)
+            ).to.eventually.be.rejectedWith('Could not find account');
         });
 
-        it('Fail: Create DataStore - Invalid index hex', async () => {
+        it('Fail: Cannot create DataStore with invalid index hex', async () => {
             await expect(
                 madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0xZ", 1, "0xC0FFEE", 1)
-            ).to.eventually.be.rejected;
+            ).to.eventually.be.rejectedWith('Invalid hex charater');
         });
 
-        it('Fail: Create DataStore - Invalid duration', async () => {
+        it('Fail: Cannot create DataStore with invalid duration', async () => {
             await expect(
                 madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0xA", "a", "0xC0FFEE", 1)
-            ).to.eventually.be.rejected;
+            ).to.eventually.be.rejectedWith('Cannot convert a to a BigInt');
         });
 
-        it('Fail: Create DataStore - Invalid data hex', async () => {
+        it('Fail: Cannot create DataStore with invalid data hex', async () => {
             await expect(
                 madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0xA", 1, "0xCOFFEE", 1)
-            ).to.eventually.be.rejected;
+            ).to.eventually.be.rejectedWith('Invalid hex charater');
         });
         
-        it('Success: Created DataStore - Hex index', async () => {
-            await expect(
-                madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0xA", 1, "COFFEE", 1)
-            ).to.eventually.be.fulfilled;
+        it('Success: Created DataStore with hex index', async () => {
+            const index =  '0xA';
+            const { DataStore = null } = await madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], index, 1, "COFFEE", 1);
+            expect(DataStore.DSLinker.DSPreImage.Index).to.equal(
+                madWallet.Utils.isHex(index).padStart(64, "0")
+            );
         });
 
-        it('Success: Created DataStore - Hex Data', async () => {
-            await expect(
-                madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0xA", 1, "0xC0FFEE", 1)
-            ).to.eventually.be.fulfilled;
+        it('Success: Created DataStore with hex Data', async () => {
+            const hexData = '0xC0FFEE';
+            const { DataStore = null } = await madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0xA", 1, hexData, 1);
+            expect(DataStore.DSLinker.DSPreImage.RawData).to.equal(
+                madWallet.Utils.isHex(hexData)
+            );
         });
 
-        it('Success: Created DataStore - String index', async () => {
-            await expect(
-                madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "Hello", 1, "0xC0FFEE", 1)
-            ).to.eventually.be.fulfilled;
+        it('Success: Created DataStore with string index', async () => {
+            const stringIndex = 'Hello';
+            const { DataStore = null } = await madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], stringIndex, 1, "0xC0FFEE", 1);
+            expect(DataStore.DSLinker.DSPreImage.Index).to.equal(
+                madWallet.Utils.txtToHex(stringIndex).padStart(64, "0")
+            );
         });
 
-        it('Success: Created DataStore - String Data', async () => {
-            await expect(
-                madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "World", 1, "COFFEE", 1)
-            ).to.eventually.be.fulfilled;
+        it('Success: Created DataStorewith string Data', async () => {
+            const stringData = 'COFFEE';
+            const { DataStore = null } = await madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "World", 1, stringData, 1);
+            expect(DataStore.DSLinker.DSPreImage.RawData).to.equal(
+                madWallet.Utils.txtToHex(stringData)
+            );
         });
     });
 
@@ -204,22 +224,22 @@ describe('Integration/Transaction:', () => {
             ).to.eventually.be.rejectedWith('No Vouts for transaction');
         });
 
-        it('Fail: Reject createTxFee with invalid arguments', async () => {
+        it('Fail: Reject createTxFee with missing arguments', async () => {
             await expect(
-                madWallet.Transaction.createTxFee('invalidpayeraddress')
-            ).to.eventually.be.rejectedWith(Error);
+                madWallet.Transaction.createTxFee()
+            ).to.eventually.be.rejectedWith('Missing arugments');
         });
 
         it('Fail: Reject _createValueTxIn with invalid arguments', async () => {
             await expect(
                 madWallet.Transaction._createValueTxIn('invalidaddress')
-            ).to.eventually.be.rejectedWith(Error);
+            ).to.eventually.be.rejectedWith('Cannot read property');
         });
 
         it('Fail: Reject _createDataTxIn with invalid arguments', async () => {
             await expect(
                 madWallet.Transaction._createDataTxIn('invalidaddress')
-            ).to.eventually.be.rejectedWith(Error);
+            ).to.eventually.be.rejectedWith('Cannot read property');
         });
 
         it('Success: Vout length is correct', () => {
@@ -274,40 +294,40 @@ describe('Integration/Transaction:', () => {
             ).to.eventually.be.rejectedWith('Cannot get curve');
         });
     
-        it('Fail: Create ValueStore - Missing inputs', async () => {
+        it('Fail: Cannot create ValueStore with missing arguments', async () => {
             await expect(
                 madWallet.Transaction.createValueStore(madWallet.Account.accounts[0]["address"], 1, madWallet.Account.accounts[0]["address"])
-            ).to.eventually.be.rejected;
+            ).to.eventually.be.rejectedWith('Missing arugments');
         });
     
-        it('Fail: Create ValueStore - Invalid from address', async () => {
+        it('Fail: Cannot create ValueStore with invalid address length', async () => {
             await expect(
                 madWallet.Transaction.createValueStore("0x0", 1, madWallet.Account.accounts[0]["address"], 1)
-            ).to.eventually.be.rejected;
+            ).to.eventually.be.rejectedWith('Invalid length');
         });
     
-        it('Fail: Create ValueStore - Invalid value', async () => {
+        it('Fail: Cannot create ValueStore with invalid value', async () => {
             await expect(
                 madWallet.Transaction.createValueStore(madWallet.Account.accounts[0]["address"], "A", madWallet.Account.accounts[0]["address"], 1)
-            ).to.eventually.be.rejected;
+            ).to.eventually.be.rejectedWith('Cannot convert A to a BigInt');
         });
     
-        it('Fail: Create ValueStore - Invalid to address', async () => {
+        it('Fail: Cannot create ValueStore with invalid address', async () => {
             await expect(
                 madWallet.Transaction.createValueStore(madWallet.Account.accounts[0]["address"], 1, "0x0", 1)
-            ).to.eventually.be.rejected;
+            ).to.eventually.be.rejectedWith('Invalid length');
         });
     
-        it('Fail: Create ValueStore - Invalid to curve', async () => {
+        it('Fail: Cannot create ValueStore with invalid curve', async () => {
             await expect(
                 madWallet.Transaction.createValueStore(madWallet.Account.accounts[0]["address"], 1, madWallet.Account.accounts[0]["address"], 3)
-            ).to.eventually.be.rejected;
+            ).to.eventually.be.rejectedWith('Invalid curve');
         });
     
-        it('Fail: Create ValueStore - From address not added to account', async () => {
+        it('Fail: Cannot create ValueStore from address not added to account', async () => {
             await expect(
-                madWallet.Transaction.createValueStore(hexFrom, 1, madWallet.Account.accounts[0]["address"], 1)
-            ).to.eventually.be.rejected;
+                madWallet.Transaction.createValueStore(invalidHexFrom, 1, madWallet.Account.accounts[0]["address"], 1)
+            ).to.eventually.be.rejectedWith('Could not find account');
         });
     
         it('Success: Created ValueStore', async () => {
