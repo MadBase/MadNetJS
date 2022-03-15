@@ -49,7 +49,7 @@ describe('Unit/MultiSig:', () => {
         it('Success: Add Public Keys', async () => {
             await expect(
                 multiSigSecp.addPublicKeys(publicKeys)
-            ).to.eventually.be.fulfilled;
+            ).to.eventually.match(/^[0-9a-fA-F]+$/);
         });
 
         it('Success: Get Public Key when one was previously added', async () => {
@@ -90,7 +90,7 @@ describe('Unit/MultiSig:', () => {
             await multiSigSecp.addPublicKeys(publicKeys)
             await expect(
                 multiSigSecp.signMulti(['0000ffeebabe', '0000ffeebabe'])
-            ).to.eventually.match(/^[0-9a-fA-F]+$/);
+            ).to.eventually.have.length(2);
         });
     });
 
@@ -121,7 +121,7 @@ describe('Unit/MultiSig:', () => {
 
         it('Fail: Aggregate Signatures should fail unless an array is provided ', async () => {
             await expect(
-                multiSigSecp.aggregateSignatures(null)
+                multiSigSecp.aggregateSignatures({})
             ).to.eventually.be.rejectedWith('BNAggregate.signatures: ');
         });
 
