@@ -55,14 +55,14 @@ describe('Unit/MultiSig:', () => {
         it('Success: Get Public Key when one was previously added', async () => {
             await expect(
                 multiSigSecp.getPubK()
-            ).to.eventually.be.fulfilled;
+            ).to.eventually.match(/^[0-9a-fA-F]+$/);
         });
 
         it('Success: Get Address when a Public Key exists', async () => {
             await multiSigSecp.addPublicKeys(publicKeys)
             await expect(
                 multiSigSecp.getAddress()
-            ).to.eventually.be.fulfilled;
+            ).to.eventually.match(/^[0-9a-fA-F]+$/);
         });
     });
 
@@ -76,7 +76,7 @@ describe('Unit/MultiSig:', () => {
         it('Fail: Reject Sign Multi when called with invalid rawMsgs', async () => {
             await expect(
                 multiSigSecp.signMulti(null)
-            ).to.eventually.be.rejectedWith(Error);
+            ).to.eventually.be.rejectedWith('BNAggregate.aggregateMulti: ');
         });
 
         it('Success: Sign one message', async () => {
@@ -90,7 +90,7 @@ describe('Unit/MultiSig:', () => {
             await multiSigSecp.addPublicKeys(publicKeys)
             await expect(
                 multiSigSecp.signMulti(['0000ffeebabe', '0000ffeebabe'])
-            ).to.eventually.be.fulfilled;
+            ).to.eventually.match(/^[0-9a-fA-F]+$/);
         });
     });
 
@@ -98,25 +98,31 @@ describe('Unit/MultiSig:', () => {
         it('Fail: Reject Aggregate Signatures when called with invalid argument', async () => {
             await expect(
                 multiSigSecp.aggregateSignatures(null)
-            ).to.eventually.be.rejectedWith(Error);
+            ).to.eventually.be.rejectedWith('BNAggregate.signatures: ');
         });
 
         it('Fail: Reject Aggregate Multi Signatures when called with invalid argument', async () => {
             await expect(
                 multiSigSecp.aggregateSignaturesMulti(null)
-            ).to.eventually.be.rejectedWith(Error);
+            ).to.eventually.be.rejectedWith('BNAggregate.signaturesMulti: ');
         });
 
         it('Fail: Reject Verify Aggregate when called with invalid argument', async () => {
             await expect(
                 multiSigSecp.verifyAggregate(null)
-            ).to.eventually.be.rejectedWith(Error);
+            ).to.eventually.be.rejectedWith('BNAggregate.verifyAggregateSingle: ');
         });
 
         it('Fail: Reject Verify Aggregate when called with invalid sig hex length', async () => {
             await expect(
                 multiSigSecp.verifyAggregate(msgHex, '0xc0ffeebab')
-            ).to.eventually.be.rejectedWith(Error);
+            ).to.eventually.be.rejectedWith('BNAggregate.verifyAggregateSingle: ');
+        });
+
+        it('Fail: Aggregate Signatures should fail unless an array is provided ', async () => {
+            await expect(
+                multiSigSecp.aggregateSignatures(null)
+            ).to.eventually.be.rejectedWith('BNAggregate.signatures: ');
         });
 
         it('Success: Aggregate Signatures', async () => {
