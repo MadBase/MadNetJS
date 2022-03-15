@@ -157,16 +157,16 @@ describe('Integration/RPC:', () => {
         it('Success: Get Data Store UTXOs IDS and indices', async () => {
             const dataStoreUTXOIDsAndIndices = await madWallet.Rpc.getDataStoreUTXOIDsAndIndices(madWallet.Account.accounts[0]['address'], 2, 1);
             expect(dataStoreUTXOIDsAndIndices).to.be.an('array');
-            expect(dataStoreUTXOIDsAndIndices[0]).to.be.an('object').that.has.all.keys(
+            dataStoreUTXOIDsAndIndices.forEach(dsUTXO => expect(dsUTXO).to.be.an('object').that.has.all.keys(
                 'Index', 
                 'UTXOID'
-            );
+            ));
         });
 
         it('Success: Get Data Store UTXOs and return an array of strings', async () => {
             const dataStoreUTXOIDs = await madWallet.Rpc.getDataStoreUTXOIDs(madWallet.Account.accounts[0]['address'], 2);
             expect(dataStoreUTXOIDs).to.be.an('array');
-            expect(dataStoreUTXOIDs[0]).to.be.an('string');
+            dataStoreUTXOIDs.forEach(dsUTXO => expect(dsUTXO).to.be.an('string'));
         });
     });
     
