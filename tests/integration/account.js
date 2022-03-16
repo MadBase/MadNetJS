@@ -58,8 +58,9 @@ describe('Integration/Account:', () => {
 
         it('Success: Get account value stores for an added account with minValue greater than 0', async () => {
             await madWallet.Account._getAccountValueStores(madWallet.Account.accounts[0]["address"], 1);
+            const account = await madWallet.Account.getAccount(madWallet.Account.accounts[0]['address']);
             expect(
-                madWallet.Account.accounts[0]['UTXO']['ValueStoreIDs'].length
+                account['UTXO']['ValueStoreIDs'].length
             ).to.be.greaterThan(0);
         });
     });

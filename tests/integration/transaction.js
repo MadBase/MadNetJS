@@ -62,11 +62,46 @@ describe('Integration/Transaction:', () => {
                 madWallet.Transaction._spendUTXO(null)
             ).to.eventually.be.rejectedWith('Cannot read property');
         });
-
-        // TODO Test the inverse of the above fail examples
     });
     
     describe('Data Store', () => {
+         it('Success: Send DataStore with SECP address', async () => {
+            await madWallet.Transaction.createTxFee(
+                madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
+            );
+            await madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0x02", 1, "0x02");
+            await expect(
+                madWallet.Transaction.sendTx()
+            ).to.eventually.be.fulfilled;
+        }).timeout(testTimeout);
+
+        it('Success: Send DataStore with BN address', async () => {
+            await wait(waitingTime);
+            await madWallet.Transaction.createDataStore(madWallet.Account.accounts[1]["address"], "0x03", 2, "0x02");
+            await madWallet.Transaction.createTxFee(
+                madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
+            );
+            await expect(
+                madWallet.Transaction.sendTx()
+            ).to.eventually.be.fulfilled;
+        }).timeout(testTimeout);
+
+        it('Success: Create DataStore with SECP address', async () => {
+            const secpAccount = madWallet.Account.accounts[0];
+            const { DataStore: SecpDatStore = null } = await madWallet.Transaction.createDataStore(secpAccount["address"], "0x02", 1, "0x02");
+            const expectedOwner = await madWallet.Utils.prefixSVACurve(3, secpAccount["curve"], secpAccount["address"]);
+            expect(SecpDatStore).to.be.an('object').that.has.all.keys('DSLinker', 'Signature');
+            expect(SecpDatStore.DSLinker.DSPreImage.Owner).to.equal(expectedOwner);
+        });
+
+        it('Success: Create DataStore with BN address', async () => {
+            const bnAccount = madWallet.Account.accounts[1];
+            const { DataStore: BnDataStore = null } = await madWallet.Transaction.createDataStore(bnAccount["address"], "0x03", 2, "0x02");
+            const expectedOwner = await madWallet.Utils.prefixSVACurve(3, bnAccount["curve"], bnAccount["address"]);
+            expect(BnDataStore).to.be.an('object').that.has.all.keys('DSLinker', 'Signature');
+            expect(BnDataStore.DSLinker.DSPreImage.Owner).to.equal(expectedOwner);
+        });
+        
         it('Fail: Reject createDataStore when duration is invalid', async () => {
             await expect(
                 madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]['address'], 'stringwithlessthan64', BigInt(-1), 'rawData', 1, 8)
@@ -272,11 +307,6 @@ describe('Integration/Transaction:', () => {
                 )
             ).to.eventually.be.rejectedWith('RPC server must be set to fetch fee');
         });
-        
-        it('Success: Create a ValueStore with acceptable Fee', async () => {
-            const { ValueStore = null } = await madWallet.Transaction.createValueStore(madWallet.Account.accounts[0]['address'], BigInt(1), madWallet.Account.accounts[1]['address'], 1, 1); 
-            expect(ValueStore.VSPreImage.Fee).to.equal(madWallet.Utils.numToHex(1));
-        });
     
         it('Fail: Reject createValueStore when Fee is too low', async () => {
             await expect(
@@ -330,14 +360,7 @@ describe('Integration/Transaction:', () => {
                 madWallet.Transaction.createValueStore(invalidHexFrom, 1, madWallet.Account.accounts[0]["address"], 1)
             ).to.eventually.be.rejectedWith('Could not find account');
         });
-    
-        it('Success: Created ValueStore', async () => {
-            await expect(
-                madWallet.Transaction.createValueStore(madWallet.Account.accounts[0]["address"], 1, madWallet.Account.accounts[0]["address"], 1)
-            ).to.eventually.be.fulfilled;
-        });
 
-        // TODO Organize better these
         it('Fail: Insufficient funds', async () => {
             await madWallet.Transaction.createValueStore(
                 madWallet.Account.accounts[0]["address"], 1000000000, madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"]
@@ -347,25 +370,30 @@ describe('Integration/Transaction:', () => {
             ).to.eventually.be.rejectedWith('Insufficient funds');
         });
     
-        it('Success: SECP Create & Send DataStore', async () => {
-            await madWallet.Transaction.createTxFee(
-                madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
-            );
-            await madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0x02", 1, "0x02");
-            const transactionHash = await madWallet.Transaction.sendTx()
+        it('Success: Create ValueStore with SECP address', async () => {
+            const secpAccount = madWallet.Account.accounts[0];
+            const bnAccount = madWallet.Account.accounts[1];
+            const { ValueStore: SecpValueStore = null } = await madWallet.Transaction.createValueStore(secpAccount["address"], 1, bnAccount["address"], bnAccount["curve"]);
+            const expectedOwner = await madWallet.Utils.prefixSVACurve(1, bnAccount["curve"], bnAccount["address"]);
+            expect(SecpValueStore).to.be.an('object').that.has.all.keys('TxHash', 'VSPreImage');
+            expect(SecpValueStore.VSPreImage.Owner).to.equal(expectedOwner);
+        });
 
-            expect(transactionHash).to.exist;
-            expect(transactionHash).to.be.an('string');
-        }).timeout(testTimeout);
+        it('Success: Create ValueStore with BN address', async () => {
+            const secpAccount = madWallet.Account.accounts[0];
+            const bnAccount = madWallet.Account.accounts[1];
+            const { ValueStore: BnValueStore = null } = await madWallet.Transaction.createValueStore(bnAccount["address"], 1, secpAccount["address"], secpAccount["curve"]);
+            const expectedOwner = await madWallet.Utils.prefixSVACurve(1, secpAccount["curve"], secpAccount["address"]);
+            expect(BnValueStore).to.be.an('object').that.has.all.keys('TxHash', 'VSPreImage' );
+            expect(BnValueStore.VSPreImage.Owner).to.equal(expectedOwner);
+        });
 
-        // TODO abstract and check values and object structures
-        /**
-         *  -- From github comment --
-         * We may want to add test cases that individually check the ability to create data or value stores so that we can verify the 
-         * integrity of those objects as a test case itself rather than assuming that those objects are correct and passing them forward
-         */
-    
-        it('Success: SECP Create & Send ValueStore', async () => {
+        it('Success: Create a ValueStore with acceptable Fee', async () => {
+            const { ValueStore = null } = await madWallet.Transaction.createValueStore(madWallet.Account.accounts[0]['address'], BigInt(1), madWallet.Account.accounts[1]['address'], 1, 1); 
+            expect(ValueStore.VSPreImage.Fee).to.equal(madWallet.Utils.numToHex(1));
+        });
+
+        it('Success: Send ValueStore with SECP address', async () => {
             await wait(waitingTime);
             await madWallet.Transaction.createTxFee(
                 madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
@@ -377,23 +405,8 @@ describe('Integration/Transaction:', () => {
                 madWallet.Transaction.sendTx()
             ).to.eventually.be.fulfilled;
         }).timeout(testTimeout);
-    
-        it('Success: BN Create & Send DataStore', async () => {
-            await wait(waitingTime);
-            await madWallet.Transaction.createDataStore(madWallet.Account.accounts[1]["address"], "0x03", 2, "0x02");
-            await madWallet.Transaction.createTxFee(
-                madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
-            );
-            await expect(
-                madWallet.Transaction.sendTx()
-            ).to.eventually.be.fulfilled;
-        }).timeout(testTimeout);
-    
-        /**
-         * -- From github comment --
-         * Same thing here possibly have test abstractions like: can create data stores with BN. Address, can create value stores with BN address, etc
-         */
-        it('Success: BN Create & Send ValueStore', async () => {
+        
+        it('Success: Send ValueStore with BN address', async () => {
             await wait(waitingTime);
             await madWallet.Transaction.createValueStore(
                 madWallet.Account.accounts[1]["address"], 1, madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"]
@@ -405,6 +418,22 @@ describe('Integration/Transaction:', () => {
                 madWallet.Transaction.sendTx()
             ).to.eventually.be.fulfilled;
         }).timeout(testTimeout);
+
+        // TODO Check error tx.validateUnique: duplicate input
+        // it.only('Success: Consume UTXOs until required value is met', async () => {
+        //     await wait(waitingTime);
+        //     await madWallet.Transaction.createValueStore(
+        //         madWallet.Account.accounts[1]["address"], 1, madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"]
+        //     );
+        //     await madWallet.Transaction.createTxFee(
+        //         madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
+        //     );
+        //     const account = await madWallet.Account.getAccount(madWallet.Account.accounts[0]['address']);
+        //     console.log(account)
+        //     await expect(
+        //         madWallet.Transaction.sendTx()
+        //     ).to.eventually.be.fulfilled;
+        // }).timeout(testTimeout);
     });  
 });
 

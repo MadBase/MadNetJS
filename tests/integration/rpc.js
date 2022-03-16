@@ -153,7 +153,6 @@ describe('Integration/RPC:', () => {
             ).to.eventually.be.rejectedWith('Invalid arguments');
         });
 
-        // TODO Fix -- First time these tests run it fails with no UTXO found
         it('Success: Get Data Store UTXOs IDS and indices', async () => {
             const dataStoreUTXOIDsAndIndices = await madWallet.Rpc.getDataStoreUTXOIDsAndIndices(madWallet.Account.accounts[0]['address'], 2, 1);
             expect(dataStoreUTXOIDsAndIndices).to.be.an('array');
