@@ -215,11 +215,28 @@ describe('Integration/RPC:', () => {
                 madWallet.Rpc.getPendingTransaction(invalidTxHash)
             ).to.eventually.be.rejectedWith('unknown transaction');
         });
-
+        
         it('Fail: Cannot send transaction with a invalid Tx object', async () => {
             await expect(
                 madWallet.Rpc.sendTransaction(invalidTx)
             ).to.eventually.be.rejectedWith('the object is invalid');
         })
+
+        it('Fail: Cannot poll transaction status without a txHash', async () => {
+            await expect(
+                madWallet.Rpc.getTxStatus(null, 1)
+            ).to.eventually.be.rejectedWith('Argument txHash cannot be empty');
+        });
+
+        it('Fail: Cannot poll transaction status when txHash is invalid', async () => {
+            await expect(
+                madWallet.Rpc.getTxStatus(invalidTxHash, 1)
+            ).to.eventually.be.rejectedWith('unknown transaction');
+        });
+
+        it('Success: Poll transaction current status.', async () => {
+            const txStatus = await madWallet.Rpc.getTxStatus(validTxHash);
+            expect(txStatus).to.be.an('object').that.has.all.keys('IsMined', 'Tx');
+        });
     });
 });
