@@ -418,22 +418,6 @@ describe('Integration/Transaction:', () => {
                 madWallet.Transaction.sendTx()
             ).to.eventually.be.fulfilled;
         }).timeout(testTimeout);
-
-        // TODO Check error tx.validateUnique: duplicate input
-        // it.only('Success: Consume UTXOs until required value is met', async () => {
-        //     await wait(waitingTime);
-        //     await madWallet.Transaction.createValueStore(
-        //         madWallet.Account.accounts[1]["address"], 1, madWallet.Account.accounts[0]["address"], madWallet.Account.accounts[0]["curve"]
-        //     );
-        //     await madWallet.Transaction.createTxFee(
-        //         madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()
-        //     );
-        //     const account = await madWallet.Account.getAccount(madWallet.Account.accounts[0]['address']);
-        //     console.log(account)
-        //     await expect(
-        //         madWallet.Transaction.sendTx()
-        //     ).to.eventually.be.fulfilled;
-        // }).timeout(testTimeout);
     });  
 });
 
