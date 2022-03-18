@@ -401,6 +401,34 @@ class RPC {
         }
     }
 
+    /**
+     * Poll transaction current status
+     * @param {hex} txHash
+     * @param {number} countMax
+     * @param {number} startDelay
+     * @param {number} currCount
+     * 
+     * @return {Object} Tx Status
+     */
+    async getTxStatus(txHash, countMax = 30, startDelay = 1000, currCount = 1) {
+        try {
+            if (!txHash) {
+                throw "Argument txHash cannot be empty";
+            }
+            const status = await this.request('get-transaction-status', {
+                "TxHash": txHash,
+                "ReturnTx": true
+            });
+            return status;
+        } catch (ex) {
+            if (currCount > countMax) {
+                throw new Error("RPC.getTxStatus: " + String(ex));
+            }
+            await this.sleep(startDelay);
+            await this.getTxStatus(txHash, countMax, Math.floor(startDelay * 1.25), (currCount + 1));
+        }
+    }
+
     async monitorPending(tx, countMax = 30, startDelay = 1000, currCount = 1) {
         try {
             await this.getMinedTransaction(tx);
