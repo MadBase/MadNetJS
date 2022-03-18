@@ -124,7 +124,7 @@ describe('Integration/Transaction/Tx:', () => {
                 "AtomicSwap": {
                     "TxHash": "C0FFEE",
                     "ASPreImage": {
-                        "ChainID": madWallet.chainId,
+                        "ChainID": parseInt(process.env.CHAIN_ID),
                         "Exp": 4,
                         "Fee": 6,
                         "IssuedAt": 3,
@@ -141,7 +141,7 @@ describe('Integration/Transaction/Tx:', () => {
 
         it('Success: Calls ASPreImage', async () => {
             const preImageResult = {
-                "ChainID": madWallet.chainId,
+                "ChainID": parseInt(process.env.CHAIN_ID),
                 "Value": 1,
                 "TXOutIdx": 2,
                 "IssuedAt": 3,
