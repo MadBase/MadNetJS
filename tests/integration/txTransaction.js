@@ -5,6 +5,7 @@ chai.use(chaiAsPromised);
 const expect = chai.expect;
 const MadWalletJS = require("../../index.js");
 
+
 describe('Integration/Transaction/Tx:', () => {
     let privateKey, validHex;
     const madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
@@ -123,7 +124,7 @@ describe('Integration/Transaction/Tx:', () => {
                 "AtomicSwap": {
                     "TxHash": "C0FFEE",
                     "ASPreImage": {
-                        "ChainID": 6.350382589369166e+46,
+                        "ChainID": madWallet.chainId,
                         "Exp": 4,
                         "Fee": 6,
                         "IssuedAt": 3,
@@ -140,7 +141,7 @@ describe('Integration/Transaction/Tx:', () => {
 
         it('Success: Calls ASPreImage', async () => {
             const preImageResult = {
-                "ChainID": 6.350382589369166e+46,
+                "ChainID": madWallet.chainId,
                 "Value": 1,
                 "TXOutIdx": 2,
                 "IssuedAt": 3,
