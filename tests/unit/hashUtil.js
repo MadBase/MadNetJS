@@ -19,7 +19,7 @@ describe('Unit/Util/Hash:', () => {
         });
         
         it('fail: Throws an error if called with invalid msg', () => {
-            expect(() => Hash.hash('invalidhexmsg')).to.throws();
+            expect(() => Hash.hash('invalidhexmsg')).to.throws('MultiSigner.hash: Error: Validator.isHex: Invalid hex charater');
         });
         
         it('fail: Throws an error if called without a msg', () => {

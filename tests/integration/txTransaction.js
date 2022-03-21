@@ -5,6 +5,7 @@ chai.use(chaiAsPromised);
 const expect = chai.expect;
 const MadWalletJS = require("../../index.js");
 
+
 describe('Integration/Transaction/Tx:', () => {
     let privateKey, validHex;
     const madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
@@ -23,15 +24,18 @@ describe('Integration/Transaction/Tx:', () => {
     describe('Signatures', () => {
         it('Success: Inject the signature fields with the signed messages', async () => {
             await expect(
-                madWalletTwo.Transaction.Tx.injectSignatures(validHex, validHex)
+                madWalletTwo.Transaction.Tx.injectSignatures([validHex], [validHex])
             ).to.eventually.be.fulfilled;
         });
 
         it('Fail: Reject to Inject Signatures when called with invalid owner', async () => {
             await madWalletTwo.Transaction.Tx.DataStore(validHex, 1, 1, validHex, 1, madWalletTwo.Account.accounts[0]['address'], 5); 
             await expect(
-                madWalletTwo.Transaction.Tx.injectSignatures(validHex, validHex)
+                madWalletTwo.Transaction.Tx.injectSignatures([validHex], [validHex])
             ).to.eventually.be.rejectedWith('Invalid owner');
+            await expect(
+                madWallet.Transaction.Tx.getSignatures()
+            ).to.eventually.include.all.keys('Vin', 'Vout');
         });
 
         it('Fail: Reject to Inject Signatures when TxIn owner cannot be found', async () => {
@@ -43,14 +47,17 @@ describe('Integration/Transaction/Tx:', () => {
 
         it('Success: Aggreate signatures and to inject into the transaction', async () => {
             await expect(
-                madWalletThree.Transaction.Tx.injectSignaturesAggregate(validHex, validHex)
+                madWalletThree.Transaction.Tx.injectSignaturesAggregate([validHex], [validHex])
             ).to.eventually.be.fulfilled;
+            await expect(
+                madWallet.Transaction.Tx.getSignatures()
+            ).to.eventually.include.all.keys('Vin', 'Vout');
         });
 
         it('Fail: Reject to Inject Signatures Aggregate when voutSignatures is invalid', async () => {
             await madWalletThree.Transaction.Tx.DataStore(validHex, 1, 1, validHex, 1, madWalletThree.Account.accounts[0]["address"], 5); 
             await expect(
-                madWalletThree.Transaction.Tx.injectSignaturesAggregate(validHex, [null])
+                madWalletThree.Transaction.Tx.injectSignaturesAggregate([validHex], [null])
             ).to.eventually.be.rejectedWith('Missing signature in Vout');
         });
 
@@ -58,7 +65,7 @@ describe('Integration/Transaction/Tx:', () => {
             await madWalletThree.Transaction.Tx.DataStore(validHex, 1, 1, validHex, 1, madWalletThree.Account.accounts[0]["address"], 5); 
             await madWalletThree.Transaction.Tx.ValueStore(1, 1, madWalletThree.Account.accounts[0]["address"], 5); 
             await expect(
-                madWalletThree.Transaction.Tx.injectSignaturesAggregate(validHex, validHex)
+                madWalletThree.Transaction.Tx.injectSignaturesAggregate([validHex], [validHex])
             ).to.eventually.be.rejectedWith('encoding/hex: odd length hex string');
         });
 
@@ -72,15 +79,15 @@ describe('Integration/Transaction/Tx:', () => {
         it('Success: Get Signatures without DataStore and TxIn', async () => {
             await expect(
                 madWallet.Transaction.Tx.getSignatures()
-            ).to.eventually.be.fulfilled;
+            ).to.eventually.include.all.keys('Vin', 'Vout');
         });
         
         it('Success: Get Signatures with DataStore and TxIn', async () => {
             madWalletTwo.Transaction.Tx.TxIn(validHex, validHex);
             await madWalletTwo.Transaction.Tx.DataStore(validHex, 1, 1, validHex, 1, madWalletTwo.Account.accounts[0]["address"], 5); 
             await expect(
-                madWalletTwo.Transaction.Tx.getSignatures()
-            ).to.eventually.be.fulfilled;
+                madWallet.Transaction.Tx.getSignatures()
+            ).to.eventually.include.all.keys('Vin', 'Vout');
         });
     });
         
@@ -95,7 +102,7 @@ describe('Integration/Transaction/Tx:', () => {
         it('Success: Hash the transaction and return it with the TxHash', async () => {
             await expect(
                 madWallet.Transaction.Tx.createRawTx()
-            ).to.eventually.be.fulfilled;
+            ).to.eventually.be.fulfilled.and.have.property('Tx').and.include.all.keys('Vin', 'Vout', 'Fee');
         });
             
         it('Fail: Reject createRawTx', async () => {
@@ -109,14 +116,15 @@ describe('Integration/Transaction/Tx:', () => {
             const tx = {};
             await expect(
                 madWallet.Transaction.Tx._signTx(tx)
-            ).to.eventually.be.rejectedWith(Error);
+            ).to.eventually.be.rejectedWith('Tx.sign: TypeError: Cannot read property \'Vin\' of undefined');
         });
 
         it('Success: Create AtomicSwap', async () => {
             const atomicSwapResult = {
                 "AtomicSwap": {
+                    "TxHash": "C0FFEE",
                     "ASPreImage": {
-                        "ChainID": 42,
+                        "ChainID": parseInt(process.env.CHAIN_ID),
                         "Exp": 4,
                         "Fee": 6,
                         "IssuedAt": 3,
@@ -124,7 +132,6 @@ describe('Integration/Transaction/Tx:', () => {
                         "TXOutIdx": 2,
                         "Value": 1
                     },
-                    "TxHash": "C0FFEE"
                 }
             };
             expect(
@@ -134,7 +141,7 @@ describe('Integration/Transaction/Tx:', () => {
 
         it('Success: Calls ASPreImage', async () => {
             const preImageResult = {
-                "ChainID": 42,
+                "ChainID": parseInt(process.env.CHAIN_ID),
                 "Value": 1,
                 "TXOutIdx": 2,
                 "IssuedAt": 3,
@@ -150,7 +157,7 @@ describe('Integration/Transaction/Tx:', () => {
         it('Fail: Reject _signTx when Tx is invalid', async () => {
             await expect(
                 madWallet.Transaction.Tx._signTx(undefined)
-            ).to.eventually.be.rejectedWith(Error);
+            ).to.eventually.be.rejectedWith('Tx.sign: SyntaxError: Unexpected token u in JSON at position 0');
         });
     });
 
@@ -159,7 +166,7 @@ describe('Integration/Transaction/Tx:', () => {
             madWallet.Transaction.Tx.AtomicSwap(1, 1, 1, 1,validHex, validHex);
             await expect(
                 madWallet.Transaction.Tx.estimateFees()
-            ).to.eventually.be.fulfilled;
+            ).to.eventually.be.fulfilled.and.include.all.keys('baseFees', 'totalFees', 'costByVoutIdx');
         });
                 
         it('Fail: Reject get estimate of fees when RPC Server is invalid', async () => {
@@ -172,30 +179,33 @@ describe('Integration/Transaction/Tx:', () => {
 
     describe('Import Transaction', () => { 
         it('Success: Import a finalized transaction', async () => {
+            const tx = madWallet.Transaction.Tx.getTx();
             await expect(
-                madWallet.Transaction.Tx.importTransaction(madWallet.Transaction.Tx.getTx())
+                madWallet.Transaction.Tx.importTransaction(tx)
             ).to.eventually.be.fulfilled;
+            expect( madWallet.Transaction.Tx.getTx() ).to.deep.eql(tx);
         });
 
         it('Fail: Reject Import Transaction when Tx is invalid', async () => {
             const tx = {};
             await expect(
                 madWallet.Transaction.Tx.importTransaction(tx)
-            ).to.eventually.be.rejectedWith(Error);
+            ).to.eventually.be.rejectedWith('Tx.importTransaction: TypeError: Cannot read property \'Vin\' of undefined');
         });
 
         it('Success: Import a transaction preSigned', async () => {
-            madWallet.Transaction.Tx.getTx();
+            const tx = madWallet.Transaction.Tx.getTx();
             await expect(
-                madWallet.Transaction.Tx.importRawTransaction(madWallet.Transaction.Tx.getTx())
+                madWallet.Transaction.Tx.importRawTransaction(tx)
             ).to.eventually.be.fulfilled;
+            expect( madWallet.Transaction.Tx.getTx() ).to.deep.eql(tx);
         });
 
         it('Fail: Reject Import Raw Transaction when Tx is invalid', async () => {
             const madWalletWithoutRPC = new MadWalletJS(process.env.CHAIN_ID, null);
             await expect(
                 madWalletWithoutRPC.Transaction.Tx.importRawTransaction(madWalletWithoutRPC.Transaction.Tx.getTx())
-            ).to.eventually.be.rejectedWith(Error);
+            ).to.eventually.be.rejectedWith('Tx.importRawTransaction: RPC server must be set to fetch Vin data');
         });
     });
 });

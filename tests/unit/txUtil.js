@@ -34,7 +34,7 @@ describe('Unit/Util/Tx:', () => {
         it('Fail: Reject when called with invalid arguments', async () => {
             await expect(
                 Tx.remainingDeposit(null, null)
-            ).to.eventually.be.rejected;
+            ).to.eventually.be.rejectedWith('Transaction.rewardDeposit: TypeError: Cannot read property \'DSLinker\' of null');
         });
     });
     
@@ -66,7 +66,7 @@ describe('Unit/Util/Tx:', () => {
         });
         
         it('Fail: Reject calculateFee when called with invalid arguments', async () => {
-            await expect(Tx.calculateFee(NaN, NaN)).to.eventually.be.rejected;
+            await expect(Tx.calculateFee(NaN, NaN)).to.eventually.be.rejectedWith('Transaction.calculateFee: RangeError: The number NaN cannot be converted to a BigInt because it is not an integer');
         });
     });
 });
