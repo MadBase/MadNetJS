@@ -25,9 +25,11 @@ class Accounts {
         try {
             privateKey = this.Wallet.Utils.isPrivateKey(privateKey)
             curve = this.Wallet.Utils.isCurve(curve)
+
             if (!privateKey || !curve) {
                 throw "Bad argument"
             }
+
             let signer;
             if (curve === 1) {
                 signer = new SecpSigner(this.Wallet, privateKey)
@@ -48,7 +50,6 @@ class Accounts {
             return acct;
         }
         catch (ex) {
-            console.trace(ex)
             throw new Error("Account.addAccount: " + String(ex));
         }
     }
@@ -79,7 +80,7 @@ class Accounts {
             return acct;
         }
         catch(ex) {
-            console.log(ex)
+            throw new Error("Account.addMultiSig: " + String(ex));
         }
     }
 

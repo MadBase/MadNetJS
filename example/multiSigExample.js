@@ -1,9 +1,5 @@
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised)
-let MadWalletJS = require("../index.js");
-//let madWallet = new MadWalletJS(42, "http://catmad.duckdns.org:20000/v1/");
-let madWallet = new MadWalletJS(42, "http://127.0.0.1:8884/v1/");
+const MadWalletJS = require("../index.js");
+const madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
 
 async function main() {
     try {
@@ -70,7 +66,6 @@ async function main() {
             await madWallet.Transaction.sendTx();
             console.log("Done")
             console.log("--------------------")
-
             process.exit()
             await sleep(20000)
         */

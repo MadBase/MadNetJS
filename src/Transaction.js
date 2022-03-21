@@ -1,6 +1,5 @@
 const Tx = require('./Transaction/Tx.js');
 const Constants = require('./Constants.js');
-const Wallet = require('./Wallet.js');
 /**
  * Transaction handler
  * @class Transaction
@@ -31,7 +30,7 @@ class Transaction {
      */
     async sendTx(changeAddress, changeAddressCurve, UTXOIDs = []) {
         try {
-            if (this.Tx.getTx()["Fee"] === 0) {
+            if (this.Tx.getTx()["Tx"]["Fee"] === 0) {
                 throw "No Tx fee added"
             }
             if (this.Tx.Vout.length <= 0) {
@@ -58,14 +57,14 @@ class Transaction {
      */
     async sendSignedTx(Tx) {
         try {
-            if (this.Tx.getTx()["Fee"] === 0) {
+            if (Tx.Tx["Fee"] === 0) {
                 throw "No Tx fee added"
             }
-            if (this.Tx.Vout.length <= 0) {
+            if (Tx.Tx.Vout.length <= 0) {
                 throw "No Vouts for transaction"
             }
-            if (this.Tx.Vin.length <= 0) {
-                throw "No Vouts for transaction"
+            if (Tx.Tx.Vin.length <= 0) {
+                throw "No Vins for transaction"
             }
             let txHash = await this.Wallet.Rpc.sendTransaction(Tx)
             await this._reset();
@@ -94,7 +93,7 @@ class Transaction {
             return ptx;
         }
         catch (ex) {
-            console.log(ex)
+            throw new Error("Transaction.createRawTransaction: " + String(ex));
         }
     }
 

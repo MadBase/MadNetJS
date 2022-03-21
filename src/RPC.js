@@ -138,7 +138,7 @@ class RPC {
             let DataStores = [];
             let ValueStores = [];
             let AtomicSwaps = [];
-            for (let i = 0; i < minrequests; i++) {
+            for (let i = 0; i < minrequests; i++) { 
                 let reqData = { "UTXOIDs": UTXOIDs.slice((i * constant.MaxUTXOs), ((i + 1) * constant.MaxUTXOs)) }
                 let utxos = await this.request("get-utxo", reqData)
                 if (!utxos["UTXOs"]) {
@@ -208,12 +208,13 @@ class RPC {
     }
 
     /**
-     * Get Data Store UTXO IDs for account
+     * Get Data Store UTXO IDs and Indices for account
      * @param {hex} address
      * @param {number} limit
      * @param {number} offset
+     * @returns {Array<DataStoreAndIndexObject>} - Object[] containing UTXOID and Index {@link DataStoreAndIndexObject}
      */
-    async getDataStoreUTXOIDs(address, curve, limit, offset) {
+    async getDataStoreUTXOIDsAndIndices(address, curve, limit, offset) {
         try {
             if (!address || !curve) {
                 throw "Invalid arguments"
@@ -236,25 +237,47 @@ class RPC {
             else {
                 offset = this.Wallet.Utils.isHex(offset)
             }
-            let DataStoreUTXOIDs = [];
+            let DataStoreUTXOResults = [];
             while (true) {
                 let reqData = { "CurveSpec": curve, "Account": address, "Number": limit, "StartIndex": offset }
                 let dataStoreIDs = await this.request("iterate-name-space", reqData);
-                if (!dataStoreIDs["Results"]) {
+                if (!dataStoreIDs["Results"].length) {
                     break
                 }
-                DataStoreUTXOIDs = DataStoreUTXOIDs.concat(dataStoreIDs["Results"]);
+                DataStoreUTXOResults = DataStoreUTXOResults.concat(dataStoreIDs["Results"]);
                 if (dataStoreIDs["Results"].length <= limit && !getAll) {
                     break;
                 }
                 offset = dataStoreIDs["Results"][dataStoreIDs["Results"].length - 1]["Index"];
-            }
-            return DataStoreUTXOIDs;
+            }          
+            /** @type { DataStoreAndIndexObject } */
+            return DataStoreUTXOResults;
         }
         catch (ex) {
-            throw new Error("RPC.getDataStoreUTXOIDs: " + String(ex))
+            throw new Error("RPC.getDataStoreUTXOIDsAndIndices: " + String(ex))
         }
 
+    }
+
+    /**
+     * Get Data Store UTXO IDs for account
+     * @param {hex} address
+     * @param {number} limit
+     * @param {number} offset
+     * @returns {Array<DataStoreAndIndexObject>} - Array of Objects containing UTXOID and Index
+     */
+    async getDataStoreUTXOIDs (address, curve, limit, offset) {
+        try {
+            let dsAndIndices = await this.getDataStoreUTXOIDsAndIndices(address, curve, limit, offset);
+            let DataStoreUTXOIDs = [];
+            // Filter out the datastore UTXOIDs, don't return indices that are in the results objects
+            dsAndIndices.forEach(dsAndIdx => {
+                DataStoreUTXOIDs.push(dsAndIdx["UTXOID"]);
+            })  
+            return DataStoreUTXOIDs;
+        } catch (ex) {
+            throw new Error("RPC.getDataStoreUTXOIDs: " + String(ex))
+        }
     }
 
     /**
@@ -292,11 +315,7 @@ class RPC {
      */
     async getDataStoreByIndex(address, curve, index) {
         try {
-            let dsUTXOID = await this.getDataStoreUTXOIDs(address, curve, 1, index);
-            let dsUTXOIDS = []
-            for (let i = 0; i < dsUTXOID.length; i++) {
-                dsUTXOIDS.push(dsUTXOID[i]["UTXOID"])
-            }
+            let dsUTXOIDS = await this.getDataStoreUTXOIDs(address, curve, 1, index);
             if (dsUTXOIDS.length > 0) {
                 let [DS] = await this.getUTXOsByIds(dsUTXOIDS);
                 if (DS.length > 0) {
@@ -379,6 +398,34 @@ class RPC {
         }
         catch (ex) {
             throw new Error("RPC.getTxBlockHeight: " + String(ex));
+        }
+    }
+
+    /**
+     * Poll transaction current status
+     * @param {hex} txHash
+     * @param {number} countMax
+     * @param {number} startDelay
+     * @param {number} currCount
+     * 
+     * @return {Object} Tx Status
+     */
+    async getTxStatus(txHash, countMax = 30, startDelay = 1000, currCount = 1) {
+        try {
+            if (!txHash) {
+                throw "Argument txHash cannot be empty";
+            }
+            const status = await this.request('get-transaction-status', {
+                "TxHash": txHash,
+                "ReturnTx": true
+            });
+            return status;
+        } catch (ex) {
+            if (currCount > countMax) {
+                throw new Error("RPC.getTxStatus: " + String(ex));
+            }
+            await this.sleep(startDelay);
+            await this.getTxStatus(txHash, countMax, Math.floor(startDelay * 1.25), (currCount + 1));
         }
     }
 
