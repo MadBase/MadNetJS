@@ -12,7 +12,7 @@ module.exports = {
             return msgHash.toString("hex");
         }
         catch (ex) {
-            throw new Error("MultiSigner.hash: " + String(ex));
+            throw new Error("MultiSigner.hash\r\n" + String(ex));
         }
     }
 }

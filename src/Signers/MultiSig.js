@@ -30,7 +30,7 @@ class MultiSig {
             return pub;
         }
         catch (ex) {
-            throw new Error("BNAggregate.addPublicKeys: " + String(ex));
+            throw new Error("BNAggregate.addPublicKeys\r\n" + String(ex));
         }
     }
 
@@ -87,7 +87,7 @@ class MultiSig {
             return sig;
         }
         catch (ex) {
-            throw new Error("BNAggregate.sign: " + String(ex));
+            throw new Error("BNAggregate.sign\r\n" + String(ex));
         }
     }
 
@@ -106,7 +106,7 @@ class MultiSig {
             return signedMsgs;
         }
         catch (ex) {
-            throw new Error("BNAggregate.aggregateMulti: " + String(ex));
+            throw new Error("BNAggregate.aggregateMulti\r\n" + String(ex));
         }
     }
 
@@ -121,7 +121,7 @@ class MultiSig {
             return sig;
         }
         catch (ex) {
-            throw new Error("BNAggregate.signatures: " + String(ex));
+            throw new Error("BNAggregate.signatures\r\n" + String(ex));
         }
     }
 
@@ -140,7 +140,7 @@ class MultiSig {
             return signed;
         }
         catch (ex) {
-            throw new Error("BNAggregate.signaturesMulti: " + String(ex));
+            throw new Error("BNAggregate.signaturesMulti\r\n" + String(ex));
         }
     }
 
@@ -157,7 +157,7 @@ class MultiSig {
             return aSig;
         }
         catch (ex) {
-            throw new Error("BNAggregate.verifyAggregateSingle: " + String(ex));
+            throw new Error("BNAggregate.verifyAggregateSingle\r\n" + String(ex));
         }
     }
 
@@ -174,7 +174,7 @@ class MultiSig {
             return aSig;
         }
         catch (ex) {
-            throw new Error("BNAggregate.verifyAggregateSingle: " + String(ex));
+            throw new Error("BNAggregate.verifyAggregateSingle\r\n" + String(ex));
         }
     }
 }

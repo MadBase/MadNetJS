@@ -50,7 +50,7 @@ class Accounts {
             return acct;
         }
         catch (ex) {
-            throw new Error("Account.addAccount: " + String(ex));
+            throw new Error("Account.addAccount\r\n" + String(ex));
         }
     }
 
@@ -80,7 +80,7 @@ class Accounts {
             return acct;
         }
         catch(ex) {
-            throw new Error("Account.addMultiSig: " + String(ex));
+            throw new Error("Account.addMultiSig\r\n" + String(ex));
         }
     }
 
@@ -94,7 +94,7 @@ class Accounts {
             this.accounts.splice(acctIdx, 1);
         }
         catch (ex) {
-            throw new Error("Account.removeAccount: " + String(ex));
+            throw new Error("Account.removeAccount\r\n" + String(ex));
         }
     }
 
@@ -114,7 +114,7 @@ class Accounts {
             throw "Could not find account";
         }
         catch (ex) {
-            throw new Error("Account.getAccount: " + String(ex));
+            throw new Error("Account.getAccount\r\n" + String(ex));
         }
     }
 
@@ -134,7 +134,7 @@ class Accounts {
             throw "Could not find account index";
         }
         catch (ex) {
-            throw new Error("Account._getAccountIndex: " + String(ex));
+            throw new Error("Account._getAccountIndex\r\n" + String(ex));
         }
     }
 
@@ -162,7 +162,7 @@ class Accounts {
             this.accounts[accountIndex]["UTXO"]["AtomicSwaps"] = AS;
         }
         catch (ex) {
-            throw new Error("Account._getAccountUTXOs: " + String(ex))
+            throw new Error("Account._getAccountUTXOs\r\n" + String(ex));
         }
     }
 
@@ -196,7 +196,7 @@ class Accounts {
             this.accounts[accountIndex]["UTXO"]["Value"] = totalValue;
         }
         catch (ex) {
-            throw new Error("Account._getAccountUTXOsByIds: " + String(ex));
+            throw new Error("Account._getAccountUTXOsByIds\r\n" + String(ex));
         }
     }
 
@@ -212,7 +212,7 @@ class Accounts {
             this.accounts[accountIndex]["UTXO"]["ValueStores"] = VS;
         }
         catch (ex) {
-            throw new Error("Account._getAccountValueStores: " + String(ex));
+            throw new Error("Account._getAccountValueStores\r\n" + String(ex));
         }
     }
 }

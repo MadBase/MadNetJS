@@ -41,7 +41,7 @@ class SecpSigner {
             return signature;
         }
         catch (ex) {
-            throw new Error("SecpSigner.sign: " + String(ex));
+            throw new Error("SecpSigner.sign\r\n" + String(ex));
         }
     }
 
@@ -60,7 +60,7 @@ class SecpSigner {
             return signed;
         }
         catch (ex) {
-            throw new Error("BNSigner.signMulti: " + String(ex));
+            throw new Error("BNSigner.signMulti\r\n" + String(ex));
         }
     }
 
@@ -90,7 +90,7 @@ class SecpSigner {
             return publicKeyRecovered;
         }
         catch (ex) {
-            throw new Error("SecpSigner.verify: " + String(ex));
+            throw new Error("SecpSigner.verify\r\n" + String(ex));
         }
     }
 
@@ -107,7 +107,7 @@ class SecpSigner {
             return pubKey.toString("hex");
         }
         catch (ex) {
-            throw new Error("SecpSigner.getPubK: " + String(ex));
+            throw new Error("SecpSigner.getPubK\r\n" + String(ex));
         }
     }
 
@@ -127,7 +127,7 @@ class SecpSigner {
             return address.toString("hex");
         }
         catch (ex) {
-            throw new Error("MultiSigner.getAddress: " + String(ex));
+            throw new Error("MultiSigner.getAddress\r\n" + String(ex));
         }
     }
 
