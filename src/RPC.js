@@ -325,7 +325,7 @@ class RPC {
             return false;
         }
         catch (ex) {
-            throw new Error("RPC.getDataStoreByIndex: " + String(ex))
+            throw new Error(`RPC.getDataStoreByIndex: ${String(ex)}\n`);
         }
     }
 
