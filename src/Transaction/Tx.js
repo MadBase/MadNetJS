@@ -46,7 +46,7 @@ class Tx {
             this.Fee = tx["Tx"]["Fee"];
         }
         catch (ex) {
-            throw new Error("Tx.importTransaction:\r\n" + String(ex));
+            throw new Error("Tx.importTransaction\r\n" + String(ex));
         }
     }
 
@@ -93,7 +93,7 @@ class Tx {
             }
         }
         catch (ex) {
-            throw new Error("Tx.importRawTransaction:\r\n" + String(ex));
+            throw new Error("Tx.importRawTransaction\r\n" + String(ex));
         }
     }
 
@@ -394,7 +394,7 @@ class Tx {
             this.Vout = Tx["Vout"]
             return this.getTx();
         } catch (ex) {
-            throw new Error("Tx.getPreSignedTx:\r\n" + String(ex));
+            throw new Error("Tx.getPreSignedTx\r\n" + String(ex));
         }
     }
 
@@ -423,7 +423,7 @@ class Tx {
             return { "Vin": vinSignatures, "Vout": voutSignatures };
         }
         catch (ex) {
-            throw new Error("Tx.getSignatures:\r\n" + String(ex));
+            throw new Error("Tx.getSignatures\r\n" + String(ex));
         }
     }
 
@@ -438,7 +438,7 @@ class Tx {
             let Tx = { "Tx": JSON.parse(injected) }
             await this._signTx(Tx)
         } catch (ex) {
-            throw new Error("Tx.createTx:\r\n" + String(ex));
+            throw new Error("Tx.createTx\r\n" + String(ex));
         }
     }
 
@@ -486,7 +486,7 @@ class Tx {
             }
         }
         catch (ex) {
-            throw new Error("Tx.sign:\r\n" + String(ex));
+            throw new Error("Tx.sign\r\n" + String(ex));
         }
     }
 
@@ -551,7 +551,7 @@ class Tx {
             }
         }
         catch (ex) {
-            throw new Error("Tx.injectSignaturesAggregate:\r\n" + String(ex));
+            throw new Error("Tx.injectSignaturesAggregate\r\n" + String(ex));
         }
     }
 
@@ -604,7 +604,7 @@ class Tx {
             }
         }
         catch (ex) {
-            throw new Error("Tx.injectSignatures:\r\n" + String(ex));
+            throw new Error("Tx.injectSignatures\r\n" + String(ex));
         }
     }
 }

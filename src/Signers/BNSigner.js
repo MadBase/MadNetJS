@@ -34,7 +34,7 @@ class BNSigner {
             return sig;
         }
         catch (ex) {
-            throw new Error("BNSigner.sign:\r\n" + String(ex));
+            throw new Error("BNSigner.sign\r\n" + String(ex));
         }
     }
 
@@ -53,7 +53,7 @@ class BNSigner {
             return signed;
         }
         catch (ex) {
-            throw new Error("BNSigner.signMulti:\r\n" + String(ex));
+            throw new Error("BNSigner.signMulti\r\n" + String(ex));
         }
     }
 
@@ -74,7 +74,7 @@ class BNSigner {
             return validate;
         }
         catch (ex) {
-            throw new Error("BNSigner.verify:\r\n" + String(ex));
+            throw new Error("BNSigner.verify\r\n" + String(ex));
         }
     }
 
@@ -92,7 +92,7 @@ class BNSigner {
             return pubK;
         }
         catch (ex) {
-            throw new Error("BNSigner.getPubK:\r\n" + String(ex));
+            throw new Error("BNSigner.getPubK\r\n" + String(ex));
         }
     }
 
@@ -111,7 +111,7 @@ class BNSigner {
             return pubK;
         }
         catch (ex) {
-            throw new Error("BNSigner.pubFromSig:\r\n" + String(ex));
+            throw new Error("BNSigner.pubFromSig\r\n" + String(ex));
         }
     }
 
@@ -129,7 +129,7 @@ class BNSigner {
             return address.toString("hex");
         }
         catch (ex) {
-            throw new Error("MultiSigner.bnPubToAddres:\r\n" + String(ex));
+            throw new Error("MultiSigner.bnPubToAddres\r\n" + String(ex));
         }
     }
 
