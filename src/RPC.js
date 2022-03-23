@@ -102,7 +102,7 @@ class RPC {
             return epoch["Epoch"]
         }
         catch (ex) {
-            throw new Error("RPC.getEpoch:\r\n" + String(ex))
+            throw new Error("RPC.getEpoch:\r\n" + String(ex));
         }
     }
 
@@ -119,7 +119,7 @@ class RPC {
             return fees;
         }
         catch (ex) {
-            throw new Error("RPC.getFees:\r\n" + String(ex))
+            throw new Error("RPC.getFees:\r\n" + String(ex));
         }
     }
 
@@ -159,7 +159,7 @@ class RPC {
             return [DataStores, ValueStores, AtomicSwaps];
         }
         catch (ex) {
-            throw new Error("RPC.getUTXOsByIds:\r\n" + String(ex))
+            throw new Error("RPC.getUTXOsByIds:\r\n" + String(ex));
         }
     }
 
@@ -203,7 +203,7 @@ class RPC {
             return [runningUtxos, runningTotal];
         }
         catch (ex) {
-            throw new Error("RPC.getBalance:\r\n" + String(ex))
+            throw new Error("RPC.getBalance:\r\n" + String(ex));
         }
     }
 
@@ -254,7 +254,7 @@ class RPC {
             return DataStoreUTXOResults;
         }
         catch (ex) {
-            throw new Error("RPC.getDataStoreUTXOIDsAndIndices:\r\n" + String(ex))
+            throw new Error("RPC.getDataStoreUTXOIDsAndIndices:\r\n" + String(ex));
         }
 
     }
@@ -276,7 +276,7 @@ class RPC {
             })  
             return DataStoreUTXOIDs;
         } catch (ex) {
-            throw new Error("RPC.getDataStoreUTXOIDs:\r\n" + String(ex))
+            throw new Error("RPC.getDataStoreUTXOIDs:\r\n" + String(ex));
         }
     }
 
@@ -302,7 +302,7 @@ class RPC {
             return dataStoreData["Rawdata"];
         }
         catch (ex) {
-            throw new Error("RPC.getData:\r\n" + String(ex))
+            throw new Error("RPC.getData:\r\n" + String(ex));
         }
     }
 
@@ -325,7 +325,7 @@ class RPC {
             return false;
         }
         catch (ex) {
-            throw new Error("RPC.getDataStoreByIndex:\r\n" + String(ex))
+            throw new Error("RPC.getDataStoreByIndex:\r\n" + String(ex));
         }
     }
 
@@ -343,7 +343,7 @@ class RPC {
             return sendTx["TxHash"];
         }
         catch (ex) {
-            throw new Error("RPC.sendTransaction:\r\n" + String(ex))
+            throw new Error("RPC.sendTransaction:\r\n" + String(ex));
         }
     }
 

@@ -162,7 +162,7 @@ class Accounts {
             this.accounts[accountIndex]["UTXO"]["AtomicSwaps"] = AS;
         }
         catch (ex) {
-            throw new Error("Account._getAccountUTXOs:\r\n" + String(ex))
+            throw new Error("Account._getAccountUTXOs:\r\n" + String(ex));
         }
     }
 

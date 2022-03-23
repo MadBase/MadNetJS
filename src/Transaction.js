@@ -346,7 +346,7 @@ class Transaction {
             this.fees = await this.Wallet.Rpc.getFees();
         }
         catch (ex) {
-            throw new Error("Transaction.getFees:\r\n" + String(ex))
+            throw new Error("Transaction.getFees:\r\n" + String(ex));
         }
     }
     /**
