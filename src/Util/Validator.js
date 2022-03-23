@@ -22,7 +22,7 @@ var self = module.exports = {
             return str.toLowerCase();
         }
         catch (ex) {
-            throw new Error("Validator.isHex: " + String(ex));
+            throw new Error("Validator.isHex:\r\n" + String(ex));
         }
     },
 
@@ -43,7 +43,7 @@ var self = module.exports = {
             return str;
         }
         catch (ex) {
-            throw new Error("Validator.isPrivateKey: " + String(ex));
+            throw new Error("Validator.isPrivateKey:\r\n" + String(ex));
         }
 
     },
@@ -65,7 +65,7 @@ var self = module.exports = {
             return parseInt(num);
         }
         catch (ex) {
-            throw new Error("Validator.isNumber: " + String(ex));
+            throw new Error("Validator.isNumber:\r\n" + String(ex));
         }
     },
 
@@ -80,7 +80,7 @@ var self = module.exports = {
             return num;
         }
         catch (ex) {
-            throw new Error("Validator.isCurve: " + String(ex));
+            throw new Error("Validator.isCurve:\r\n" + String(ex));
         }
     },
 
@@ -100,7 +100,7 @@ var self = module.exports = {
             return str.toLowerCase();
         }
         catch (ex) {
-            throw new Error("Validator.isAddress: " + String(ex));
+            throw new Error("Validator.isAddress:\r\n" + String(ex));
         }
     },
 
@@ -110,7 +110,7 @@ var self = module.exports = {
             return bn;
         }
         catch(ex) {
-            throw new Error("Validator.isBigInt: " + String(ex));
+            throw new Error("Validator.isBigInt:\r\n" + String(ex));
         }
     },
 
@@ -127,7 +127,7 @@ var self = module.exports = {
             return h;
         }
         catch (ex) {
-            throw new Error("Validator.numToHex: " + String(ex));
+            throw new Error("Validator.numToHex:\r\n" + String(ex));
         }
     },
 
@@ -138,7 +138,7 @@ var self = module.exports = {
             return bn;
         }
         catch(ex) {
-            throw new Error("Validator.hexToInt: " + String(ex));
+            throw new Error("Validator.hexToInt:\r\n" + String(ex));
         }
     },
 
@@ -147,7 +147,7 @@ var self = module.exports = {
             return Buffer.from(hex, "hex").toString("utf8");
         }
         catch (ex) {
-            throw new Error("Validator.hexToTxt: " + String(ex));
+            throw new Error("Validator.hexToTxt:\r\n" + String(ex));
         }
     },
 
@@ -156,7 +156,7 @@ var self = module.exports = {
             return Buffer.from(str, "utf8").toString("hex").toLowerCase();
         }
         catch (ex) {
-            throw new Error("Validator.txtToHex: " + String(ex));
+            throw new Error("Validator.txtToHex:\r\n" + String(ex));
         }
     }
 }

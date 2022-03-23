@@ -31,7 +31,7 @@ class RPC {
             return chainId;
         }
         catch (ex) {
-            throw new Error("RPC.setProvider: " + String(ex));
+            throw new Error("RPC.setProvider:\r\n" + String(ex));
         }
     }
 
@@ -51,7 +51,7 @@ class RPC {
             return BH["BlockHeader"];
         }
         catch (ex) {
-            throw new Error("RPC.getBlockHeader: " + String(ex));
+            throw new Error("RPC.getBlockHeader:\r\n" + String(ex));
         }
     }
 
@@ -68,7 +68,7 @@ class RPC {
             return BN["BlockHeight"]
         }
         catch (ex) {
-            throw new Error("RPC.getBlockNumber: " + String(ex));
+            throw new Error("RPC.getBlockNumber:\r\n" + String(ex));
         }
     }
 
@@ -85,7 +85,7 @@ class RPC {
             return CI["ChainID"]
         }
         catch (ex) {
-            throw new Error("RPC.getChainId: " + String(ex));
+            throw new Error("RPC.getChainId:\r\n" + String(ex));
         }
     }
 
@@ -102,7 +102,7 @@ class RPC {
             return epoch["Epoch"]
         }
         catch (ex) {
-            throw new Error("RPC.getEpoch: " + String(ex))
+            throw new Error("RPC.getEpoch:\r\n" + String(ex))
         }
     }
 
@@ -119,7 +119,7 @@ class RPC {
             return fees;
         }
         catch (ex) {
-            throw new Error("RPC.getFees: " + String(ex))
+            throw new Error("RPC.getFees:\r\n" + String(ex))
         }
     }
 
@@ -159,7 +159,7 @@ class RPC {
             return [DataStores, ValueStores, AtomicSwaps];
         }
         catch (ex) {
-            throw new Error("RPC.getUTXOsByIds: " + String(ex))
+            throw new Error("RPC.getUTXOsByIds:\r\n" + String(ex))
         }
     }
 
@@ -203,7 +203,7 @@ class RPC {
             return [runningUtxos, runningTotal];
         }
         catch (ex) {
-            throw new Error("RPC.getBalance: " + String(ex))
+            throw new Error("RPC.getBalance:\r\n" + String(ex))
         }
     }
 
@@ -254,7 +254,7 @@ class RPC {
             return DataStoreUTXOResults;
         }
         catch (ex) {
-            throw new Error("RPC.getDataStoreUTXOIDsAndIndices: " + String(ex))
+            throw new Error("RPC.getDataStoreUTXOIDsAndIndices:\r\n" + String(ex))
         }
 
     }
@@ -276,7 +276,7 @@ class RPC {
             })  
             return DataStoreUTXOIDs;
         } catch (ex) {
-            throw new Error("RPC.getDataStoreUTXOIDs: " + String(ex))
+            throw new Error("RPC.getDataStoreUTXOIDs:\r\n" + String(ex))
         }
     }
 
@@ -302,7 +302,7 @@ class RPC {
             return dataStoreData["Rawdata"];
         }
         catch (ex) {
-            throw new Error("RPC.getData: " + String(ex))
+            throw new Error("RPC.getData:\r\n" + String(ex))
         }
     }
 
@@ -325,7 +325,7 @@ class RPC {
             return false;
         }
         catch (ex) {
-            throw new Error(`RPC.getDataStoreByIndexBona:\r\n${String(ex)}`);
+            throw new Error("RPC.getDataStoreByIndex:\r\n" + String(ex))
         }
     }
 
@@ -343,7 +343,7 @@ class RPC {
             return sendTx["TxHash"];
         }
         catch (ex) {
-            throw new Error("RPC.sendTransaction: " + String(ex))
+            throw new Error("RPC.sendTransaction:\r\n" + String(ex))
         }
     }
 
@@ -361,7 +361,7 @@ class RPC {
             return getMined;
         }
         catch (ex) {
-            throw new Error("RPC.getMinedTransaction: " + String(ex));
+            throw new Error("RPC.getMinedTransaction:\r\n" + String(ex));
         }
     }
 
@@ -379,7 +379,7 @@ class RPC {
             return getPending["Tx"];
         }
         catch (ex) {
-            throw new Error("RPC.getPendingTransaction: " + String(ex));
+            throw new Error("RPC.getPendingTransaction:\r\n" + String(ex));
         }
     }
 
@@ -397,7 +397,7 @@ class RPC {
             return txHeight['BlockHeight'];
         }
         catch (ex) {
-            throw new Error("RPC.getTxBlockHeight: " + String(ex));
+            throw new Error("RPC.getTxBlockHeight:\r\n" + String(ex));
         }
     }
 
@@ -422,7 +422,7 @@ class RPC {
             return status;
         } catch (ex) {
             if (currCount > countMax) {
-                throw new Error("RPC.getTxStatus: " + String(ex));
+                throw new Error("RPC.getTxStatus:\r\n" + String(ex));
             }
             await this.sleep(startDelay);
             await this.getTxStatus(txHash, countMax, Math.floor(startDelay * 1.25), (currCount + 1));
@@ -436,7 +436,7 @@ class RPC {
         }
         catch (ex) {
             if (currCount > 30) {
-                throw new Error("RPC.monitorPending: " + String(ex));
+                throw new Error("RPC.monitorPending:\r\n" + String(ex));
             }
             await this.sleep(startDelay)
             await this.monitorPending(tx, countMax, Math.floor(startDelay * 1.25), (currCount + 1))
@@ -482,7 +482,7 @@ class RPC {
             return resp.data;
         }
         catch (ex) {
-            throw new Error("RPC.request: " + String(ex));
+            throw new Error("RPC.request:\r\n" + String(ex));
         }
     }
 
@@ -507,7 +507,7 @@ class RPC {
             return [attempts, timeout];
         }
         catch (ex) {
-            throw new Error("RPC.request: " + String(ex));
+            throw new Error("RPC.request:\r\n" + String(ex));
         }
     }
 

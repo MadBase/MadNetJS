@@ -46,7 +46,7 @@ class Transaction {
             return txHash;
         } catch (ex) {
             this._reset();
-            throw new Error("Transaction.sendTx: " + String(ex));
+            throw new Error("Transaction.sendTx:\r\n" + String(ex));
         }
     }
 
@@ -72,7 +72,7 @@ class Transaction {
         }
         catch (ex) {
             this._reset();
-            throw new Error("Transaction.sendSignedTx: " + String(ex));
+            throw new Error("Transaction.sendSignedTx:\r\n" + String(ex));
         }
     }
 
@@ -93,7 +93,7 @@ class Transaction {
             return ptx;
         }
         catch (ex) {
-            throw new Error("Transaction.createRawTransaction: " + String(ex));
+            throw new Error("Transaction.createRawTransaction:\r\n" + String(ex));
         }
     }
 
@@ -137,7 +137,7 @@ class Transaction {
 
         } catch (ex) {
             this._reset();
-            throw new Error("Transaction.getTxFeeEstimates: " + String(ex));
+            throw new Error("Transaction.getTxFeeEstimates:\r\n" + String(ex));
         }
     }
 
@@ -171,7 +171,7 @@ class Transaction {
             await this._addOutValue(fee, account["address"]);
         }
         catch (ex) {
-            throw new Error("Transaction.createTxFee: " + String(ex));
+            throw new Error("Transaction.createTxFee:\r\n" + String(ex));
         }
     }
 
@@ -233,7 +233,7 @@ class Transaction {
             await this._addOutValue(total, account["address"]);
             return vStore;
         } catch (ex) {
-            throw new Error("Transaction.createValueStore: " + String(ex));
+            throw new Error("Transaction.createValueStore:\r\n" + String(ex));
         }
     }
 
@@ -334,7 +334,7 @@ class Transaction {
             await this._addOutValue(total, account["address"], { index: index, epoch: issuedAt });
             return dStore;
         } catch (ex) {
-            throw new Error("Transaction.createDataStore: " + String(ex));
+            throw new Error("Transaction.createDataStore:\r\n" + String(ex));
         }
     }
 
@@ -346,7 +346,7 @@ class Transaction {
             this.fees = await this.Wallet.Rpc.getFees();
         }
         catch (ex) {
-            throw new Error("Transaction.getFees: " + String(ex))
+            throw new Error("Transaction.getFees:\r\n" + String(ex))
         }
     }
     /**
@@ -386,7 +386,7 @@ class Transaction {
                 });
             }
         } catch (ex) {
-            throw new Error("Transaction._addOutValue: " + String(ex));
+            throw new Error("Transaction._addOutValue:\r\n" + String(ex));
         }
     }
 
@@ -465,7 +465,7 @@ class Transaction {
             // If the for loop hasn't return on outValue["totalValue"]) == BigInt(0) assume an insufficient error has occurred and return them
             return { errors: insufficientFundErrors }
         } catch (ex) {
-            throw new Error("Transaction._createTxIns: " + String(ex));
+            throw new Error("Transaction._createTxIns:\r\n" + String(ex));
         }
     }
 
@@ -487,7 +487,7 @@ class Transaction {
                 "isDataStore": false
             });
         } catch (ex) {
-            throw new Error("Transaction.createTxIn: " + String(ex));
+            throw new Error("Transaction.createTxIn:\r\n" + String(ex));
         }
     }
 
@@ -509,7 +509,7 @@ class Transaction {
                 "isDataStore": true
             });
         } catch (ex) {
-            throw new Error("Transaction.createTxIn: " + String(ex));
+            throw new Error("Transaction.createTxIn:\r\n" + String(ex));
         }
     }
 
@@ -565,7 +565,7 @@ class Transaction {
                 }
             }
         } catch (ex) {
-            throw new Error("Trasaction._spendUTXO: " + String(ex));
+            throw new Error("Trasaction._spendUTXO:\r\n" + String(ex));
         }
     }
 }
