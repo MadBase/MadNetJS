@@ -115,8 +115,8 @@ describe('Unit/MultiSig:', () => {
 
         it('Fail: Reject Verify Aggregate when called with invalid sig hex length', async () => {
             await expect(
-                multiSigSecp.verifyAggregate(msgHex, '0xc0ffeebab')
-            ).to.eventually.be.rejectedWith('BNAggregate.verifyAggregateSingle: Error: SecpSigner.verify: Error: Cannot convert string to buffer. toBuffer only supports 0x-prefixed hex strings and this string was given: 0c0ffeebab');
+                multiSigSecp.verifyAggregate(msgHex, '0xc0ffee')
+            ).to.eventually.be.rejectedWith('BNAggregate.verifyAggregateSingle: Error: SecpSigner.verify: Error: Cannot convert string to buffer. toBuffer only supports 0x-prefixed hex strings and this string was given: 0xc0ffee');
         });
 
         it('Fail: Aggregate Signatures should fail unless an array is provided ', async () => {
