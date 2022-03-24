@@ -76,7 +76,7 @@ describe('Unit/MultiSig:', () => {
         it('Fail: Reject Sign Multi when called with invalid rawMsgs', async () => {
             await expect(
                 multiSigSecp.signMulti(null)
-            ).to.eventually.be.rejectedWith('BNAggregate.aggregateMulti: TypeError: Cannot read property \'length\' of null');
+            ).to.eventually.be.rejectedWith('Cannot read properties of null (reading \'length\')');
         });
 
         it('Success: Sign one message', async () => {
@@ -98,31 +98,31 @@ describe('Unit/MultiSig:', () => {
         it('Fail: Reject Aggregate Signatures when called with invalid argument', async () => {
             await expect(
                 multiSigSecp.aggregateSignatures(null)
-            ).to.eventually.be.rejectedWith('BNAggregate.signatures: reflect: Call using zero Value argument');
+            ).to.eventually.be.rejectedWith('Call using zero Value argument');
         });
 
         it('Fail: Reject Aggregate Multi Signatures when called with invalid argument', async () => {
             await expect(
                 multiSigSecp.aggregateSignaturesMulti(null)
-            ).to.eventually.be.rejectedWith('BNAggregate.signaturesMulti: TypeError: Cannot read property \'length\' of null');
+            ).to.eventually.be.rejectedWith('Cannot read properties of null (reading \'length\')');
         });
 
         it('Fail: Reject Verify Aggregate when called with invalid argument', async () => {
             await expect(
                 multiSigSecp.verifyAggregate(null)
-            ).to.eventually.be.rejectedWith('BNAggregate.verifyAggregateSingle: Error: Validator.isHex: No input provided');
+            ).to.eventually.be.rejectedWith('No input provided');
         });
 
         it('Fail: Reject Verify Aggregate when called with invalid sig hex length', async () => {
             await expect(
                 multiSigSecp.verifyAggregate(msgHex, '0xc0ffeebab')
-            ).to.eventually.be.rejectedWith('BNAggregate.verifyAggregateSingle: Error: SecpSigner.verify: Error: Cannot convert string to buffer. toBuffer only supports 0x-prefixed hex strings and this string was given: 0c0ffeebab');
+            ).to.eventually.be.rejectedWith('Cannot convert string to buffer. toBuffer only supports 0x-prefixed hex strings and this string was given: 0c0ffeebab');
         });
 
         it('Fail: Aggregate Signatures should fail unless an array is provided ', async () => {
             await expect(
                 multiSigSecp.aggregateSignatures({})
-            ).to.eventually.be.rejectedWith('BNAggregate.signatures: reflect: Call using map[string]interface {} as type []interface {}');
+            ).to.eventually.be.rejectedWith('Call using map[string]interface {} as type []interface {}');
         });
 
         it('Success: Aggregate Signatures', async () => {

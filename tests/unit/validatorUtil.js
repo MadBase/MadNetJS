@@ -30,15 +30,15 @@ describe('Unit/Util/Validator:', () => {
     
     describe('Hex', () => {  
         it('Fail: hexToInt throws an error if Hex is invalid', () => {
-            expect(() => Validator.hexToInt('notAHex')).to.throw('Validator.hexToInt: Error: Validator.isHex: Invalid hex charater');
+            expect(() => Validator.hexToInt('notAHex')).to.throw('Invalid hex charater');
         });
         
         it('Fail: hexToTxt throws an error if Hex is invalid', () => {
-            expect(() => Validator.hexToTxt(Number('notAHex'))).to.throw('Validator.hexToTxt: TypeError [ERR_INVALID_ARG_TYPE]: The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received type number (NaN)');
+            expect(() => Validator.hexToTxt(Number('notAHex'))).to.throw('The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received type number (NaN)');
         });
         
         it('Fail: txtToHex throws an error if string is invalid', () => {
-            expect(() => Validator.txtToHex(Number('notAHex'))).to.throw('Validator.txtToHex: TypeError [ERR_INVALID_ARG_TYPE]: The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received type number (NaN)');
+            expect(() => Validator.txtToHex(Number('notAHex'))).to.throw('The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received type number (NaN)');
         });
         
         it('Success: Call hexToTxt with valid Hex', () => {
