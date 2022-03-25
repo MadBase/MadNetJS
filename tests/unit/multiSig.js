@@ -116,7 +116,7 @@ describe('Unit/MultiSig:', () => {
         it('Fail: Reject Verify Aggregate when called with invalid sig hex length', async () => {
             await expect(
                 multiSigSecp.verifyAggregate(msgHex, '0xc0ffeebab')
-            ).to.eventually.be.rejectedWith('Cannot convert string to buffer. toBuffer only supports 0x-prefixed hex strings and this string was given: 0c0ffeebab');
+            ).to.eventually.be.rejectedWith('Expected signature to be an Uint8Array with length 64');
         });
 
         it('Fail: Aggregate Signatures should fail unless an array is provided ', async () => {
