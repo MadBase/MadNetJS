@@ -14,7 +14,7 @@ var self = module.exports = {
                 str = str.slice(2)
             }
             if (!validHex.test(str)) {
-                throw "Invalid hex charater";
+                throw "Invalid hex character";
             }
             if (str.length % 2 != 0) {
                 str = "0" + str;

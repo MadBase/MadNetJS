@@ -1,5 +1,6 @@
 const { default: Axios } = require('axios');
 const constant = require("./Constants.js");
+const { addTrailingSlash } = require("./Util");
 
 /**
  * RPC request handler
@@ -13,7 +14,7 @@ class RPC {
      */
     constructor(Wallet, rpcServer) {
         this.Wallet = Wallet;
-        this.rpcServer = rpcServer ? rpcServer : false;
+        this.rpcServer = rpcServer ? addTrailingSlash(rpcServer) : false;
     }
 
     /**
@@ -25,7 +26,7 @@ class RPC {
             if (!rpcServer) {
                 throw "RPC server not provided"
             }
-            this.rpcServer = rpcServer;
+            this.rpcServer = addTrailingSlash(rpcServer);
             let chainId = await this.getChainId();
             this.Wallet.chainId = chainId;
             return chainId;
