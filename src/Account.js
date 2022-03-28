@@ -16,6 +16,41 @@ class Accounts {
     }
 
     /**
+     * Build account object
+     * @param {number} curve
+     * @param {hex} address
+     * @param {hex} signer
+     * 
+     * @return {Object} account
+     */
+    async _buildAccountObject(curve, address, signer) {
+        const utxo = { 
+            "DataStores": [], 
+            "ValueStores": [], 
+            "AtomicSwaps": [], 
+            "ValueStoreIDs": [], 
+            "DataStoreIDs": [], 
+            "AtomicSwapIDs": [], 
+            "Value": "" 
+        };
+
+        const account = { 
+            "UTXO": utxo, 
+            "curve": curve, 
+            "address": address, 
+            "signer": signer,
+            "getAccountUTXOs": async (minValue) => this._getAccountUTXOs(address, minValue), 
+            "getAccountUTXOsByIds": async (utxoIds) => this._getAccountUTXOsByIds(address, utxoIds), 
+            "getAccountValueStores": async (minValue) => this._getAccountValueStores(address, minValue), 
+            "getAccountDataStores": (minValue) => this._getAccountDataStores(address, minValue),
+            "getAccountBalance": () => {}
+        };
+        
+        this.accounts.push(account);
+        return account;
+    }
+
+    /**
      * Add account to accounts array
      * @param {hex} privateKey
      * @param {number} [curve=1]
@@ -44,16 +79,13 @@ class Accounts {
                     throw "Account already added"
                 }
             }
-            let utxo = { "DataStores": [], "ValueStores": [], "AtomicSwaps": [], "ValueStoreIDs": [], "DataStoreIDs": [], "AtomicSwapIDs": [], "Value": "" }
-            let acct = { "UTXO": utxo, "curve": curve, "address": address, "signer": signer };
-            this.accounts.push(acct);
-            return acct;
+            const account = this._buildAccountObject(curve, address, signer);
+            return account;
         }
         catch (ex) {
             throw new Error("Account.addAccount\r\n" + String(ex));
         }
     }
-
 
     /**
      * Add multisig account
@@ -72,12 +104,10 @@ class Accounts {
             }
             let bnSigner = new BNSigner(this.Wallet)
             let signer = new MultiSig(this.Wallet, bnSigner);
-            let multiPub = await signer.addPublicKeys(publicKeys)
-            let multiAddr = await signer.getAddress(multiPub)
-            let utxo = { "DataStores": [], "ValueStores": [], "AtomicSwaps": [], "ValueStoreIDs": [], "DataStoreIDs": [], "AtomicSwapIDs": [], "Value": "" }
-            let acct = { "UTXO": utxo, "curve": 2, "address": multiAddr, "signer": signer};
-            this.accounts.push(acct);
-            return acct;
+            let multiPub = await signer.addPublicKeys(publicKeys);
+            let multiAddr = await signer.getAddress(multiPub);
+            const account = this._buildAccountObject(2, multiAddr, signer);
+            return account;
         }
         catch(ex) {
             throw new Error("Account.addMultiSig\r\n" + String(ex));
@@ -147,7 +177,6 @@ class Accounts {
         try {
             address = this.Wallet.Utils.isAddress(address)
             let accountIndex = await this._getAccountIndex(address)
-            this.accounts[accountIndex]["UTXO"] = { "DataStores": [], "ValueStores": [], "AtomicSwaps": [], "ValueStoreIDs": [], "DataStoreIDs": [], "AtomicSwapIDs": [], "Value": "" }
             let UTXOIDs = [];
             let [valueUTXOIDs, TotalValue] = await this.Wallet.Rpc.getValueStoreUTXOIDs(address, this.accounts[accountIndex]["curve"], minValue)
             this.accounts[accountIndex]["UTXO"]["ValueStoreIDs"] = valueUTXOIDs;
@@ -200,11 +229,15 @@ class Accounts {
         }
     }
 
+    /**
+     * Get Value Stores for account
+     * @param {hex} address
+     * @param {number} minValue
+     */
     async _getAccountValueStores(address, minValue) {
         try {
             address = this.Wallet.Utils.isAddress(address)
             let accountIndex = await this._getAccountIndex(address)
-            this.accounts[accountIndex]["UTXO"] = { "DataStores": [], "ValueStores": [], "AtomicSwaps": [], "ValueStoreIDs": [], "DataStoreIDs": [], "AtomicSwapIDs": [], "Value": "" }
             let [valueUTXOIDs, TotalValue] = await this.Wallet.Rpc.getValueStoreUTXOIDs(address, this.accounts[accountIndex]["curve"], minValue)
             this.accounts[accountIndex]["UTXO"]["ValueStoreIDs"] = valueUTXOIDs;
             this.accounts[accountIndex]["UTXO"]["Value"] = BigInt("0x" + TotalValue);
@@ -215,5 +248,25 @@ class Accounts {
             throw new Error("Account._getAccountValueStores\r\n" + String(ex));
         }
     }
+
+    /**
+     * Get Data Stores for account
+     * @param {hex} address
+     * @param {number} minValue
+     */
+    async _getAccountDataStores(address, minValue) {
+        try {
+            address = this.Wallet.Utils.isAddress(address)
+            const accountIndex = await this._getAccountIndex(address)
+            const dataUTXOIDs = await this.Wallet.Rpc.getDataStoreUTXOIDs(address, this.accounts[accountIndex]["curve"], minValue);
+            this.accounts[accountIndex]["UTXO"]["DataStoreIDs"] = dataUTXOIDs;
+            const [DS] = await this.Wallet.Rpc.getUTXOsByIds(dataUTXOIDs);
+            this.accounts[accountIndex]["UTXO"]["DataStores"] = DS;
+        }
+        catch (ex) {
+            throw new Error("Account._getAccountDataStores\r\n" + String(ex));
+        }
+    }
 }
+
 module.exports = Accounts;
