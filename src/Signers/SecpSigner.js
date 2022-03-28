@@ -1,5 +1,5 @@
 const ethUtil = require('ethereumjs-util');
-const { ecdsaSign, ecdsaRecover } = require('ethereum-cryptography/secp256k1');
+const { ecdsaSign, ecdsaRecover } = require('ethereum-cryptography/secp256k1-compat');
 /**
  * SECP256k1 signer
  * @class SecpSigner
