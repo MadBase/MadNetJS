@@ -42,8 +42,14 @@ class Accounts {
             "getAccountUTXOs": async (minValue) => this._getAccountUTXOs(address, minValue), 
             "getAccountUTXOsByIds": async (utxoIds) => this._getAccountUTXOsByIds(address, utxoIds), 
             "getAccountValueStores": async (minValue) => this._getAccountValueStores(address, minValue), 
-            "getAccountDataStores": (minValue) => this._getAccountDataStores(address, minValue),
-            "getAccountBalance": () => {}
+            "getAccountDataStores": async (minValue) => {
+                let dataStoreUTXO = this.Wallet.Rpc.getDataStoreUTXOIDsAndIndices(address, curve, minValue, false);
+                return dataStoreUTXO;
+            },
+            "getAccountBalance": async () => {
+                let [,balance] = this.Wallet.Rpc.getValueStoreUTXOIDS(address, curve);
+                return balance;
+            }
         };
         
         this.accounts.push(account);
@@ -207,7 +213,6 @@ class Accounts {
             }
             address = this.Wallet.Utils.isAddress(address)
             let accountIndex = await this._getAccountIndex(address)
-            this.accounts[accountIndex]["UTXO"] = { "DataStores": [], "ValueStores": [], "AtomicSwaps": [], "ValueStoreIDs": [], "DataStoreIDs": [], "AtomicSwapIDs": [], "Value": "" }
             let [DS, VS, AS] = await this.Wallet.Rpc.getUTXOsByIds(utxoIds)
             if (DS.length > 0) {
                 this.accounts[accountIndex]["UTXO"]["DataStores"] = DS;
@@ -246,25 +251,6 @@ class Accounts {
         }
         catch (ex) {
             throw new Error("Account._getAccountValueStores\r\n" + String(ex));
-        }
-    }
-
-    /**
-     * Get Data Stores for account
-     * @param {hex} address
-     * @param {number} minValue
-     */
-    async _getAccountDataStores(address, minValue) {
-        try {
-            address = this.Wallet.Utils.isAddress(address)
-            const accountIndex = await this._getAccountIndex(address)
-            const dataUTXOIDs = await this.Wallet.Rpc.getDataStoreUTXOIDs(address, this.accounts[accountIndex]["curve"], minValue);
-            this.accounts[accountIndex]["UTXO"]["DataStoreIDs"] = dataUTXOIDs;
-            const [DS] = await this.Wallet.Rpc.getUTXOsByIds(dataUTXOIDs);
-            this.accounts[accountIndex]["UTXO"]["DataStores"] = DS;
-        }
-        catch (ex) {
-            throw new Error("Account._getAccountDataStores\r\n" + String(ex));
         }
     }
 }

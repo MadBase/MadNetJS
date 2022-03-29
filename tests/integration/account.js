@@ -90,20 +90,6 @@ describe('Integration/Account:', () => {
         });
     });
 
-    describe('Remove Account', () => {
-        it('Fail: Reject when called with invalid Address', async () => {
-            await expect(
-                madWallet.Account.removeAccount(null)
-            ).to.eventually.be.rejectedWith('No input provided');
-        });
-
-        it('Success: Remove existing account by address', async () => {
-            await expect(
-                madWallet.Account.removeAccount(madWallet.Account.accounts[0]["address"])
-            ).to.eventually.be.fulfilled;
-        });
-    });
-
     describe('Get Account', () => {
         it('Fail: Reject when address not added', async () => {
             await expect(
@@ -134,33 +120,40 @@ describe('Integration/Account:', () => {
 
     describe('Signatures', () => {
         it('Success: Sign a message with BN signer', async () => {
+            const madWalletInstance = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
+            await madWalletInstance.Account.addAccount(privateKey, 2);
             await expect(
-                madWallet.Account.accounts[0]["signer"].sign("0xc0ffee")
+                madWalletInstance.Account.accounts[0]["signer"].sign("0xc0ffee")
             ).to.eventually.be.fulfilled;
         });
 
         it('Success: Sign a message with SECP signer', async () => {
+            const madWalletInstance = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
+            await madWalletInstance.Account.addAccount(privateKey, 1);
             await expect(
-                madWallet.Account.accounts[1]["signer"].sign("0xc0ffee")
+                madWalletInstance.Account.accounts[0]["signer"].sign("0xc0ffee")
             ).to.eventually.be.fulfilled;
         });
 
         it("Success: Sign and verify a SECP message with Signer.sign() & .verify()", async () => {
+            const madWalletInstance = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
+            await madWalletInstance.Account.addAccount(privateKey, 1);
             let msg = "0xc0ffee";
-            let signature = await madWallet.Account.accounts[1]["signer"].sign(msg);
-            let verify = madWallet.Account.accounts[1]["signer"].verify(msg, signature);
+            let signature = await madWalletInstance.Account.accounts[0]["signer"].sign(msg);
+            let verify = madWalletInstance.Account.accounts[0]["signer"].verify(msg, signature);
             expect(verify).to.eventually.be.fulfilled;
         })
 
         it("Fail: An incorrect verifacation request for 'caffee' will fail for a signed SECP message of 'c0ffee'", async () => {
+            const madWalletInstance = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
+            await madWalletInstance.Account.addAccount(privateKey, 1);
             let msg = "0xc0ffee";
             let wrongVerifyMsg = "0xcafee";
-            let signature = await madWallet.Account.accounts[1]["signer"].sign(msg);
+            let signature = await madWalletInstance.Account.accounts[0]["signer"].sign(msg);
             await expect(
-                madWallet.Account.accounts[1]["signer"].verify(wrongVerifyMsg, signature)
-            ).to.eventually.be.rejectedWith("Public Keys don't match");
+                madWalletInstance.Account.accounts[0]["signer"].verify(wrongVerifyMsg, signature)
+            ).to.eventually.be.rejectedWith('Public Keys don\'t match');
         })
-
     });
 
     describe('UTXOs', () => {
@@ -234,32 +227,24 @@ describe('Integration/Account:', () => {
     });
 
     describe('Data Stores', () => {
-        it('Fail: Cannot get data stores for non-added account', async () => {
-            await expect(
-                madWallet.Account._getAccountDataStores(wrongAccountAddress, 0)
-            ).to.eventually.be.rejectedWith('Could not find account index');
-        });
-
         it('Success: Get data stores from account helper', async () => {
-            await madWallet.Account.accounts[0].getAccountDataStores(0);
-            const account = await madWallet.Account.getAccount(madWallet.Account.accounts[0]['address']);
-            expect(
-                account['UTXO']['DataStoreIDs'].length
-            ).to.be.greaterThan(0);
-        });
-
-        it('Success: Get account data stores for an added account', async () => {
-           await expect(
-                madWallet.Account._getAccountDataStores(madWallet.Account.accounts[0]["address"], 0)
+            await expect(
+                 madWallet.Account.accounts[0].getAccountDataStores(0)
             ).to.eventually.be.fulfilled;
         });
+    });
 
-        it('Success: Get account data stores for an added account with minValue greater than 0', async () => {
-            await madWallet.Account._getAccountDataStores(madWallet.Account.accounts[0]["address"], 1);
-            const account = await madWallet.Account.getAccount(madWallet.Account.accounts[0]['address']);
-            expect(
-                account['UTXO']['DataStoreIDs'].length
-            ).to.be.greaterThan(0);
+    describe('Remove Account', () => {
+        it('Fail: Reject when called with invalid Address', async () => {
+            await expect(
+                madWallet.Account.removeAccount(null)
+            ).to.eventually.be.rejectedWith('No input provided');
+        });
+
+        it('Success: Remove existing account by address', async () => {
+            await expect(
+                madWallet.Account.removeAccount(madWallet.Account.accounts[0]["address"])
+            ).to.eventually.be.fulfilled;
         });
     });
 });
