@@ -8,16 +8,32 @@ const MultiSig = require("../../src/Signers/MultiSig");
 const SecpSigner = require("../../src/Signers/SecpSigner.js");
 
 describe('Unit/MultiSig:', () => {
-    let privateKey, msgHex, madWallet, secpSigner, multiSigSecp;
-    const publicKeys = [ process.env.OPTIONAL_TEST_SUITE_PUBLIC_KEY_ONE, process.env.OPTIONAL_TEST_SUITE_PUBLIC_KEY_TWO ];
-    const signatures = [ process.env.OPTIONAL_TEST_SUITE_SIGNATURE_ONE, process.env.OPTIONAL_TEST_SUITE_SIGNATURE_TWO ];
+    let privateKey, secondaryPrivateKey, msgHex, madWallet, secpSigner, multiSigSecp, publicKeys, signatures;
 
     before(async function() {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
+        secondaryPrivateKey = process.env.OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY;
         msgHex = Buffer.from("hello world", "utf8").toString("hex").toLowerCase();
-        madWallet = new MadWalletJS();
+        madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
         secpSigner = new SecpSigner(madWallet, privateKey);
         multiSigSecp = new MultiSig(madWallet, secpSigner);
+
+        await madWallet.Account.addAccount(privateKey, 2);
+        await madWallet.Account.addAccount(secondaryPrivateKey, 2);
+
+        let account = await madWallet.Account.getAccount(madWallet.Account.accounts[0]["address"]);
+        let accountPK = await account.signer.getPubK();
+        let accountTwo = await madWallet.Account.getAccount(madWallet.Account.accounts[1]["address"]);
+        let accountTwoPK = await accountTwo.signer.getPubK();
+
+        publicKeys = [ accountPK, accountTwoPK ];
+
+        let multiAccount = await madWallet.Account.addMultiSig(publicKeys);
+        let multiPubK = await multiAccount.signer.getPubK()
+        let signatureOne = await account.signer.multiSig.sign(msgHex, multiPubK);
+        let signatureTwo = await accountTwo.signer.multiSig.sign(msgHex, multiPubK);
+
+        signatures = [ signatureOne, signatureTwo ];
     });
 
     describe('Public Key and Address', () => {

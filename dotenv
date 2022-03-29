@@ -1,13 +1,6 @@
 CHAIN_ID=""
 RPC=""
 PRIVATE_KEY=""
-# Key for the testing suite to use if running tests
+# Keys for the testing suite to use if running tests
 OPTIONAL_TEST_SUITE_PRIVATE_KEY=""
-
-# Public Keys for account and multiSig testing suite
-OPTIONAL_TEST_SUITE_PUBLIC_KEY_ONE=""
-OPTIONAL_TEST_SUITE_PUBLIC_KEY_TWO=""
-
-# Signatures for multiSig testing suite
-OPTIONAL_TEST_SUITE_SIGNATURE_ONE=""
-OPTIONAL_TEST_SUITE_SIGNATURE_TWO=""
+OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY=""

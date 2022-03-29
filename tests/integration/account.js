@@ -7,7 +7,6 @@ const MadWalletJS = require("../../index.js");
 
 describe('Integration/Account:', () => {
     let privateKey, madWallet, wrongAccountAddress;
-    const publicKeys = [ process.env.OPTIONAL_TEST_SUITE_PUBLIC_KEY_ONE, process.env.OPTIONAL_TEST_SUITE_PUBLIC_KEY_TWO ];
     
     before(async function() {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
@@ -84,8 +83,10 @@ describe('Integration/Account:', () => {
         });
 
         it('Success: Add Multi Sig when called with valid publicKeys', async () => {
+            const accountTwo = await madWallet.Account.getAccount(madWallet.Account.accounts[1]["address"]);
+            const accountTwoPK = await accountTwo.signer.getPubK();
             await expect(
-                madWallet.Account.addMultiSig(publicKeys)
+                madWallet.Account.addMultiSig([ accountTwoPK ])
             ).to.eventually.be.fulfilled;
         });
     });
