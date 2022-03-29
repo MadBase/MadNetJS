@@ -43,11 +43,11 @@ class Accounts {
             "getAccountUTXOsByIds": async (utxoIds) => this._getAccountUTXOsByIds(address, utxoIds), 
             "getAccountValueStores": async (minValue) => this._getAccountValueStores(address, minValue), 
             "getAccountDataStores": async (minValue) => {
-                let dataStoreUTXO = this.Wallet.Rpc.getDataStoreUTXOIDsAndIndices(address, curve, minValue, false);
-                return dataStoreUTXO;
+                let dataStoreUTXOs = await this.Wallet.Rpc.getDataStoreUTXOIDsAndIndices(address, curve, minValue, false);
+                return dataStoreUTXOs;
             },
             "getAccountBalance": async () => {
-                let [,balance] = this.Wallet.Rpc.getValueStoreUTXOIDS(address, curve);
+                let [,balance] = await this.Wallet.Rpc.getValueStoreUTXOIDs(address, curve, false);
                 return balance;
             }
         };

@@ -102,6 +102,12 @@ describe('Integration/Account:', () => {
                 madWallet.Account.getAccount(madWallet.Account.accounts[0]["address"])
             ).to.eventually.be.fulfilled;
         });
+
+        it('Success: Get account balance', async () => {
+            await expect(
+                madWallet.Account.accounts[0].getAccountBalance()
+            ).to.eventually.be.fulfilled;
+        });
     });
 
     describe('Get Account Index', () => {
@@ -229,7 +235,7 @@ describe('Integration/Account:', () => {
     describe('Data Stores', () => {
         it('Success: Get data stores from account helper', async () => {
             await expect(
-                 madWallet.Account.accounts[0].getAccountDataStores(0)
+                madWallet.Account.accounts[0].getAccountDataStores(0)
             ).to.eventually.be.fulfilled;
         });
     });
