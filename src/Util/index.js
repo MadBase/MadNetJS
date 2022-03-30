@@ -1,11 +1,19 @@
-const Tx = require('./Tx');
-const Hash = require('./Hash');
-const Validator = require('./Validator');
 const Eth = require('./Eth');
+const Generic = require('./Generic');
+const Hash = require('./Hash');
+const Tx = require('./Tx');
+const Validator = require('./Validator');
+const String = require('./String');
 
+/**
+ * @typedef UtilityCollection - Collection of all utility functions
+ */
 module.exports = {
-    ...Tx,
+    ...Eth,
+    ...Eth,
+    ...Generic,
     ...Hash,
+    ...String,
+    ...Tx,
     ...Validator,
-    ...Eth
 }
