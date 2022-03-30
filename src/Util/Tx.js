@@ -1,5 +1,9 @@
 const constant = require("../Constants.js");
 const validator = require("./Validator.js");
+
+/**
+ * @typedef TxUtils - Collection of Tx Utilities
+ */
 var self = module.exports = {
     /**
      * Extract SVA | Curve | PubHash
