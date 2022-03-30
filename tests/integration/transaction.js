@@ -60,7 +60,7 @@ describe('Integration/Transaction:', () => {
         it('Fail: Cannot consume UTXOs when argument accountUTXO is invalid', async () => {
             await expect(
                 madWallet.Transaction._spendUTXO(null)
-            ).to.eventually.be.rejectedWith('Cannot read property');
+            ).to.eventually.be.rejectedWith('Cannot read properties of null (reading \'ValueStores\')');
         });
     });
     
@@ -280,13 +280,13 @@ describe('Integration/Transaction:', () => {
         it('Fail: Reject _createValueTxIn with invalid arguments', async () => {
             await expect(
                 madWallet.Transaction._createValueTxIn('invalidaddress')
-            ).to.eventually.be.rejectedWith('Cannot read property');
+            ).to.eventually.be.rejectedWith('Cannot read properties of undefined (reading \'TxHash\')');
         });
 
         it('Fail: Reject _createDataTxIn with invalid arguments', async () => {
             await expect(
                 madWallet.Transaction._createDataTxIn('invalidaddress')
-            ).to.eventually.be.rejectedWith('Cannot read property');
+            ).to.eventually.be.rejectedWith('Cannot read properties of undefined (reading \'DSLinker\')');
         });
     });
 

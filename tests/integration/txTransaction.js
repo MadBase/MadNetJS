@@ -116,7 +116,7 @@ describe('Integration/Transaction/Tx:', () => {
             const tx = {};
             await expect(
                 madWallet.Transaction.Tx._signTx(tx)
-            ).to.eventually.be.rejectedWith('Tx.sign: TypeError: Cannot read property \'Vin\' of undefined');
+            ).to.eventually.be.rejectedWith('Cannot read properties of undefined (reading \'Vin\')');
         });
 
         it('Success: Create AtomicSwap', async () => {
@@ -157,7 +157,7 @@ describe('Integration/Transaction/Tx:', () => {
         it('Fail: Reject _signTx when Tx is invalid', async () => {
             await expect(
                 madWallet.Transaction.Tx._signTx(undefined)
-            ).to.eventually.be.rejectedWith('Tx.sign: SyntaxError: Unexpected token u in JSON at position 0');
+            ).to.eventually.be.rejectedWith('Unexpected token u in JSON at position 0');
         });
     });
 
@@ -190,7 +190,7 @@ describe('Integration/Transaction/Tx:', () => {
             const tx = {};
             await expect(
                 madWallet.Transaction.Tx.importTransaction(tx)
-            ).to.eventually.be.rejectedWith('Tx.importTransaction: TypeError: Cannot read property \'Vin\' of undefined');
+            ).to.eventually.be.rejectedWith('Cannot read properties of undefined (reading \'Vin\')');
         });
 
         it('Success: Import a transaction preSigned', async () => {
@@ -205,7 +205,7 @@ describe('Integration/Transaction/Tx:', () => {
             const madWalletWithoutRPC = new MadWalletJS(process.env.CHAIN_ID, null);
             await expect(
                 madWalletWithoutRPC.Transaction.Tx.importRawTransaction(madWalletWithoutRPC.Transaction.Tx.getTx())
-            ).to.eventually.be.rejectedWith('Tx.importRawTransaction: RPC server must be set to fetch Vin data');
+            ).to.eventually.be.rejectedWith('RPC server must be set to fetch Vin data');
         });
     });
 });
