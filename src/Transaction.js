@@ -1,28 +1,79 @@
 const Tx = require('./Transaction/Tx.js');
 const Constants = require('./Constants.js');
+
 /**
  * Transaction handler
- * @class Transaction
+ * @class
+ * @property {import('./Wallet.js')} Wallet - Circulare Wallet reference
+ * @property {Tx} Tx - The tranasaction object to be sent
+ * @property {RpcFee} fees - Fees Object - Contains associated transaction fees
+ * @property {Array} outValue - Collection of out values
  */
 class Transaction {
     /**
      * Creates an instance of Transaction.
-     * @param { Wallet } Wallet Instance
+     * @param {import('./Wallet.js')} Wallet - Circular wallet reference to use internally of Transaction class
      */
     constructor(Wallet) {
-        /** @property { Wallet } Wallet - Wallet instance see {@link Wallet} */
         this.Wallet = Wallet;
-        /** @property { Wallet } Tx - Tx instance see {@link Tx} */
         this.Tx = new Tx(Wallet);
-        /** @type { RpcFee } */
         this.fees = false;
-
         this.outValue = [];
     }
 
     /**
-     * Create TxIns and send the transaction
-     * @property {Function} sendTx - Create TxIns and send the current this.Tx object via RPC method
+     * 
+     * @param {hex} txHash - TxHash that was polled
+     * @param {Boolean} isMined - Was the TxHash found to be mined
+     * @param {RpcTxObject} Tx - The Tx Object from the RPC
+     * @returns {PolledTxObject}
+     */
+    async PolledTxObject(txHash, isMined, Tx) {
+        return {
+            Tx: Tx,
+            isMined: isMined,
+            txHash: txHash,
+        }
+    }
+
+    /**
+     * @param {Boolean} txHash - Transaction hash to return a Pending Object of
+     * @returns {PendingTxObject}
+     */
+    async PendingTxObject(txHash) {
+        return {
+            txHash: txHash,
+            /**
+             * @param {Number} maxWait - Max amount of time in ms to wait for a Tx to mine -- Defaults to 2 minutes
+             * @returns {PolledTxObject}
+             */
+            wait: async (maxWait = 120000) => {
+                try {
+                    // Use the txHash to await resolution of status to mined
+                    let resolved = false;
+                    let waited = 0; // Time waited for Tx to resolve
+                    // Don't wait more than maxWait for transactions via this method
+                    while (!resolved) {
+                        let txStatus = await this.Wallet.Rpc.getTxStatus(txHash);
+                        if (waited >= maxWait - 2000) {
+                            return this.PolledTxObject(txHash, false, txStatus.Tx);
+                        }
+                        if (txStatus.IsMined) {
+                            return this.PolledTxObject(txHash, true, txStatus.Tx);
+                        } else {
+                            waited += 2000;
+                            await this.Wallet.Utils.sleep(2000);
+                        }
+                    }
+                } catch (ex) {
+                    throw new Error("PendingTxObj: " + ex.message);
+                }
+            }
+        }
+    }
+
+    /**
+     * Create TxIns and send the current this.Tx object via RPC method -- Does not wait for mining
      * @param {hex} [changeAddress=false]
      * @param {hex} [changeAddressCurve=false]
      * @param {Object} [UTXOIDs=[]]
@@ -47,6 +98,38 @@ class Transaction {
         } catch (ex) {
             this._reset();
             throw new Error("Transaction.sendTx\r\n" + String(ex));
+        }
+    }
+
+    /**
+     * Create TxIns and send the current this.Tx object via RPC method with a returned hash and object with wait() for mining.
+     * @property {Function} sendTx - Create TxIns and send the current this.Tx object via RPC method
+     * @param {hex} [changeAddress=false] - Optional
+     * @param {hex} [changeAddressCurve=false] - Optional
+     * @param {Object} [UTXOIDs=[]] - Optional will be fetched if not provided
+     * @return {Promise<PendingTxObject>} Pending Tx Object
+     */
+    async sendWaitableTx(changeAddress, changeAddressCurve, UTXOIDs = []) {
+        try {
+            if (this.Tx.getTx()["Tx"]["Fee"] === 0) {
+                throw "No Tx fee added"
+            }
+            if (this.Tx.Vout.length <= 0) {
+                throw "No Vouts for transaction"
+            }
+            if (!this.Wallet.Rpc.rpcServer) {
+                throw 'No RPC to send transaction'
+            }
+            await this._createTxIns(changeAddress, changeAddressCurve, UTXOIDs);
+            await this.Tx._createTx();
+            console.log("\nSENDING: \n", JSON.stringify(this.Tx.getTx(), false, 2));
+            let txHash = await this.Wallet.Rpc.sendTransaction(this.Tx.getTx())
+            await this._reset();
+            // Return a TX Object that can be wait()ed
+            return this.PendingTxObject(txHash)
+        } catch (ex) {
+            this._reset();
+            throw new Error("Transaction.sendTx: " + String(ex));
         }
     }
 
@@ -127,6 +210,7 @@ class Transaction {
             // If createTxIns hoists an insufficient funds error, add that to the available estimates
             if (!!createTxIns && createTxIns.errors) {
                 fees.errors = createTxIns.errors;
+
             }
 
             this.Tx.Vin = [];
@@ -425,10 +509,13 @@ class Transaction {
                         if (reward) {
                             await this._createDataTxIn(account["address"], DS);
                             outValue["totalValue"] = BigInt(outValue["totalValue"]) - BigInt(reward);
+                        } else {
+                            // No reward
                         }
+                    } else {
+                        // Skip if the store doesn't equal the datastore for spending
                     }
                 }
-
                 // Control error handling for any accounts with insufficient funds
                 let insufficientFunds = BigInt(outValue["totalValue"]) > BigInt(account["UTXO"]["Value"]);
                 if (insufficientFunds && returnInsufficientOnGas) {
@@ -451,7 +538,9 @@ class Transaction {
                     return;
                 }
                 if (BigInt(outValue["totalValue"]) < BigInt(0)) {
-                    if (BigInt(BigInt(BigInt(outValue["totalValue"]) * BigInt(-1)) + BigInt("0x" + this.fees["ValueStoreFee"])) > BigInt(account["UTXO"]["Value"])) {
+                    // Don't bother creating a reward value store if the cost for the value store undermines the reward, just use as priortization on the Tx
+                    if (BigInt(BigInt(BigInt(outValue["totalValue"]) * BigInt(-1)) - BigInt("0x" + this.fees["ValueStoreFee"])) <= BigInt("0")) {
+                        // console.log("EDGECASE"); -- Needs investigated -- this is exceptionally hard to emulate. A DataStore consumption has to reward <= 4 madbytes on consumption
                         this.Tx.Fee = BigInt(BigInt(BigInt(outValue["totalValue"]) * BigInt(-1)) + BigInt(this.Tx.Fee)).toString(10)
                         continue;
                     }
@@ -462,7 +551,7 @@ class Transaction {
                     await this._spendUTXO(account["UTXO"], account, outValue["totalValue"], changeAddress, changeAddressCurve);
                 }
             }
-            // If the for loop hasn't return on outValue["totalValue"]) == BigInt(0) assume an insufficient error has occurred and return them
+            // If the for loop hasn't returned on outValue["totalValue"]) == BigInt(0) or above in the two other exit cases, assume an insufficient error has occurred and return them
             return { errors: insufficientFundErrors }
         } catch (ex) {
             throw new Error("Transaction._createTxIns\r\n" + String(ex));
@@ -520,7 +609,7 @@ class Transaction {
      * @param {number} currentValue
      * @param {hex} [changeAddress=false]
      * @param {hex} [changeAddressCurve=false]
-     * @return {boolean} exit 
+     * @return {Promise<boolean>} exit 
      */
     async _spendUTXO(accountUTXO, account, currentValue, changeAddress, changeAddressCurve) {
         try {
@@ -551,7 +640,7 @@ class Transaction {
                 }
                 let remaining = BigInt(BigInt(highestUnspent["VSPreImage"]["Value"]) - BigInt(currentValue));
                 if (remaining > BigInt(0)) {
-                    if (BigInt(BigInt(remaining) - BigInt("0x" + this.fees["ValueStoreFee"])) == BigInt(0)) {
+                    if (BigInt(BigInt(remaining) - BigInt("0x" + this.fees["ValueStoreFee"])) <= BigInt(0)) {
                         this.Tx.Fee = BigInt(BigInt(remaining) + BigInt(this.Tx.Fee)).toString(10)
                         break;
                     }
