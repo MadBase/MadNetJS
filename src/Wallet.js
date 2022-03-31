@@ -5,8 +5,13 @@ const utils = require("./Util");
 
 /**
  * Wallet handler
- * @class Wallet
- * @typedef {hex} hex
+ * @class
+ * @alias module:Wallet
+ * @property {Number} chainId - ChainID of the network to be connected to
+ * @property {Account} Account - Main Account Handler Instance
+ * @property {Transaction} Transaction - Main Transaction Handler Instance
+ * @property {RPC} RPC - Main RPC Handler Instance
+ * @property {UtilityCollection} Utils - Utility Collection
  */
 class Wallet {
     /**
