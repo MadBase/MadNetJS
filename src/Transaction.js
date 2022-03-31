@@ -1,15 +1,12 @@
 const Tx = require('./Transaction/Tx.js');
 const Constants = require('./Constants.js');
-<<<<<<< HEAD
-=======
 // Below import for intellisense and type support on jsdoc
 const Wallet = require('./Wallet.js'); //eslint-disable-line
->>>>>>> main
 
 /**
  * Transaction handler
  * @class
- * @property {import('./Wallet.js')} Wallet - Circulare Wallet reference
+ * @property {Wallet} Wallet - Circular Wallet reference
  * @property {Tx} Tx - The tranasaction object to be sent
  * @property {RpcFee} fees - Fees Object - Contains associated transaction fees
  * @property {Array} outValue - Collection of out values
@@ -17,7 +14,7 @@ const Wallet = require('./Wallet.js'); //eslint-disable-line
 class Transaction {
     /**
      * Creates an instance of Transaction.
-     * @param {import('./Wallet.js')} Wallet - Circular wallet reference to use internally of Transaction class
+     * @param {Wallet} Wallet - Circular wallet reference to use internally of Transaction class
      */
     constructor(Wallet) {
         this.Wallet = Wallet;
@@ -127,7 +124,6 @@ class Transaction {
             }
             await this._createTxIns(changeAddress, changeAddressCurve, UTXOIDs);
             await this.Tx._createTx();
-            console.log("\nSENDING: \n", JSON.stringify(this.Tx.getTx(), false, 2));
             let txHash = await this.Wallet.Rpc.sendTransaction(this.Tx.getTx())
             await this._reset();
             // Return a TX Object that can be wait()ed
@@ -514,11 +510,7 @@ class Transaction {
                         if (reward) {
                             await this._createDataTxIn(account["address"], DS);
                             outValue["totalValue"] = BigInt(outValue["totalValue"]) - BigInt(reward);
-                        } else {
-                            // No reward
                         }
-                    } else {
-                        // Skip if the store doesn't equal the datastore for spending
                     }
                 }
                 // Control error handling for any accounts with insufficient funds
