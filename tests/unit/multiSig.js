@@ -8,23 +8,32 @@ const MultiSig = require("../../src/Signers/MultiSig");
 const SecpSigner = require("../../src/Signers/SecpSigner.js");
 
 describe('Unit/MultiSig:', () => {
-    let privateKey, msgHex, madWallet, secpSigner, multiSigSecp;
-
-    const publicKeys = [
-        '2c4f0713d07005ea95b0174ef7bfd34a1d2ba2ed40a315fa969664717a3d6746149bac51ff10f4fb3285805ae7f9ee62a41cd9353d3f36c86b2f8157eb194e9b229471a343bf20962ea5e71a944c90a2e07d4fb085382c13d6d6df1e2870c13803ada9e55fb719c4d5cf015b819fc3df5e0d381b9c928fef9970366d6f8f5379', 
-        '0928b847ee0c4e5851ea6e9943dc8fd3c0cd463e35844fcac6ec303cf7c6796d137bdb1da527b9b822be3d14c866081857a6711e98807b112d3d77bfd434c3be02ed582a08c08c7ddb5355c7f742c1581288e9c43552b16b7ffa16b826d2839116c6c3bea6c0cef1b38088c4ab31daa51eade02a9b8100e04e7de7d88b7b8fb9'
-    ];
-    const signatures = [
-        '14909a6ab1c19ad26264cb1491885a8ba9a936264ab7c71d4cc58f889419b458289da71e04086b804a4b74b358ef923e2f6cba9bf87310724d72571efcd49e0802390d2d1dc0715f9a7d0f36d5b511baf5e0833bf3f0db881457ce5b523e1d0512dba7a1a0d623805fc79c642efb77fd3286747bbaa71c4365fa3f64a80fc83c2cbccc0e2f548ee60fc5f6cb407b63b281be07068cd3b4dbc6f7aaf983471d2318f1bc95df4b1bb3cf82d2e45b64b9d461b902c59b8d85c9b71761445b72b37d', 
-        '14909a6ab1c19ad26264cb1491885a8ba9a936264ab7c71d4cc58f889419b458289da71e04086b804a4b74b358ef923e2f6cba9bf87310724d72571efcd49e0802390d2d1dc0715f9a7d0f36d5b511baf5e0833bf3f0db881457ce5b523e1d0512dba7a1a0d623805fc79c642efb77fd3286747bbaa71c4365fa3f64a80fc83c2cbccc0e2f548ee60fc5f6cb407b63b281be07068cd3b4dbc6f7aaf983471d2318f1bc95df4b1bb3cf82d2e45b64b9d461b902c59b8d85c9b71761445b72b37d'
-    ];
+    let privateKey, secondaryPrivateKey, msgHex, madWallet, secpSigner, multiSigSecp, publicKeys, signatures;
 
     before(async function() {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
+        secondaryPrivateKey = process.env.OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY;
         msgHex = Buffer.from("hello world", "utf8").toString("hex").toLowerCase();
-        madWallet = new MadWalletJS();
+        madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
         secpSigner = new SecpSigner(madWallet, privateKey);
         multiSigSecp = new MultiSig(madWallet, secpSigner);
+
+        await madWallet.Account.addAccount(privateKey, 2);
+        await madWallet.Account.addAccount(secondaryPrivateKey, 2);
+
+        let account = await madWallet.Account.getAccount(madWallet.Account.accounts[0]["address"]);
+        let accountPK = await account.signer.getPubK();
+        let accountTwo = await madWallet.Account.getAccount(madWallet.Account.accounts[1]["address"]);
+        let accountTwoPK = await accountTwo.signer.getPubK();
+
+        publicKeys = [ accountPK, accountTwoPK ];
+
+        let multiAccount = await madWallet.Account.addMultiSig(publicKeys);
+        let multiPubK = await multiAccount.signer.getPubK()
+        let signatureOne = await account.signer.multiSig.sign(msgHex, multiPubK);
+        let signatureTwo = await accountTwo.signer.multiSig.sign(msgHex, multiPubK);
+
+        signatures = [ signatureOne, signatureTwo ];
     });
 
     describe('Public Key and Address', () => {
@@ -76,7 +85,7 @@ describe('Unit/MultiSig:', () => {
         it('Fail: Reject Sign Multi when called with invalid rawMsgs', async () => {
             await expect(
                 multiSigSecp.signMulti(null)
-            ).to.eventually.be.rejectedWith('BNAggregate.aggregateMulti: TypeError: Cannot read property \'length\' of null');
+            ).to.eventually.be.rejectedWith('Cannot read properties of null (reading \'length\')');
         });
 
         it('Success: Sign one message', async () => {
@@ -98,31 +107,31 @@ describe('Unit/MultiSig:', () => {
         it('Fail: Reject Aggregate Signatures when called with invalid argument', async () => {
             await expect(
                 multiSigSecp.aggregateSignatures(null)
-            ).to.eventually.be.rejectedWith('BNAggregate.signatures: reflect: Call using zero Value argument');
+            ).to.eventually.be.rejectedWith('Call using zero Value argument');
         });
 
         it('Fail: Reject Aggregate Multi Signatures when called with invalid argument', async () => {
             await expect(
                 multiSigSecp.aggregateSignaturesMulti(null)
-            ).to.eventually.be.rejectedWith('BNAggregate.signaturesMulti: TypeError: Cannot read property \'length\' of null');
+            ).to.eventually.be.rejectedWith('Cannot read properties of null (reading \'length\')');
         });
 
         it('Fail: Reject Verify Aggregate when called with invalid argument', async () => {
             await expect(
                 multiSigSecp.verifyAggregate(null)
-            ).to.eventually.be.rejectedWith('BNAggregate.verifyAggregateSingle: Error: Validator.isHex: No input provided');
+            ).to.eventually.be.rejectedWith('No input provided');
         });
 
         it('Fail: Reject Verify Aggregate when called with invalid sig hex length', async () => {
             await expect(
-                multiSigSecp.verifyAggregate(msgHex, '0xc0ffee')
-            ).to.eventually.be.rejectedWith('BNAggregate.verifyAggregateSingle: Error: SecpSigner.verify: Error: Cannot convert string to buffer. toBuffer only supports 0x-prefixed hex strings and this string was given: 0xc0ffee');
+                multiSigSecp.verifyAggregate(msgHex, '0xc0ffeebab')
+            ).to.eventually.be.rejectedWith('Expected signature to be an Uint8Array with length 64');
         });
 
         it('Fail: Aggregate Signatures should fail unless an array is provided ', async () => {
             await expect(
                 multiSigSecp.aggregateSignatures({})
-            ).to.eventually.be.rejectedWith('BNAggregate.signatures: reflect: Call using map[string]interface {} as type []interface {}');
+            ).to.eventually.be.rejectedWith('Call using map[string]interface {} as type []interface {}');
         });
 
         it('Success: Aggregate Signatures', async () => {

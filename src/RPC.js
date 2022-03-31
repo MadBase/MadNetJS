@@ -1,20 +1,28 @@
 const { default: Axios } = require('axios');
 const constant = require("./Constants.js");
 const { addTrailingSlash } = require("./Util");
+// Below import for intellisense and type support on jsdoc
+const Wallet = require('./Wallet.js'); //eslint-disable-line
 
 /**
  * RPC request handler
  * @class RPC
+ * @property {Wallet} Wallet - Circular Wallet reference
+ * @property {String|Boolean} rpcServer - (Optional) - RPC Endpoint to use for RPC requests 
  */
 class RPC {
     /**
      * Creates an instance of RPC.
-     * @param {Object} Wallet
-     * @param {string} [rpcServer=false]
+     * @param {Wallet} Wallet - Circular wallet reference to use internally of RPC class
+     * @param {String|Boolean} [rpcServer=false] - (Optional - Rpc endpoint to use for RPC requests)
      */
     constructor(Wallet, rpcServer) {
         this.Wallet = Wallet;
+        this.rpcServer = rpcServer ? rpcServer : false;
         this.rpcServer = rpcServer ? addTrailingSlash(rpcServer) : false;
+        if (this.rpcServer) { // If RPC Provided -- Fetch chainID
+            this.setProvider(rpcServer);
+        }
     }
 
     /**
@@ -160,7 +168,7 @@ class RPC {
      * @param {hex} address
      * @param {number} curve
      * @param {number} minValue !optional
-     * @return {Array}
+     * @return {Array} - [runningUTXOs, totalValue]
      */
     async getValueStoreUTXOIDs(address, curve, minValue = false) {
         try {

@@ -1,18 +1,66 @@
 const MultiSig = require("./Signers/MultiSig.js");
 const BNSigner = require("./Signers/BNSigner.js");
 const SecpSigner = require("./Signers/SecpSigner.js");
+// Below import for intellisense and type support on jsdoc
+const Wallet = require('./Wallet.js'); //eslint-disable-line
+
 /**
  * Account handler
- * @class Accounts
+ * @class
+ * @property {Wallet} Wallet - Circular Wallet reference
+ * @property {Array} accounts - A list of associated account objects
  */
 class Accounts {
     /**
      * Creates an instance of Accounts.
-     * @param {Object} Wallet
+     * @param {Wallet} Wallet - Circular wallet reference to use internally of Account class
      */
     constructor(Wallet) {
         this.Wallet = Wallet;
         this.accounts = [];
+
+        
+    }
+
+    /**
+     * Build account object
+     * @param {number} curve
+     * @param {hex} address
+     * @param {hex} signer
+     * 
+     * @return {Object} account
+     */
+    async _buildAccountObject(curve, address, signer) {
+        const utxo = { 
+            "DataStores": [], 
+            "ValueStores": [], 
+            "AtomicSwaps": [], 
+            "ValueStoreIDs": [], 
+            "DataStoreIDs": [], 
+            "AtomicSwapIDs": [], 
+            "Value": "" 
+        };
+
+        const account = { 
+            "UTXO": utxo, 
+            "curve": curve, 
+            "address": address, 
+            "signer": signer,
+            "getAccountUTXOs": async (minValue) => this._getAccountUTXOs(address, minValue), 
+            "getAccountUTXOsByIds": async (utxoIds) => this._getAccountUTXOsByIds(address, utxoIds), 
+            "getAccountValueStores": async (minValue) => this._getAccountValueStores(address, minValue), 
+            "getAccountDataStores": async (minValue) => {
+                let dataStoreUTXOs = await this.Wallet.Rpc.getDataStoreUTXOIDsAndIndices(address, curve, minValue, false);
+                return dataStoreUTXOs;
+            },
+            "getAccountBalance": async () => {
+                let [,balance] = await this.Wallet.Rpc.getValueStoreUTXOIDs(address, curve, false);
+                return balance;
+            }
+        };
+        
+        this.accounts.push(account);
+        return account;
     }
 
     /**
@@ -44,16 +92,13 @@ class Accounts {
                     throw "Account already added"
                 }
             }
-            let utxo = { "DataStores": [], "ValueStores": [], "AtomicSwaps": [], "ValueStoreIDs": [], "DataStoreIDs": [], "AtomicSwapIDs": [], "Value": "" }
-            let acct = { "UTXO": utxo, "curve": curve, "address": address, "signer": signer };
-            this.accounts.push(acct);
-            return acct;
+            const account = this._buildAccountObject(curve, address, signer);
+            return account;
         }
         catch (ex) {
             throw new Error("Account.addAccount\r\n" + String(ex));
         }
     }
-
 
     /**
      * Add multisig account
@@ -72,12 +117,10 @@ class Accounts {
             }
             let bnSigner = new BNSigner(this.Wallet)
             let signer = new MultiSig(this.Wallet, bnSigner);
-            let multiPub = await signer.addPublicKeys(publicKeys)
-            let multiAddr = await signer.getAddress(multiPub)
-            let utxo = { "DataStores": [], "ValueStores": [], "AtomicSwaps": [], "ValueStoreIDs": [], "DataStoreIDs": [], "AtomicSwapIDs": [], "Value": "" }
-            let acct = { "UTXO": utxo, "curve": 2, "address": multiAddr, "signer": signer};
-            this.accounts.push(acct);
-            return acct;
+            let multiPub = await signer.addPublicKeys(publicKeys);
+            let multiAddr = await signer.getAddress(multiPub);
+            const account = this._buildAccountObject(2, multiAddr, signer);
+            return account;
         }
         catch(ex) {
             throw new Error("Account.addMultiSig\r\n" + String(ex));
@@ -200,6 +243,11 @@ class Accounts {
         }
     }
 
+    /**
+     * Get Value Stores for account
+     * @param {hex} address
+     * @param {number} minValue
+     */
     async _getAccountValueStores(address, minValue) {
         try {
             address = this.Wallet.Utils.isAddress(address)
@@ -216,4 +264,5 @@ class Accounts {
         }
     }
 }
+
 module.exports = Accounts;

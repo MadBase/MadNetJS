@@ -1,5 +1,10 @@
 const Tx = require('./Transaction/Tx.js');
 const Constants = require('./Constants.js');
+<<<<<<< HEAD
+=======
+// Below import for intellisense and type support on jsdoc
+const Wallet = require('./Wallet.js'); //eslint-disable-line
+>>>>>>> main
 
 /**
  * Transaction handler
