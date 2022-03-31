@@ -1,21 +1,25 @@
 const MultiSig = require("./Signers/MultiSig.js");
 const BNSigner = require("./Signers/BNSigner.js");
 const SecpSigner = require("./Signers/SecpSigner.js");
+// Below import for intellisense and type support on jsdoc
+const Wallet = require('./Wallet.js'); //eslint-disable-line
 
 /**
  * Account handler
  * @class
- * @property {import('./Wallet.js')} Wallet - Circulare Wallet reference
+ * @property {Wallet} Wallet - Circulare Wallet reference
  * @property {Array} accounts - A list of associated account objects
  */
 class Accounts {
     /**
      * Creates an instance of Accounts.
-     * @param {import('./Wallet.js')} Wallet - Circular wallet reference to use internally of Account class
+     * @param {Wallet} Wallet - Circular wallet reference to use internally of Account class
      */
     constructor(Wallet) {
         this.Wallet = Wallet;
         this.accounts = [];
+
+        
     }
 
     /**

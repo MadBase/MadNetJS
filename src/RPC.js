@@ -1,17 +1,19 @@
 const { default: Axios } = require('axios');
 const constant = require("./Constants.js");
 const { addTrailingSlash } = require("./Util");
+// Below import for intellisense and type support on jsdoc
+const Wallet = require('./Wallet.js'); //eslint-disable-line
 
 /**
  * RPC request handler
  * @class RPC
- * @property {import('./Wallet.js')} Wallet - Circulare Wallet reference
+ * @property {Wallet} Wallet - Circulare Wallet reference
  * @property {String|Boolean} rpcServer - (Optional) - RPC Endpoint to use for RPC requests 
  */
 class RPC {
     /**
      * Creates an instance of RPC.
-     * @param {import('./Wallet.js')} Wallet - Circular wallet reference to use internally of RPC class
+     * @param {Wallet} Wallet - Circular wallet reference to use internally of RPC class
      * @param {String|Boolean} [rpcServer=false] - (Optional - Rpc endpoint to use for RPC requests)
      */
     constructor(Wallet, rpcServer) {

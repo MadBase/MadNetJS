@@ -6,6 +6,7 @@ const utils = require("./Util");
 /**
  * Wallet handler
  * @class
+ * @alias module:Wallet
  * @property {Number} chainId - ChainID of the network to be connected to
  * @property {Account} Account - Main Account Handler Instance
  * @property {Transaction} Transaction - Main Transaction Handler Instance
