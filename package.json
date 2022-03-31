@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha --recursive tests/**/*.js",
-    "test-unit": "mocha --recursive tests/unit/findBug.js",
+    "test-unit": "mocha --recursive tests/unit",
     "test-integration": "mocha --recursive tests/integration",
     "test-single": "mocha",
     "test-coverage": "nyc --exclude=src/GoWrappers/** --exclude=**/tests/** --reporter=cobertura --reporter=text npm run test",
