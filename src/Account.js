@@ -7,7 +7,7 @@ const Wallet = require('./Wallet.js'); //eslint-disable-line
 /**
  * Account handler
  * @class
- * @property {Wallet} Wallet - Circulare Wallet reference
+ * @property {Wallet} Wallet - Circular Wallet reference
  * @property {Array} accounts - A list of associated account objects
  */
 class Accounts {

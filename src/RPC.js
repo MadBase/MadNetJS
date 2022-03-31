@@ -7,7 +7,7 @@ const Wallet = require('./Wallet.js'); //eslint-disable-line
 /**
  * RPC request handler
  * @class RPC
- * @property {Wallet} Wallet - Circulare Wallet reference
+ * @property {Wallet} Wallet - Circular Wallet reference
  * @property {String|Boolean} rpcServer - (Optional) - RPC Endpoint to use for RPC requests 
  */
 class RPC {
