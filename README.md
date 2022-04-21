@@ -6,7 +6,7 @@
 ##
 
 ##### Install
-`npm install MadBase/MadNetJS`
+`npm install MadBase/alicenetjs`
 ##
 
 #### Usage
@@ -17,53 +17,53 @@
 > BN (curve = 2)
 ##### Require
 ```
-const MadWallet = require("madnetjs");
-const madWallet = new MadWallet(${CHAIN_ID}, ${MADNET_RPC})
+const AliceWallet = require("alicenetjs");
+const aliceWallet = new AliceWallet(${CHAIN_ID}, ${MADNET_RPC})
 ```
 
 ##### Add Account
 ```
-await madWallet.Account.addAccount(${PRIVATE_KEY}, ${CURVE})
+await aliceWallet.Account.addAccount(${PRIVATE_KEY}, ${CURVE})
 ```
 ###### Example
 ```
-await madWallet.Account.addAccount(privateKey, 1);
+await aliceWallet.Account.addAccount(privateKey, 1);
 ```
 
 ##### Create A ValueStore
 
 ```
-await madWallet.Transaction.createValueStore(0x${FROM}, ${VALUE}, 0x${TO}, ${TO_CURVE})
+await aliceWallet.Transaction.createValueStore(0x${FROM}, ${VALUE}, 0x${TO}, ${TO_CURVE})
 ```
 ###### Example
 ```
-await madWallet.Transaction.createValueStore(0x4240A00833065c29D1EB117e200a87c95D640289, 10, 0x219D27f4DBf2831f45Dd55436dE084571Ae2cE15, 2)
+await aliceWallet.Transaction.createValueStore(0x4240A00833065c29D1EB117e200a87c95D640289, 10, 0x219D27f4DBf2831f45Dd55436dE084571Ae2cE15, 2)
 --
-await madWallet.Transaction.createValueStore(madWallet.Account.accounts[0]["address"], 1, madWallet.Account.accounts[0]["address"], 1)
+await aliceWallet.Transaction.createValueStore(aliceWallet.Account.accounts[0]["address"], 1, aliceWallet.Account.accounts[0]["address"], 1)
 ```
 
 ##### Create A DataStore
 ```
-await madWallet.Transaction.createDataStore(0x${FROM}, ${INDEX}, ${DURATION}, ${RAW_DATA}, !(optional){ISSUED_AT_EPOCH})
+await aliceWallet.Transaction.createDataStore(0x${FROM}, ${INDEX}, ${DURATION}, ${RAW_DATA}, !(optional){ISSUED_AT_EPOCH})
 ```
 ###### Example
 ```
-await  madWallet.Transaction.createDataStore(0x4240A00833065c29D1EB117e200a87c95D640289, "0xA", 20, "0xC0FFEE")
+await  aliceWallet.Transaction.createDataStore(0x4240A00833065c29D1EB117e200a87c95D640289, "0xA", 20, "0xC0FFEE")
 --
-await madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0xA", 1, "0xC0FFEE", 1)
+await aliceWallet.Transaction.createDataStore(aliceWallet.Account.accounts[0]["address"], "0xA", 1, "0xC0FFEE", 1)
 ```
 
 ##### Send Transaction
 ```
-await madWallet.sendTransaction(!(optional){CHANGE_ADDRESS}, !(optional){CHANGE_ADDRESS_CURVE}, !(optional)[{UTXOIDs}])
+await aliceWallet.sendTransaction(!(optional){CHANGE_ADDRESS}, !(optional){CHANGE_ADDRESS_CURVE}, !(optional)[{UTXOIDs}])
 ```
 ###### Example
 ```
-await madWallet.Transaction.sendTx()
+await aliceWallet.Transaction.sendTx()
 --
-await madWallet.Transaction.sendTx(0x4240A00833065c29D1EB117e200a87c95D640289, 2)
+await aliceWallet.Transaction.sendTx(0x4240A00833065c29D1EB117e200a87c95D640289, 2)
 --
-await madWallet.Transaction.sendTx(0x4240A00833065c29D1EB117e200a87c95D640289, 2, [0197314d4f3e46eb7dd8cd7bcd2daf5305a4c8f9089ae6e9a1552350dfce56ac])
+await aliceWallet.Transaction.sendTx(0x4240A00833065c29D1EB117e200a87c95D640289, 2, [0197314d4f3e46eb7dd8cd7bcd2daf5305a4c8f9089ae6e9a1552350dfce56ac])
 ```
 ##
 #### Wallet Modules
