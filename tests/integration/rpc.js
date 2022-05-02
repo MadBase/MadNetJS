@@ -11,11 +11,11 @@ describe('Integration/RPC:', () => {
     before(async function() {
         if (process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY && process.env.RPC && process.env.CHAIN_ID) {
             privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
-            madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
+            madWallet = new MadWalletJS(false, process.env.RPC);
         }
 
-        await madWallet.Account.addAccount(privateKey, 2);
         await madWallet.Account.addAccount(privateKey, 1);
+        await madWallet.Account.addAccount(privateKey, 2);
        
         // Create value store object for tx
         const sendTarget = madWallet.Account.accounts[1].address;

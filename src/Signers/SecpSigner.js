@@ -1,5 +1,5 @@
 const ethUtil = require('ethereumjs-util');
-const { ecdsaSign, ecdsaRecover } = require('ethereum-cryptography/secp256k1-compat');
+const { ecdsaSign, ecdsaRecover } = require('secp256k1');
 /**
  * SECP256k1 signer
  * @class SecpSigner
@@ -31,13 +31,9 @@ class SecpSigner {
             msg = Buffer.from(msg, "hex")
             msg = ethUtil.keccak256(msg)
             let privK = Buffer.from(this.privK, "hex")
-            let sig = ecdsaSign(msg, privK)
-            sig = {
-                r: Buffer.from(sig.signature.slice(0, 32)),
-                s: Buffer.from(sig.signature.slice(32, 64)),
-                v: Buffer.from(Buffer.from(new Uint8Array([sig.recid]).buffer), "hex"),
-            }
-            let signature = Buffer.concat([sig.r, sig.s, sig.v]).toString("hex");
+            let signature = ecdsaSign(msg, privK);
+            // Add recid byte to end (v)
+            signature = Buffer.from(signature.signature).toString('hex') + Buffer.from(String(signature.recid)).toString().padStart(2, "0");
             return signature;
         }
         catch (ex) {
