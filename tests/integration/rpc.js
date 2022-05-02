@@ -6,16 +6,17 @@ const expect = chai.expect;
 const MadWalletJS = require("../../index.js");
 
 describe('Integration/RPC:', () => {
-    let privateKey,  madWallet, validTxHash, invalidTxHash, invalidTx,  blockNumber, fees;
+    let privateKey, privateKey2, madWallet, validTxHash, invalidTxHash, invalidTx,  blockNumber, fees;
 
     before(async function() {
         if (process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY && process.env.RPC && process.env.CHAIN_ID) {
             privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
+            privateKey2 = process.env.OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY
             madWallet = new MadWalletJS(false, process.env.RPC);
         }
 
         await madWallet.Account.addAccount(privateKey, 1);
-        await madWallet.Account.addAccount(privateKey, 2);
+        await madWallet.Account.addAccount(privateKey2, 1);
        
         // Create value store object for tx
         const sendTarget = madWallet.Account.accounts[1].address;
@@ -27,6 +28,7 @@ describe('Integration/RPC:', () => {
         // Retrieve valid txHash
         try {
             let txHash = await madWallet.Transaction.sendTx(madWallet.Account.accounts[0].address, 1);
+            console.log(txHash)
             validTxHash = await waitForTx(txHash);
         } catch (ex) {
             console.log(ex);
