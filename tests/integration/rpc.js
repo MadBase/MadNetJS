@@ -28,7 +28,6 @@ describe('Integration/RPC:', () => {
         // Retrieve valid txHash
         try {
             let txHash = await madWallet.Transaction.sendTx(madWallet.Account.accounts[0].address, 1);
-            console.log(txHash)
             validTxHash = await waitForTx(txHash);
         } catch (ex) {
             console.log(ex);
