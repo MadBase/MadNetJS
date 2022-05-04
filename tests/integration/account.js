@@ -33,7 +33,7 @@ describe('Integration/Account:', () => {
         it('Fail: Reject when called with invalid Private Key character', async () => {
             await expect(
                 madWallet.Account.addAccount(privateKey.slice(0, -1) + "Z", 1)
-            ).to.eventually.be.rejectedWith('Invalid hex charater');
+            ).to.eventually.be.rejectedWith('Invalid hex character');
         });
 
         it('Fail: Reject when called with invalid Curve spec', async () => {

@@ -6,7 +6,9 @@ const expect = chai.expect;
 const MadWalletJS = require("../../index.js");
 
 describe('Integration/RPC:', () => {
-    let privateKey, privateKey2, madWallet, validTxHash, invalidTxHash, invalidTx,  blockNumber, fees;
+    let privateKey, privateKey2, madWallet, validTxHash, invalidTxHash, invalidTx,  blockNumber, fees, wait;
+    const waitingTime = 40 * 1000; 
+    const testTimeout = 100 * 1000;
 
     before(async function() {
         if (process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY && process.env.RPC && process.env.CHAIN_ID) {
@@ -48,6 +50,7 @@ describe('Integration/RPC:', () => {
         invalidTxHash = '59e792f9409d45701f2505ef27bf0f2c15e6f24e51bd8075323aa846a98b37d7';
         invalidTx = { "Tx": {  "Vin": [], "Vout": [], "Fee": "" } };
         fees = await madWallet.Rpc.getFees(); 
+        wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     });
 
     describe('Set Provider', () => {
@@ -198,10 +201,11 @@ describe('Integration/RPC:', () => {
         });
 
         it('Success: Monitor pending transaction with a valid txHash', async () => {
+            await wait(waitingTime);
             await expect(
                 madWallet.Rpc.monitorPending(validTxHash)
             ).to.eventually.be.fulfilled;
-        });
+        }).timeout(testTimeout);
     });
 
     describe('Transaction', () => {
@@ -236,8 +240,9 @@ describe('Integration/RPC:', () => {
         });
 
         it('Success: Poll transaction current status.', async () => {
+            await wait(waitingTime);
             const txStatus = await madWallet.Rpc.getTxStatus(validTxHash);
             expect(txStatus).to.be.an('object').that.has.all.keys('IsMined', 'Tx');
-        });
+        }).timeout(testTimeout);
     });
 });

@@ -19,7 +19,7 @@ describe('Unit/Util/Hash:', () => {
         });
         
         it('fail: Throws an error if called with invalid msg', () => {
-            expect(() => Hash.hash('invalidhexmsg')).to.throws('Invalid hex charater');
+            expect(() => Hash.hash('invalidhexmsg')).to.throws('Invalid hex character');
         });
         
         it('fail: Throws an error if called without a msg', () => {
