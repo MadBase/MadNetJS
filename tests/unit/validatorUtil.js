@@ -30,7 +30,7 @@ describe('Unit/Util/Validator:', () => {
     
     describe('Hex', () => {  
         it('Fail: hexToInt throws an error if Hex is invalid', () => {
-            expect(() => Validator.hexToInt('notAHex')).to.throw('Invalid hex charater');
+            expect(() => Validator.hexToInt('notAHex')).to.throw('Invalid hex character');
         });
         
         it('Fail: hexToTxt throws an error if Hex is invalid', () => {

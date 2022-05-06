@@ -183,7 +183,7 @@ describe('Integration/Transaction:', () => {
         it('Fail: Cannot create DataStore with invalid index hex', async () => {
             await expect(
                 madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0xZ", 1, "0xC0FFEE", 1)
-            ).to.eventually.be.rejectedWith('Invalid hex charater');
+            ).to.eventually.be.rejectedWith('Invalid hex character');
         });
 
         it('Fail: Cannot create DataStore with invalid duration', async () => {
@@ -195,7 +195,7 @@ describe('Integration/Transaction:', () => {
         it('Fail: Cannot create DataStore with invalid data hex', async () => {
             await expect(
                 madWallet.Transaction.createDataStore(madWallet.Account.accounts[0]["address"], "0xA", 1, "0xCOFFEE", 1)
-            ).to.eventually.be.rejectedWith('Invalid hex charater');
+            ).to.eventually.be.rejectedWith('Invalid hex character');
         });
         
         it('Success: Created DataStore with hex index', async () => {

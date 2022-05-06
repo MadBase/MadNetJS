@@ -17,9 +17,7 @@ class Accounts {
      */
     constructor(Wallet) {
         this.Wallet = Wallet;
-        this.accounts = [];
-
-        
+        this.accounts = [];        
     }
 
     /**
