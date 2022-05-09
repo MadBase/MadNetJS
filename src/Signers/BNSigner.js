@@ -78,7 +78,6 @@ class BNSigner {
         }
     }
 
-
     /**
      * Get public key from the private key
      * @return {hex} public key 

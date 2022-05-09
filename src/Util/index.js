@@ -10,7 +10,6 @@ const String = require('./String');
  */
 module.exports = {
     ...Eth,
-    ...Eth,
     ...Generic,
     ...Hash,
     ...String,
