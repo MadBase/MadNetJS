@@ -6,9 +6,11 @@ const expect = chai.expect;
 const MadWalletJS = require("../../index.js");
 const MultiSig = require("../../src/Signers/MultiSig");
 const SecpSigner = require("../../src/Signers/SecpSigner.js");
+const BNSigner = require("../../src/Signers/BNSigner.js");
 
 describe('Unit/MultiSig:', () => {
-    let privateKey, secondaryPrivateKey, msgHex, madWallet, secpSigner, multiSigSecp, publicKeys, signatures;
+    let privateKey, secondaryPrivateKey, msgHex, madWallet, secpSigner;
+    let bnSigner, multiSigSecp, publicKeys, signatures;
 
     before(async function() {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
@@ -16,6 +18,7 @@ describe('Unit/MultiSig:', () => {
         msgHex = Buffer.from("hello world", "utf8").toString("hex").toLowerCase();
         madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
         secpSigner = new SecpSigner(madWallet, privateKey);
+        bnSigner = new BNSigner(madWallet, privateKey);
         multiSigSecp = new MultiSig(madWallet, secpSigner);
 
         await madWallet.Account.addAccount(privateKey, 2);
@@ -125,7 +128,7 @@ describe('Unit/MultiSig:', () => {
         it('Fail: Reject Verify Aggregate when called with invalid sig hex length', async () => {
             await expect(
                 multiSigSecp.verifyAggregate(msgHex, '0xc0ffeebab')
-            ).to.eventually.be.rejectedWith('Expected signature to be an Uint8Array with length 64');
+            ).to.eventually.be.rejectedWith('incorrect byte length');
         });
 
         it('Fail: Aggregate Signatures should fail unless an array is provided ', async () => {
@@ -144,6 +147,30 @@ describe('Unit/MultiSig:', () => {
             await expect(
                 multiSigSecp.aggregateSignaturesMulti([signatures])
             ).to.eventually.be.fulfilled;
+        });
+
+        it('Success: Verify Secp Signature', async () => {
+            const sig = await secpSigner.sign(msgHex);
+            const recoverdePubK = await secpSigner.verify(msgHex, sig);
+            expect(recoverdePubK).to.be.a('string');
+        });
+
+        it('Success: Verify BN Signature', async () => {
+            const signature = await bnSigner.sign(msgHex);
+            expect(signature).to.be.a('string');
+        });
+
+        it('Success: Verify Aggregate Signature', async () => {
+            const sig = await bnSigner.sign(msgHex);
+            const verifiedSig = await multiSigSecp.verifyAggregate(msgHex, sig);
+            expect(verifiedSig).to.be.a('string');
+        });
+
+        it('Success: Verify Aggregate Single', async () => {
+            const sig = await bnSigner.sign(msgHex);
+            const pubKey = await bnSigner.getPubK();
+            const verifiedSig = await multiSigSecp.verifyAggregateSingle(msgHex, pubKey, sig);
+            expect(verifiedSig).to.be.a('string');
         });
     });
 });

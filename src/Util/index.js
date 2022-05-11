@@ -4,6 +4,7 @@ const Hash = require('./Hash');
 const Tx = require('./Tx');
 const Validator = require('./Validator');
 const String = require('./String');
+const VerifySignature = require('./Verifysignature');
 
 /**
  * @typedef UtilityCollection - Collection of all utility functions
@@ -15,4 +16,5 @@ module.exports = {
     ...String,
     ...Tx,
     ...Validator,
+    ...VerifySignature
 }

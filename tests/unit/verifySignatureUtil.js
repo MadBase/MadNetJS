@@ -28,7 +28,7 @@ describe('Unit/Util/VerifySignature:', () => {
     });
 
     describe('SecpSignerVerify', () => {  
-        it.only('Success: verify SecpSignerVerify sig', async () => {
+        it('Success: verify SecpSignerVerify sig', async () => {
             const sig = await secpSigner.sign(msgHex);
             const pubKey = await secpSigner.getPubK();
             const pubKeyRecovered = await VerifySignature.SecpSignerVerify(msgHex, sig, pubKey);

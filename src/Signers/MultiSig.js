@@ -152,9 +152,8 @@ class MultiSig {
      */
     async verifyAggregate(msg, sig) {
         try {
-            sig = this.Wallet.Utils.isHex(sig);
-            let aSig = await this.bnSigner.verify(msg, sig)
-            return aSig;
+            const signature = await this.Wallet.Utils.MultiSigVerifyAggregate(msg,sig);
+            return signature;
         }
         catch (ex) {
             throw new Error("BNAggregate.verifyAggregateSingle\r\n" + String(ex));
@@ -169,9 +168,8 @@ class MultiSig {
      */
     async verifyAggregateSingle(msg, groupPubKey, sig) {
         try {
-            sig = this.Wallet.Utils.isHex(sig);
-            let aSig = await BNSignerWrapper.AggregateVerifySingle(msg, groupPubKey, sig)
-            return aSig;
+            const signature = await this.Wallet.Utils.MultiSigVerifyAggregateSingle(msg, groupPubKey, sig);
+            return signature;
         }
         catch (ex) {
             throw new Error("BNAggregate.verifyAggregateSingle\r\n" + String(ex));
