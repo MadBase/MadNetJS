@@ -61,6 +61,14 @@ describe('Unit/Util/VerifySignature:', () => {
                 VerifySignature.SecpSignerVerify(msgHex+ "bad hex", sig + "bad hex", pubKey)
             ).to.eventually.be.rejectedWith('Invalid hex character');
         });
+
+        it('Fail: Cannot verify SecpSignerVerify if Public Keys don\'t match', async () => {
+            const sig = await secpSigner.sign(msgHex);
+            const pubKey = await secpSigner.getPubK();
+            await expect(
+                VerifySignature.SecpSignerVerify(msgHex, sig, pubKey + "badpubkey")
+            ).to.eventually.be.rejectedWith('Public Keys don\'t match');
+        });
     });
 
     describe('MultiSigVerify', () => {  
@@ -69,12 +77,27 @@ describe('Unit/Util/VerifySignature:', () => {
             const aSig = await VerifySignature.MultiSigVerifyAggregate(msgHex, sig);
             expect(aSig).to.be.a('string');
         });
-        
+
+        it('Fail: verify MultiSigVerifyAggregate sig with bad arguments', async () => {
+            const sig = await bnSigner.sign(msgHex);
+            await expect(
+                VerifySignature.MultiSigVerifyAggregate(msgHex + "bad hex", sig + "bad hex")
+            ).to.eventually.be.rejectedWith('Invalid hex character');
+        });
+
         it('Success: verify MultiSigVerifyAggregateSingle sig', async () => {
             const sig = await bnSigner.sign(msgHex);
             const pubKey = await bnSigner.getPubK();
             const aSig = await VerifySignature.MultiSigVerifyAggregateSingle(msgHex, pubKey, sig);
             expect(aSig).to.be.a('string');
+        });
+
+        it('Fail: verify MultiSigVerifyAggregateSingle sig with bad arguments', async () => {
+            const sig = await bnSigner.sign(msgHex);
+            const pubKey = await bnSigner.getPubK();
+            await expect(
+                VerifySignature.MultiSigVerifyAggregateSingle(msgHex + "bad hex", pubKey, sig + "bad hex")
+            ).to.eventually.be.rejectedWith('Invalid hex character');
         });
     });
 });

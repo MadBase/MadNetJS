@@ -122,7 +122,7 @@ describe('Unit/MultiSig:', () => {
         it('Fail: Reject Verify Aggregate when called with invalid argument', async () => {
             await expect(
                 multiSigSecp.verifyAggregate(null)
-            ).to.eventually.be.rejectedWith('No input provided');
+            ).to.eventually.be.rejectedWith('Arguments cannot be empty');
         });
 
         it('Fail: Reject Verify Aggregate when called with invalid sig hex length', async () => {
