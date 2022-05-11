@@ -25,26 +25,51 @@ describe('Unit/Util/VerifySignature:', () => {
             const validateSig = await VerifySignature.BNSignerVerify(msgHex, sig);
             expect(validateSig).to.be.a('string');
         });
+
+        it('Fail: Cannot verify BNSigner sig with empty arguments', async () => {
+            await expect(
+                VerifySignature.BNSignerVerify()
+            ).to.eventually.be.rejectedWith('Arguments cannot be empty');
+        });
+
+        it('Fail: Cannot verify BNSigner sig with bad arguments', async () => {
+            const sig = await bnSigner.sign(msgHex);
+            await expect(
+                VerifySignature.BNSignerVerify(msgHex + "bad hex", sig + "bad hex")
+            ).to.eventually.be.rejectedWith('Invalid hex character');
+        });
     });
 
     describe('SecpSignerVerify', () => {  
-        it('Success: verify SecpSignerVerify sig', async () => {
+        it('Success: Verify SecpSignerVerify sig', async () => {
             const sig = await secpSigner.sign(msgHex);
             const pubKey = await secpSigner.getPubK();
             const pubKeyRecovered = await VerifySignature.SecpSignerVerify(msgHex, sig, pubKey);
             expect(pubKeyRecovered).to.be.a('string');
         });
+
+        it('Fail: Cannot verify SecpSignerVerify sig with empty arguments', async () => {
+            await expect(
+                VerifySignature.SecpSignerVerify()
+            ).to.eventually.be.rejectedWith('Arguments cannot be empty');
+        });
+
+        it('Fail: Cannot verify SecpSignerVerify sig with bad arguments', async () => {
+            const sig = await secpSigner.sign(msgHex);
+            const pubKey = await secpSigner.getPubK();
+            await expect(
+                VerifySignature.SecpSignerVerify(msgHex+ "bad hex", sig + "bad hex", pubKey)
+            ).to.eventually.be.rejectedWith('Invalid hex character');
+        });
     });
 
-    describe('MultiSigVerifyAggregate', () => {  
+    describe('MultiSigVerify', () => {  
         it('Success: verify MultiSigVerifyAggregate sig', async () => {
             const sig = await bnSigner.sign(msgHex);
             const aSig = await VerifySignature.MultiSigVerifyAggregate(msgHex, sig);
             expect(aSig).to.be.a('string');
         });
-    });
-
-    describe('MultiSigVerifyAggregateSingle', () => {  
+        
         it('Success: verify MultiSigVerifyAggregateSingle sig', async () => {
             const sig = await bnSigner.sign(msgHex);
             const pubKey = await bnSigner.getPubK();

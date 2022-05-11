@@ -76,7 +76,6 @@ describe('Integration/Transaction:', () => {
         }).timeout(testTimeout);
 
         it('Success: Send DataStore with BN address', async () => {
-            await wait(waitingTime);
             await madWallet.Transaction.createDataStore(madWallet.Account.accounts[1]["address"], "0x03", 2, "0x02");
             await madWallet.Transaction.createTxFee(
                 madWallet.Account.accounts[1]["address"], madWallet.Account.accounts[1]["curve"], BigInt("0x" + fees["MinTxFee"]).toString()

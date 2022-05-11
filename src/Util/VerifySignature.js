@@ -5,11 +5,11 @@ const validator = require('./Validator');
 module.exports = {
     BNSignerVerify: async (msg, sig) => {
         try {
+            if (!msg || !sig) {
+                throw "Arguments cannot be empty";
+            }
             msg = validator.isHex(msg);
             sig = validator.isHex(sig);
-            if (!msg || !sig) {
-                throw "Bad argument type";
-            }
             const verifiedSignature = await BNSignerWrapper.Verify(String(msg), String(sig));
             return verifiedSignature;
         }
@@ -20,11 +20,11 @@ module.exports = {
 
     SecpSignerVerify: async (msg, sig, pubKey) => {
         try {
+            if (!msg || !sig || !pubKey) {
+                throw "Arguments cannot be empty";
+            }
             msg = validator.isHex(msg);
             sig = validator.isHex(sig);
-            if (!msg || !sig || !pubKey) {
-                throw "Bad argument type";
-            }
             msg = ethUtil.toBuffer("0x" + String(msg));
             const msgHash = ethUtil.keccak256(msg);
             const signature = ethUtil.toBuffer("0x" + String(sig));
