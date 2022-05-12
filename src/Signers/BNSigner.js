@@ -65,19 +65,13 @@ class BNSigner {
      */
     async verify(msg, sig) {
         try {
-            msg = this.Wallet.Utils.isHex(msg);
-            sig = this.Wallet.Utils.isHex(sig);
-            if (!msg || !sig) {
-                throw "Bad argument type"
-            }
-            let validate = await BNSignerWrapper.Verify(String(msg), String(sig));
-            return validate;
+            const signature = await this.Wallet.Utils.BNSignerVerify(msg,sig);
+            return signature;
         }
         catch (ex) {
             throw new Error("BNSigner.verify\r\n" + String(ex));
         }
     }
-
 
     /**
      * Get public key from the private key
