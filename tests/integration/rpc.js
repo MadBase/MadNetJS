@@ -3,10 +3,11 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const MadWalletJS = require("../../index.js");
+const MadWalletJS = require('../../index.js');
 
 describe('Integration/RPC:', () => {
     let privateKey, privateKey2, madWallet, validTxHash, invalidTxHash, invalidTx,  blockNumber, fees, wait;
+    let secpAccount, secpSecondaryAccount;
     const waitingTime = 40 * 1000; 
     const testTimeout = 100 * 1000;
 
@@ -19,17 +20,20 @@ describe('Integration/RPC:', () => {
 
         await madWallet.Account.addAccount(privateKey, 1);
         await madWallet.Account.addAccount(privateKey2, 1);
+
+        secpAccount = madWallet.Account.accounts[0];
+        secpSecondaryAccount = madWallet.Account.accounts[1];
        
         // Create value store object for tx
-        const sendTarget = madWallet.Account.accounts[1].address;
-        await madWallet.Transaction.createValueStore(madWallet.Account.accounts[0].address, 1000, sendTarget,1);
+        const sendTarget = secpSecondaryAccount.address;
+        await madWallet.Transaction.createValueStore(secpAccount.address, 1000, sendTarget,1);
         
         // Create tx fee
-        await madWallet.Transaction.createTxFee(madWallet.Account.accounts[0].address, 1, false);
+        await madWallet.Transaction.createTxFee(secpAccount.address, 1, false);
         
         // Retrieve valid txHash
         try {
-            let txHash = await madWallet.Transaction.sendTx(madWallet.Account.accounts[0].address, 1);
+            let txHash = await madWallet.Transaction.sendTx(secpAccount.address, 1);
             validTxHash = await waitForTx(txHash);
         } catch (ex) {
             console.log(ex);
@@ -41,14 +45,14 @@ describe('Integration/RPC:', () => {
                 await madWallet.Rpc.request('get-mined-transaction', { TxHash: txHash });
                 return txHash;
             } catch (ex) {
-                if (ex.message.indexOf("unknown transaction:")) {
+                if (ex.message.indexOf('unknown transaction:')) {
                     return waitForTx(txHash);
                 }
             }
         }
         
         invalidTxHash = '59e792f9409d45701f2505ef27bf0f2c15e6f24e51bd8075323aa846a98b37d7';
-        invalidTx = { "Tx": {  "Vin": [], "Vout": [], "Fee": "" } };
+        invalidTx = { Tx: {  Vin: [], Vout: [], Fee: '' } };
         fees = await madWallet.Rpc.getFees(); 
         wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     });
@@ -76,7 +80,7 @@ describe('Integration/RPC:', () => {
 
         it('Fail: Get Block Header for bad block number', async () => {
             await expect(
-                madWallet.Rpc.getBlockHeader("6987234012981234981273128721312987312")
+                madWallet.Rpc.getBlockHeader('6987234012981234981273128721312987312')
             ).to.eventually.be.rejectedWith('invalid value for uint32');
         });
 
@@ -158,16 +162,13 @@ describe('Integration/RPC:', () => {
         });
 
         it('Success: Get Data Store UTXOs IDS and indices', async () => {
-            const dataStoreUTXOIDsAndIndices = await madWallet.Rpc.getDataStoreUTXOIDsAndIndices(madWallet.Account.accounts[0]['address'], 2, 1);
+            const dataStoreUTXOIDsAndIndices = await madWallet.Rpc.getDataStoreUTXOIDsAndIndices(secpAccount.address, 2, 1);
             expect(dataStoreUTXOIDsAndIndices).to.be.an('array');
-            dataStoreUTXOIDsAndIndices.forEach(dsUTXO => expect(dsUTXO).to.be.an('object').that.has.all.keys(
-                'Index', 
-                'UTXOID'
-            ));
+            dataStoreUTXOIDsAndIndices.forEach(dsUTXO => expect(dsUTXO).to.be.an('object').that.has.all.keys('Index', 'UTXOID'));
         });
 
         it('Success: Get Data Store UTXOs and return an array of strings', async () => {
-            const dataStoreUTXOIDs = await madWallet.Rpc.getDataStoreUTXOIDs(madWallet.Account.accounts[0]['address'], 2);
+            const dataStoreUTXOIDs = await madWallet.Rpc.getDataStoreUTXOIDs(secpAccount.address, 2);
             expect(dataStoreUTXOIDs).to.be.an('array');
             dataStoreUTXOIDs.forEach(dsUTXO => expect(dsUTXO).to.be.an('string'));
         });
@@ -176,19 +177,19 @@ describe('Integration/RPC:', () => {
     describe('Data', () => {
         it('Fail: Cannot get Raw Data if curve and index are missing', async () => {
             await expect(
-                madWallet.Rpc.getData(madWallet.Account.accounts[0]['address'])
+                madWallet.Rpc.getData(secpAccount.address)
             ).to.eventually.be.rejectedWith('No input provided');
         });
 
         it('Fail: Cannot get DataStore by index if curve is missing', async () => {
             await expect(
-                madWallet.Rpc.getDataStoreByIndex(madWallet.Account.accounts[0]['address'], null)
+                madWallet.Rpc.getDataStoreByIndex(secpAccount.address, null)
             ).to.eventually.be.rejectedWith('Invalid arguments');
         });
 
         it('Success: Get DataStore by index with valid arguments', async () => {
             await expect(
-                madWallet.Rpc.getDataStoreByIndex(madWallet.Account.accounts[0]['address'], 1)
+                madWallet.Rpc.getDataStoreByIndex(secpAccount.address, 1)
             ).to.eventually.be.fulfilled;
         });
     });
