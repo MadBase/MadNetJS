@@ -4,7 +4,7 @@ const Hash = require('./Hash');
 const Tx = require('./Tx');
 const Validator = require('./Validator');
 const String = require('./String');
-const VerifySignature = require('./Verifysignature');
+const VerifySignature = require('./VerifySignature');
 
 /**
  * @typedef UtilityCollection - Collection of all utility functions
