@@ -59,16 +59,12 @@ describe('Integration/Account:', () => {
 
         it('Success: Add Account when Private Key is valid and curve = 1', async () => {
             const madWalletInstance = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
-            await expect(
-                madWalletInstance.Account.addAccount(privateKey, 1)
-            ).to.eventually.be.fulfilled;
+            await expect(madWalletInstance.Account.addAccount(privateKey, 1)).to.eventually.be.fulfilled;
         });
 
         it('Success: Add Account when Private Key is valid and curve = 2', async () => {
             const madWalletInstance = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
-            await expect(
-                madWalletInstance.Account.addAccount(privateKey, 2)
-            ).to.eventually.be.fulfilled;
+            await expect(madWalletInstance.Account.addAccount(privateKey, 2)).to.eventually.be.fulfilled;
         });
 
         it('Success: Add Account when Private Key starting with 0x', async () => {
@@ -100,9 +96,7 @@ describe('Integration/Account:', () => {
         it('Success: Add Multi Sig when called with valid publicKeys', async () => {
             const accountTwo = await madWallet.Account.getAccount(bnAccount.address);
             const accountTwoPK = await accountTwo.signer.getPubK();
-            await expect(
-                madWallet.Account.addMultiSig([ accountTwoPK ])
-            ).to.eventually.be.fulfilled;
+            await expect(madWallet.Account.addMultiSig([ accountTwoPK ])).to.eventually.be.fulfilled;
         });
     });
 
@@ -114,15 +108,11 @@ describe('Integration/Account:', () => {
         });
 
         it('Success: Get Account when address is valid', async () => {
-            await expect(
-                madWallet.Account.getAccount(secpAccount.address)
-            ).to.eventually.be.fulfilled;
+            await expect(madWallet.Account.getAccount(secpAccount.address)).to.eventually.be.fulfilled;
         });
 
         it('Success: Get account balance', async () => {
-            await expect(
-                secpAccount.getAccountBalance()
-            ).to.eventually.be.fulfilled;
+            await expect(secpAccount.getAccountBalance()).to.eventually.be.fulfilled;
         });
     });
 
@@ -134,23 +124,17 @@ describe('Integration/Account:', () => {
         });
 
         it('Success: Get index for account by address', async () => {
-            await expect(
-                madWallet.Account._getAccountIndex(secpAccount.address)
-            ).to.eventually.be.fulfilled;
+            await expect(madWallet.Account._getAccountIndex(secpAccount.address)).to.eventually.be.fulfilled;
         });
     });
 
     describe('Signatures', () => {
         it('Success: Sign a message with BN signer', async () => {
-            await expect(
-                bnAccountSigned.signer.sign('0xc0ffee')
-            ).to.eventually.be.fulfilled;
+            await expect(bnAccountSigned.signer.sign('0xc0ffee')).to.eventually.be.fulfilled;
         });
 
         it('Success: Sign a message with SECP signer', async () => {
-            await expect(
-                secpAccountSigned.signer.sign('0xc0ffee')
-            ).to.eventually.be.fulfilled;
+            await expect(secpAccountSigned.signer.sign('0xc0ffee')).to.eventually.be.fulfilled;
         });
 
         it('Success: Sign and verify a SECP message with Signer.sign() & .verify()', async () => {
@@ -184,29 +168,21 @@ describe('Integration/Account:', () => {
         });
 
         it('Success: Poll UTXOs from account helper', async () => {
-            await expect(
-                secpAccount.getAccountUTXOs(0)
-            ).to.eventually.be.fulfilled;
+            await expect(secpAccount.getAccountUTXOs(0)).to.eventually.be.fulfilled;
         });
 
         it('Success: Poll UTXOs for an added account', async () => {
-            await expect(
-                madWallet.Account._getAccountUTXOs(secpAccount.address, 0)
-            ).to.eventually.be.fulfilled;
+            await expect(madWallet.Account._getAccountUTXOs(secpAccount.address, 0)).to.eventually.be.fulfilled;
         });
 
         it('Success: Poll UTXOs by utxoIds from account helper', async () => {
             const utxoids = await madWallet.Rpc.getDataStoreUTXOIDs(secpAccount.address, 1);
-            await expect(
-                secpAccount.getAccountUTXOsByIds(utxoids)
-            ).to.eventually.be.fulfilled;
+            await expect(secpAccount.getAccountUTXOsByIds(utxoids)).to.eventually.be.fulfilled;
         });
 
         it('Success: Poll UTXOs for an added account by utxoIds', async () => {
             const utxoids = await madWallet.Rpc.getDataStoreUTXOIDs(secpAccount.address, 1);
-            await expect(
-                madWallet.Account._getAccountUTXOsByIds(secpAccount.address, utxoids)
-            ).to.eventually.be.fulfilled;
+            await expect(madWallet.Account._getAccountUTXOsByIds(secpAccount.address, utxoids)).to.eventually.be.fulfilled;
         });
     });
 
@@ -220,45 +196,33 @@ describe('Integration/Account:', () => {
         it('Success: Get value stores from account helper', async () => {
             await secpAccount.getAccountValueStores(0)
             const account = await madWallet.Account.getAccount(secpAccount.address);
-            expect(
-                account.UTXO.ValueStoreIDs.length
-            ).to.be.greaterThan(0);
+            expect(account.UTXO.ValueStoreIDs.length).to.be.greaterThan(0);
         });
 
         it('Success: Get account value stores for an added account', async () => {
-           await expect(
-                madWallet.Account._getAccountValueStores(secpAccount.address, 0)
-            ).to.eventually.be.fulfilled;
+           await expect(madWallet.Account._getAccountValueStores(secpAccount.address, 0)).to.eventually.be.fulfilled;
         });
 
         it('Success: Get account value stores for an added account with minValue greater than 0', async () => {
             await madWallet.Account._getAccountValueStores(secpAccount.address, 1);
             const account = await madWallet.Account.getAccount(secpAccount.address);
-            expect(
-                account.UTXO.ValueStoreIDs.length
-            ).to.be.greaterThan(0);
+            expect(account.UTXO.ValueStoreIDs.length).to.be.greaterThan(0);
         });
     });
 
     describe('Data Stores', () => {
         it('Success: Get data stores from account helper', async () => {
-            await expect(
-                secpAccount.getAccountDataStores(0)
-            ).to.eventually.be.fulfilled;
+            await expect(secpAccount.getAccountDataStores(0)).to.eventually.be.fulfilled;
         });
     });
 
     describe('Remove Account', () => {
         it('Fail: Reject when called with invalid Address', async () => {
-            await expect(
-                madWallet.Account.removeAccount(null)
-            ).to.eventually.be.rejectedWith('No input provided');
+            await expect(madWallet.Account.removeAccount(null)).to.eventually.be.rejectedWith('No input provided');
         });
 
         it('Success: Remove existing account by address', async () => {
-            await expect(
-                madWallet.Account.removeAccount(secpAccount.address)
-            ).to.eventually.be.fulfilled;
+            await expect(madWallet.Account.removeAccount(secpAccount.address)).to.eventually.be.fulfilled;
         });
     });
 });

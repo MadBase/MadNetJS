@@ -6,9 +6,9 @@ const expect = chai.expect;
 const MadWalletJS = require('../../index.js');
 
 describe('Integration/Transaction:', () => {
-    let privateKey, madWallet, madWalletWithoutRPC, madWalletSigned, fees;
+    let privateKey, madWallet, madWalletWithoutRPC, madWalletSigned;
     let secpAccount, bnAccount, secpAccountSigned, bnAccountSigned;
-    let invalidHexFrom, wait;
+    let invalidHexFrom, wait, fees;
     const waitingTime = 40 * 1000; 
     const testTimeout = 100 * 1000;
 
@@ -76,23 +76,15 @@ describe('Integration/Transaction:', () => {
     
     describe('Data Store', () => {
          it('Success: Send DataStore with SECP address', async () => {
-            await madWallet.Transaction.createTxFee(
-                secpAccount.address, secpAccount.curve, BigInt('0x' + fees.MinTxFee).toString()
-            );
+            await madWallet.Transaction.createTxFee(secpAccount.address, secpAccount.curve, BigInt('0x' + fees.MinTxFee).toString());
             await madWallet.Transaction.createDataStore(secpAccount.address, '0x02', 1, '0x02');
-            await expect(
-                madWallet.Transaction.sendTx()
-            ).to.eventually.be.fulfilled;
+            await expect(madWallet.Transaction.sendTx()).to.eventually.be.fulfilled;
         }).timeout(testTimeout);
 
         it('Success: Send DataStore with BN address', async () => {
             await madWallet.Transaction.createDataStore(bnAccount.address, '0x03', 2, '0x02');
-            await madWallet.Transaction.createTxFee(
-                bnAccount.address, bnAccount.curve, BigInt('0x' + fees.MinTxFee).toString()
-            );
-            await expect(
-                madWallet.Transaction.sendTx()
-            ).to.eventually.be.fulfilled;
+            await madWallet.Transaction.createTxFee(bnAccount.address, bnAccount.curve, BigInt('0x' + fees.MinTxFee).toString());
+            await expect(madWallet.Transaction.sendTx()).to.eventually.be.fulfilled;
         }).timeout(testTimeout);
 
         it('Success: Create DataStore with SECP address', async () => {
@@ -272,9 +264,7 @@ describe('Integration/Transaction:', () => {
         });
 
         it('Fail: Reject createTxFee with missing arguments', async () => {
-            await expect(
-                madWallet.Transaction.createTxFee()
-            ).to.eventually.be.rejectedWith('Missing arugments');
+            await expect( madWallet.Transaction.createTxFee()).to.eventually.be.rejectedWith('Missing arugments');
         });
 
         it('Fail: Reject _createValueTxIn with invalid arguments', async () => {
@@ -293,26 +283,20 @@ describe('Integration/Transaction:', () => {
     describe('ValueStore', () => {
         it('Fail: Reject createValueStore when value is less than 0', async () => {
             await expect(
-                madWallet.Transaction.createValueStore(
-                    secpAccount.address, BigInt(-1), bnAccount.address, 1, 1
-                )
+                madWallet.Transaction.createValueStore(secpAccount.address, BigInt(-1), bnAccount.address, 1, 1)
             ).to.eventually.be.rejectedWith('Invalid value');
         });
     
         it('Fail: Reject createValueStore without Fee', async () => {
             await madWalletWithoutRPC.Account.addAccount(privateKey, 1);
             await expect(
-                madWalletWithoutRPC.Transaction.createValueStore(
-                    secpAccount.address, BigInt(1), bnAccount.address, 1, undefined
-                )
+                madWalletWithoutRPC.Transaction.createValueStore(secpAccount.address, BigInt(1), bnAccount.address, 1, undefined)
             ).to.eventually.be.rejectedWith('RPC server must be set to fetch fee');
         });
     
         it('Fail: Reject createValueStore when Fee is too low', async () => {
             await expect(
-                madWallet.Transaction.createValueStore(
-                    secpAccount.address, BigInt(1), bnAccount.address, 1, 5
-                )
+                madWallet.Transaction.createValueStore(secpAccount.address, BigInt(1), bnAccount.address, 1, 5)
             ).to.eventually.be.rejectedWith('Fee too low');
         });
     
@@ -360,12 +344,8 @@ describe('Integration/Transaction:', () => {
         });
 
         it('Fail: Insufficient funds', async () => {
-            await madWallet.Transaction.createValueStore(
-                secpAccount.address, 1000000000, bnAccount.address, bnAccount.curve
-            );
-            await expect(
-                madWallet.Transaction.sendTx()
-            ).to.eventually.be.rejectedWith('Insufficient funds');
+            await madWallet.Transaction.createValueStore(secpAccount.address, 1000000000, bnAccount.address, bnAccount.curve);
+            await expect(madWallet.Transaction.sendTx()).to.eventually.be.rejectedWith('Insufficient funds');
         });
     
         it('Success: Create ValueStore with SECP address', async () => {
@@ -389,28 +369,16 @@ describe('Integration/Transaction:', () => {
 
         it('Success: Send ValueStore with SECP address', async () => {
             await wait(waitingTime);
-            await madWallet.Transaction.createTxFee(
-                secpAccount.address, secpAccount.curve, BigInt('0x' + fees.MinTxFee).toString()
-            );
-            await madWallet.Transaction.createValueStore(
-                secpAccount.address, 9995, bnAccount.address, bnAccount.curve
-            );
-            await expect(
-                madWallet.Transaction.sendTx()
-            ).to.eventually.be.fulfilled;
+            await madWallet.Transaction.createTxFee(secpAccount.address, secpAccount.curve, BigInt('0x' + fees.MinTxFee).toString());
+            await madWallet.Transaction.createValueStore(secpAccount.address, 9995, bnAccount.address, bnAccount.curve);
+            await expect(madWallet.Transaction.sendTx()).to.eventually.be.fulfilled;
         }).timeout(testTimeout);
         
         it('Success: Send ValueStore with BN address', async () => {
             await wait(waitingTime);
-            await madWallet.Transaction.createValueStore(
-                bnAccount.address, 1, secpAccount.address, secpAccount.curve
-            );
-            await madWallet.Transaction.createTxFee(
-                bnAccount.address, bnAccount.curve, BigInt('0x' + fees.MinTxFee).toString()
-            );
-            await expect(
-                madWallet.Transaction.sendTx()
-            ).to.eventually.be.fulfilled;
+            await madWallet.Transaction.createValueStore(bnAccount.address, 1, secpAccount.address, secpAccount.curve);
+            await madWallet.Transaction.createTxFee(bnAccount.address, bnAccount.curve, BigInt('0x' + fees.MinTxFee).toString());
+            await expect(madWallet.Transaction.sendTx()).to.eventually.be.fulfilled;
         }).timeout(testTimeout);
     });  
 });
