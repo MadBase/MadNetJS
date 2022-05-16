@@ -26,8 +26,7 @@ describe('Integration/RPC:', () => {
         secpSecondaryAccount = madWallet.Account.accounts[1];
        
         // Create value store object for tx
-        const sendTarget = secpSecondaryAccount.address;
-        await madWallet.Transaction.createValueStore(secpAccount.address, 1000, sendTarget, 1);
+        await madWallet.Transaction.createValueStore(secpAccount.address, 1000, secpSecondaryAccount.address, 1);
         
         // Create tx fee
         await madWallet.Transaction.createTxFee(secpAccount.address, 1, false);
@@ -88,7 +87,7 @@ describe('Integration/RPC:', () => {
         });
         
         it('Success: Get Block Header', async () => {
-            const blockNumber = await madWallet.Rpc.getBlockNumber()
+            const blockNumber = await madWallet.Rpc.getBlockNumber();
             await expect(madWallet.Rpc.getBlockHeader(blockNumber)).to.eventually.be.fulfilled;
         });
     });
