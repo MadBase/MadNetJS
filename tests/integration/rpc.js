@@ -19,6 +19,13 @@ describe('Integration/RPC:', () => {
 
         await madWallet.Account.addAccount(privateKey, 1);
         await madWallet.Account.addAccount(privateKey2, 1);
+        
+        const balance = await madWallet.Account.accounts[0].getAccountBalance();
+
+        if(balance === '00' ){
+            console.log(`Balance is ${balanceSECP}`, '\nInsufficient funds, skipping tests.');
+            this.skip();
+        }
        
         // Create value store object for tx
         const sendTarget = madWallet.Account.accounts[1].address;

@@ -22,6 +22,13 @@ describe('Integration/Transaction:', () => {
 
         fees = await madWallet.Rpc.getFees(); 
         wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+        const balance = await madWallet.Account.accounts[0].getAccountBalance();
+
+        if(balance === '00' ){
+            console.log(`Balance is ${balanceSECP}`, '\nInsufficient funds, skipping tests.');
+            this.skip();
+        }
     });
 
     beforeEach(async function() {

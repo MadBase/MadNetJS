@@ -15,6 +15,14 @@ describe('Integration/Account:', () => {
 
         await madWallet.Account.addAccount(privateKey, 1);
         await madWallet.Account.addAccount(privateKey, 2);
+
+        const balance = await madWallet.Account.accounts[0].getAccountBalance();
+
+        if(balance === '00' ){
+            console.log(`Balance is ${balanceSECP}`, '\nInsufficient funds, skipping tests.');
+            this.skip();
+        }
+        
     });
 
     describe('Add Account', () => {
