@@ -3,19 +3,20 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const MadWalletJS = require("../../index.js");
-const MultiSig = require("../../src/Signers/MultiSig");
-const SecpSigner = require("../../src/Signers/SecpSigner.js");
-const BNSigner = require("../../src/Signers/BNSigner.js");
+const MadWalletJS = require('../../index.js');
+const MultiSig = require('../../src/Signers/MultiSig');
+const SecpSigner = require('../../src/Signers/SecpSigner.js');
+const BNSigner = require('../../src/Signers/BNSigner.js');
 
 describe('Unit/MultiSig:', () => {
     let privateKey, secondaryPrivateKey, msgHex, madWallet, secpSigner;
     let bnSigner, multiSigSecp, publicKeys, signatures;
+    let secpAccount, bnAccount;
 
     before(async function() {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
         secondaryPrivateKey = process.env.OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY;
-        msgHex = Buffer.from("hello world", "utf8").toString("hex").toLowerCase();
+        msgHex = Buffer.from('hello world', 'utf8').toString('hex').toLowerCase();
         madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
         secpSigner = new SecpSigner(madWallet, privateKey);
         bnSigner = new BNSigner(madWallet, privateKey);
@@ -24,9 +25,12 @@ describe('Unit/MultiSig:', () => {
         await madWallet.Account.addAccount(privateKey, 2);
         await madWallet.Account.addAccount(secondaryPrivateKey, 2);
 
-        let account = await madWallet.Account.getAccount(madWallet.Account.accounts[0]["address"]);
+        secpAccount = madWallet.Account.accounts[0];
+        bnAccount = madWallet.Account.accounts[1];
+
+        let account = await madWallet.Account.getAccount(secpAccount.address);
         let accountPK = await account.signer.getPubK();
-        let accountTwo = await madWallet.Account.getAccount(madWallet.Account.accounts[1]["address"]);
+        let accountTwo = await madWallet.Account.getAccount(bnAccount.address);
         let accountTwoPK = await accountTwo.signer.getPubK();
 
         publicKeys = [ accountPK, accountTwoPK ];
@@ -41,21 +45,15 @@ describe('Unit/MultiSig:', () => {
 
     describe('Public Key and Address', () => {
         it('Fail: Reject getPubK when no Public Key is added', async () => {
-            await expect(
-                multiSigSecp.getPubK()
-            ).to.eventually.be.rejectedWith('Need public keys');
+            await expect(multiSigSecp.getPubK()).to.eventually.be.rejectedWith('Need public keys');
         });
 
         it('Fail: Reject getAddress when no Public Key is added', async () => {
-            await expect(
-                multiSigSecp.getAddress()
-            ).to.eventually.be.rejectedWith('Need public keys');
+            await expect(multiSigSecp.getAddress()).to.eventually.be.rejectedWith('Need public keys');
         });
 
         it('Fail: Reject addPublicKeys when called with invalid Public Key', async () => {
-            await expect(
-                multiSigSecp.addPublicKeys(null)
-            ).to.eventually.be.rejectedWith('Need public keys');
+            await expect(multiSigSecp.addPublicKeys(null)).to.eventually.be.rejectedWith('Need public keys');
         });
 
         it('Success: Add Public Keys', async () => {
@@ -80,9 +78,7 @@ describe('Unit/MultiSig:', () => {
 
     describe('Sign and Multi Sign', () => {
         it('Fail: Reject Sign when called with invalid rawMsg', async () => {
-            await expect(
-                multiSigSecp.sign(null)
-            ).to.eventually.be.rejectedWith('Missing input');
+            await expect(multiSigSecp.sign(null)).to.eventually.be.rejectedWith('Missing input');
         });
             
         it('Fail: Reject Sign Multi when called with invalid rawMsgs', async () => {
@@ -93,16 +89,12 @@ describe('Unit/MultiSig:', () => {
 
         it('Success: Sign one message', async () => {
             await multiSigSecp.addPublicKeys(publicKeys)
-            await expect(
-                multiSigSecp.sign('0000ffeebabe')
-            ).to.eventually.be.fulfilled;
+            await expect(multiSigSecp.sign('0000ffeebabe')).to.eventually.be.fulfilled;
         });
 
         it('Success: Sign Multi messages', async () => {
             await multiSigSecp.addPublicKeys(publicKeys)
-            await expect(
-                multiSigSecp.signMulti(['0000ffeebabe', '0000ffeebabe'])
-            ).to.eventually.have.length(2);
+            await expect(multiSigSecp.signMulti(['0000ffeebabe', '0000ffeebabe'])).to.eventually.have.length(2);
         });
     });
 
@@ -138,15 +130,11 @@ describe('Unit/MultiSig:', () => {
         });
 
         it('Success: Aggregate Signatures', async () => {
-            await expect(
-                multiSigSecp.aggregateSignatures(signatures)
-            ).to.eventually.be.fulfilled;
+            await expect(multiSigSecp.aggregateSignatures(signatures)).to.eventually.be.fulfilled;
         });
 
         it('Success: Aggregate Multi Signatures', async () => {
-            await expect(
-                multiSigSecp.aggregateSignaturesMulti([signatures])
-            ).to.eventually.be.fulfilled;
+            await expect(multiSigSecp.aggregateSignaturesMulti([signatures])).to.eventually.be.fulfilled;
         });
 
         it('Success: Verify Secp Signature', async () => {

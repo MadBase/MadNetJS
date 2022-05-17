@@ -3,7 +3,7 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const Validator = require("../../src/Util/Validator");
+const Validator = require('../../src/Util/Validator');
 
 describe('Unit/Util/Validator:', () => {
     let privateKey, address, validHex;
@@ -42,7 +42,7 @@ describe('Unit/Util/Validator:', () => {
         });
         
         it('Success: Call hexToTxt with valid Hex', () => {
-            const validHexResult = Buffer.from(validHex, "hex").toString("utf8"); 
+            const validHexResult = Buffer.from(validHex, 'hex').toString('utf8'); 
             expect(Validator.hexToTxt(validHex)).to.equal(validHexResult);
         });
     });
