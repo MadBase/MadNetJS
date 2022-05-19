@@ -1,5 +1,5 @@
 const MadWalletJS = require("../index.js");
-const madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
+const madWallet = new MadWalletJS(false, process.env.RPC);
 
 async function main() {
     try {
