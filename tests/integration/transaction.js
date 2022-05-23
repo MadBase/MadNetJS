@@ -5,12 +5,13 @@ chai.use(chaiAsPromised);
 const expect = chai.expect;
 const MadWalletJS = require('../../index.js');
 
-describe('Integration/Transaction:', () => {
+describe('Integration/Transaction:', function () {
     let privateKey, madWallet, madWalletWithoutRPC, madWalletSigned;
     let secpAccount, bnAccount, secpAccountSigned, bnAccountSigned;
-    let invalidHexFrom, wait, fees;
-    const waitingTime = 40 * 1000; 
+    let invalidHexFrom, fees;
     const testTimeout = 100 * 1000;
+
+    this.timeout(testTimeout);
 
     before(async function() {
         madWallet = (process.env.RPC && process.env.CHAIN_ID) ? new MadWalletJS(process.env.CHAIN_ID, process.env.RPC) : new MadWalletJS();
@@ -25,7 +26,6 @@ describe('Integration/Transaction:', () => {
         invalidHexFrom = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
 
         fees = await madWallet.Rpc.getFees(); 
-        wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     });
 
     beforeEach(async function() {
@@ -79,13 +79,13 @@ describe('Integration/Transaction:', () => {
             await madWallet.Transaction.createTxFee(secpAccount.address, secpAccount.curve, BigInt('0x' + fees.MinTxFee).toString());
             await madWallet.Transaction.createDataStore(secpAccount.address, '0x02', 1, '0x02');
             await expect(madWallet.Transaction.sendTx()).to.eventually.be.fulfilled;
-        }).timeout(testTimeout);
+        });
 
         it('Success: Send DataStore with BN address', async () => {
             await madWallet.Transaction.createDataStore(bnAccount.address, '0x03', 2, '0x02');
             await madWallet.Transaction.createTxFee(bnAccount.address, bnAccount.curve, BigInt('0x' + fees.MinTxFee).toString());
             await expect(madWallet.Transaction.sendTx()).to.eventually.be.fulfilled;
-        }).timeout(testTimeout);
+        });
 
         it('Success: Create DataStore with SECP address', async () => {
             const { DataStore: SecpDatStore = null } = await madWallet.Transaction.createDataStore(secpAccount.address, '0x02', 1, '0x02');
@@ -301,7 +301,7 @@ describe('Integration/Transaction:', () => {
         });
     
         it('Fail: Reject createValueStore when account curve is invalid', async () => {
-            secpAccountSigned['curve'] = null;
+            secpAccountSigned.curve = null;
             await expect(
                 madWalletSigned.Transaction.createValueStore(secpAccountSigned.address, BigInt(1), bnAccountSigned.address, 1, undefined)
             ).to.eventually.be.rejectedWith('Cannot get curve');
@@ -368,18 +368,16 @@ describe('Integration/Transaction:', () => {
         });
 
         it('Success: Send ValueStore with SECP address', async () => {
-            await wait(waitingTime);
             await madWallet.Transaction.createTxFee(secpAccount.address, secpAccount.curve, BigInt('0x' + fees.MinTxFee).toString());
             await madWallet.Transaction.createValueStore(secpAccount.address, 9995, bnAccount.address, bnAccount.curve);
             await expect(madWallet.Transaction.sendTx()).to.eventually.be.fulfilled;
-        }).timeout(testTimeout);
+        });
         
         it('Success: Send ValueStore with BN address', async () => {
-            await wait(waitingTime);
             await madWallet.Transaction.createValueStore(bnAccount.address, 1, secpAccount.address, secpAccount.curve);
             await madWallet.Transaction.createTxFee(bnAccount.address, bnAccount.curve, BigInt('0x' + fees.MinTxFee).toString());
             await expect(madWallet.Transaction.sendTx()).to.eventually.be.fulfilled;
-        }).timeout(testTimeout);
+        });
     });  
 });
 

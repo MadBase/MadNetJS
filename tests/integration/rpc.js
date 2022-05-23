@@ -5,14 +5,18 @@ chai.use(chaiAsPromised);
 const expect = chai.expect;
 const MadWalletJS = require('../../index.js');
 
-describe('Integration/RPC:', () => {
+describe('Integration/RPC:', function () {
     let privateKey, secondaryPrivateKey, madWallet; 
-    let validTxHash, invalidTxHash, invalidTx, fees, wait;
+    let validTxHash, invalidTxHash, invalidTx, fees;
     let secpAccount, secpSecondaryAccount;
-    const waitingTime = 40 * 1000; 
     const testTimeout = 800 * 1000;
 
+    this.timeout(testTimeout);
+
     before(async function() {
+        invalidTxHash = '59e792f9409d45701f2505ef27bf0f2c15e6f24e51bd8075323aa846a98b37d7';
+        invalidTx = { Tx: {  Vin: [], Vout: [], Fee: '' } };
+
         if (process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY && process.env.RPC && process.env.CHAIN_ID) {
             privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
             secondaryPrivateKey = process.env.OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY;
@@ -22,7 +26,7 @@ describe('Integration/RPC:', () => {
         await madWallet.Account.addAccount(privateKey, 1);
         await madWallet.Account.addAccount(secondaryPrivateKey, 1);
 
-        secpAccount = madWallet.Account.accounts[0];
+        secpAccount = madWallet.Account.accounts[0]; 
         secpSecondaryAccount = madWallet.Account.accounts[1];
        
         // Create value store object for tx
@@ -31,14 +35,6 @@ describe('Integration/RPC:', () => {
         // Create tx fee
         await madWallet.Transaction.createTxFee(secpAccount.address, 1, false);
         
-        // Retrieve valid txHash
-        try {
-            let txHash = await madWallet.Transaction.sendTx(secpAccount.address, 1);
-            validTxHash = await waitForTx(txHash);
-        } catch (ex) {
-            console.log(ex);
-        }
-
         // Wait txHash to be mined
         async function waitForTx(txHash) {
             try {
@@ -50,11 +46,16 @@ describe('Integration/RPC:', () => {
                 }
             }
         }
+
+        // Retrieve valid txHash
+        try {
+            const txHash = await madWallet.Transaction.sendTx(secpAccount.address, 1);
+            validTxHash = await waitForTx(txHash);
+        } catch (ex) {
+            console.log('RPC Test before hook: ' + String(ex));
+        }
         
-        invalidTxHash = '59e792f9409d45701f2505ef27bf0f2c15e6f24e51bd8075323aa846a98b37d7';
-        invalidTx = { Tx: {  Vin: [], Vout: [], Fee: '' } };
         fees = await madWallet.Rpc.getFees(); 
-        wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     });
 
     describe('Set Provider', () => {
@@ -172,9 +173,8 @@ describe('Integration/RPC:', () => {
         });
 
         it('Success: Monitor pending transaction with a valid txHash', async () => {
-            await wait(waitingTime);
             await expect(madWallet.Rpc.monitorPending(validTxHash)).to.eventually.be.fulfilled;
-        }).timeout(testTimeout);
+        });
     });
 
     describe('Transaction', () => {
@@ -188,7 +188,7 @@ describe('Integration/RPC:', () => {
         
         it('Fail: Cannot send transaction with a invalid Tx object', async () => {
             await expect(madWallet.Rpc.sendTransaction(invalidTx)).to.eventually.be.rejectedWith('the object is invalid');
-        })
+        });
 
         it('Fail: Cannot poll transaction status without a txHash', async () => {
             await expect(madWallet.Rpc.getTxStatus(null, 1)).to.eventually.be.rejectedWith('Argument txHash cannot be empty');
@@ -199,9 +199,8 @@ describe('Integration/RPC:', () => {
         });
 
         it('Success: Poll transaction current status.', async () => {
-            await wait(waitingTime);
             const txStatus = await madWallet.Rpc.getTxStatus(validTxHash);
             expect(txStatus).to.be.an('object').that.has.all.keys('IsMined', 'Tx');
-        }).timeout(testTimeout);
+        });
     });
 });
