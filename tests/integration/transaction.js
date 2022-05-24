@@ -26,6 +26,13 @@ describe('Integration/Transaction:', function () {
         invalidHexFrom = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
 
         fees = await madWallet.Rpc.getFees(); 
+
+        const balance = await madWallet.Account.accounts[0].getAccountBalance();
+
+        if(balance === '00' ){
+            console.log(`Balance is ${balanceSECP}`, '\nInsufficient funds, skipping tests.');
+            this.skip();
+        }
     });
 
     beforeEach(async function() {

@@ -24,6 +24,14 @@ describe('Integration/RPC:', function () {
         }
 
         await madWallet.Account.addAccount(privateKey, 1);
+        
+        const balance = await madWallet.Account.accounts[0].getAccountBalance();
+
+        if(balance === '00' ){
+            console.log(`Balance is ${balanceSECP}`, '\nInsufficient funds, skipping tests.');
+            this.skip();
+        }
+        
         await madWallet.Account.addAccount(secondaryPrivateKey, 1);
 
         secpAccount = madWallet.Account.accounts[0]; 
