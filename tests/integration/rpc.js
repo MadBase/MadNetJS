@@ -9,9 +9,6 @@ describe('Integration/RPC:', function () {
     let privateKey, secondaryPrivateKey, madWallet; 
     let validTxHash, invalidTxHash, invalidTx, fees;
     let secpAccount, secpSecondaryAccount;
-    const testTimeout = 800 * 1000;
-
-    this.timeout(testTimeout);
 
     before(async function() {
         invalidTxHash = '59e792f9409d45701f2505ef27bf0f2c15e6f24e51bd8075323aa846a98b37d7';

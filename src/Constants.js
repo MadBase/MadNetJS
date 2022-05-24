@@ -1,6 +1,6 @@
 // RPC
 const MaxUTXOs = 255;
-const ReqTimeout = 8000;
+const ReqTimeout = 45000;
 
 // Transaction
 const MaxDataStoreSize = 2097152;
