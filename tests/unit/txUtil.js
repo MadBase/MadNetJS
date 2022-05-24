@@ -3,7 +3,7 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const Tx = require("../../src/Util/Tx");
+const Tx = require('../../src/Util/Tx');
 
 const generateHex = size => [...Array(size)].map(
     () => Math.floor(Math.random() * 16).toString(16)
@@ -18,7 +18,7 @@ describe('Unit/Util/Tx:', () => {
                 DSPreImage: {
                     IssuedAt: 100,
                     Deposit: 100,
-                    RawData: "rawdata"
+                    RawData: 'rawdata'
                 }
             }
         }
@@ -26,9 +26,7 @@ describe('Unit/Util/Tx:', () => {
 
     describe('Remaining Deposit', () => { 
         it('Fail: Reject when thisEpoch is lower than issuedAt', async () => {
-            await expect(
-                Tx.remainingDeposit(DataStore, 1)
-            ).to.eventually.be.rejectedWith('thisEpoch < issuedAt');
+            await expect(Tx.remainingDeposit(DataStore, 1)).to.eventually.be.rejectedWith('thisEpoch < issuedAt');
         });
         
         it('Fail: Reject when called with invalid arguments', async () => {
@@ -40,9 +38,7 @@ describe('Unit/Util/Tx:', () => {
     
     describe('Extract Owner', () => { 
         it('Fail: Reject when called with invalid owner', async () => {
-            await expect(
-                Tx.extractOwner(generateHex(21))
-            ).to.eventually.be.rejectedWith('Invalid owner');
+            await expect(Tx.extractOwner(generateHex(21))).to.eventually.be.rejectedWith('Invalid owner');
         });
     });
             
@@ -54,9 +50,7 @@ describe('Unit/Util/Tx:', () => {
         });
 
         it('Fail: Reject calculateNumEpochs when data size is too large', async () => {
-            await expect(
-                Tx.calculateNumEpochs(1000 * 10000, 1000)
-            ).to.eventually.be.rejectedWith('Data size is too large');
+            await expect(Tx.calculateNumEpochs(1000 * 10000, 1000)).to.eventually.be.rejectedWith('Data size is too large');
         });
         
         it('Fail: Reject calculateNumEpochs when called with invalid dataSize and deposit', async () => {

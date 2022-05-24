@@ -3,7 +3,7 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const Eth = require("../../src/Util/Eth");
+const Eth = require('../../src/Util/Eth');
 
 const generateHex = size => [...Array(size)].map(
     () => Math.floor(Math.random() * 16).toString(16)
@@ -20,13 +20,11 @@ describe('Unit/Util/Eth:', () => {
     
     describe('Eth', () => {  
         it('Success: Convert hex to an array of uint256', () => {
-            expect(Eth.hexToUint256Array("0x" + validHexLength)).to.be.an('array');
+            expect(Eth.hexToUint256Array('0x' + validHexLength)).to.be.an('array');
         });
         
         it('fail: hexToUint256Array throws an error if called with invalid hex', () => {
-            expect(
-                () => Eth.hexToUint256Array(invalidHexLength)
-            ).to.throws('hexToUint256Array: Invalid length');
+            expect(() => Eth.hexToUint256Array(invalidHexLength)).to.throws('hexToUint256Array: Invalid length');
         });
 
         it('Success: Remove pub from sig', () => {
@@ -34,9 +32,7 @@ describe('Unit/Util/Eth:', () => {
         });
         
         it('fail: removePubFromSig throws an error if called with invalid sig', () => {
-            expect(
-                () => Eth.removePubFromSig(null)
-            ).to.throws('removePubFromSig');
+            expect(() => Eth.removePubFromSig(null)).to.throws('removePubFromSig');
         });
     });
 });
