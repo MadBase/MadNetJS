@@ -26,7 +26,6 @@ describe('Integration/Transaction:', function () {
         invalidHexFrom = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
 
         fees = await madWallet.Rpc.getFees(); 
-        wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
         const balance = await madWallet.Account.accounts[0].getAccountBalance();
 
