@@ -27,7 +27,7 @@ describe('Integration/Transaction:', function () {
         const balance = await madWallet.Account.accounts[0].getAccountBalance();
 
         if(balance === '00' ){
-            console.log(`Balance is ${balanceSECP}`, '\nInsufficient funds, skipping tests.');
+            console.log(`Balance is ${balance}`, '\nInsufficient funds, skipping tests.');
             this.skip();
         }
     });
