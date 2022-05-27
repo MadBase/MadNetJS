@@ -20,9 +20,6 @@ class RPC {
         this.Wallet = Wallet;
         this.rpcServer = rpcServer ? rpcServer : false;
         this.rpcServer = rpcServer ? addTrailingSlash(rpcServer) : false;
-        if (this.rpcServer) { // If RPC Provided -- Fetch chainID
-            this.setProvider(rpcServer);
-        }
     }
 
     /**
@@ -42,7 +39,6 @@ class RPC {
             throw new Error("RPC.setProvider\r\n" + String(ex));
         }
     }
-
 
     /**
      * Get block header by height
@@ -84,11 +80,16 @@ class RPC {
      */
     async getChainId() {
         try {
-            let CI = await this.request("get-chain-id");
-            if (!CI["ChainID"]) {
+            const { data: { ChainID = null }} = await Axios.post(this.rpcServer + "get-chain-id", {}, {
+                timeout: constant.ReqTimeout,
+                validateStatus: function (status) {
+                    return status
+                }
+            });
+            if (!ChainID) {
                 throw "Chain id not found"
             }
-            return CI["ChainID"]
+            return ChainID;
         } catch (ex) {
             throw new Error("RPC.getChainId\r\n" + String(ex));
         }
@@ -442,7 +443,7 @@ class RPC {
     async request(route, data) {
         try {
             if (!this.Wallet.chainId && this.rpcServer) {
-                await this.setProvider(this.provider);
+                await this.setProvider(this.rpcServer);
             }
             if (!this.rpcServer) {
                 throw "No rpc provider"
