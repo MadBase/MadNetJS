@@ -2,14 +2,6 @@ require('dotenv').config({ path: process.cwd() + '/.env' });
 const MadWalletJS = require("../index.js");
 const madWallet = new MadWalletJS(false, process.env.RPC);
 
-// new Wallet = new AliceNetJS({
-//     rpcTimeout: 1000,
-//     chainID: 46,
-//     rpcEndpoint: "https://catmad.duckdns.org/v1"
-// });
-
-// new Wallet = new AliceNetJS("https://catmad.duckdns.org/v1/");
-
 async function waitForTx(txHash) {
     try {
         console.log('// Wait txHash to be mined');
@@ -34,8 +26,6 @@ async function main() {
         const secpAccount = madWallet.Account.accounts[0]; 
         const secpSecondaryAccount = madWallet.Account.accounts[1];
 
-        // await madWallet.Rpc.initialize();
-
         try {
             console.log('// Create value store object for tx');
             await madWallet.Transaction.createValueStore(secpAccount.address, 1000, secpSecondaryAccount.address, 1);
@@ -44,10 +34,6 @@ async function main() {
             await madWallet.Transaction.createTxFee(secpAccount.address, 1, false);
             
             console.log('// Retrieve valid txHash');
-            console.log(
-                '///////// 4 - Chain ID on the Wallet Instance before sendTX:', 
-                madWallet.chainId
-            )
             console.log('// Sending transaction..');
             const txHash = await madWallet.Transaction.sendTx(secpAccount.address, 1);
             const validTxHash = await waitForTx(txHash);
