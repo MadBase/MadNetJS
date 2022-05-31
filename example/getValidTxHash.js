@@ -33,9 +33,10 @@ async function main() {
             console.log('// Create tx fee');
             await madWallet.Transaction.createTxFee(secpAccount.address, 1, false);
             
-            console.log('// Retrieve valid txHash');
             console.log('// Sending transaction..');
             const txHash = await madWallet.Transaction.sendTx(secpAccount.address, 1);
+            
+            console.log('// Retrieve valid txHash');
             const validTxHash = await waitForTx(txHash);
 
             console.log(validTxHash);
