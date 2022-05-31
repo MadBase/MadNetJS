@@ -19,7 +19,24 @@ class Wallet {
      * @param {number} [chainId=1]
      * @param {string} [rpcServer=false]
      */
-    constructor(chainId, rpcServer = false) {
+    // constructor(chainId, rpcServer = false) {
+    constructor(...params) {
+        let chainId, rpcServer;
+
+        if (params.length === 2) {
+            chainId = params[0];
+            rpcServer = params[1];
+        }
+        
+        if (params.length === 1 && typeof params[0] === "object") {
+            chainId = params[0].chainId;
+            rpcServer = params[0].rpcServer;
+        }
+        
+        if (params.length === 1 && typeof params[0] === "string") {
+            rpcServer = params[0];
+        }
+
         this.chainId = chainId ? utils.isNumber(chainId) : undefined;
         this.Account = new Account(this)
         this.Transaction = new Transaction(this);
