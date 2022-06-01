@@ -80,11 +80,9 @@ class RPC {
      */
     async getChainId() {
         try {
+            // Directly call API for chainID to avoid recursive loop from this.request()'s chainID dependency
             const { data: { ChainID = null }} = await Axios.post(this.rpcServer + "get-chain-id", {}, {
-                timeout: constant.ReqTimeout,
-                validateStatus: function (status) {
-                    return status
-                }
+                timeout: constant.ReqTimeout
             });
             if (!ChainID) {
                 throw "Chain id not found"
