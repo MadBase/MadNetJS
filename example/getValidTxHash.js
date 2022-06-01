@@ -25,18 +25,20 @@ async function main() {
 
         const secpAccount = madWallet.Account.accounts[0]; 
         const secpSecondaryAccount = madWallet.Account.accounts[1];
-       
-        console.log('// Create value store object for tx');
-        await madWallet.Transaction.createValueStore(secpAccount.address, 1000, secpSecondaryAccount.address, 1);
-        
-        console.log('// Create tx fee');
-        await madWallet.Transaction.createTxFee(secpAccount.address, 1, false);
-        
-        console.log('// Retrieve valid txHash');
+
         try {
+            console.log('// Create value store object for tx');
+            await madWallet.Transaction.createValueStore(secpAccount.address, 1000, secpSecondaryAccount.address, 1);
+
+            console.log('// Create tx fee');
+            await madWallet.Transaction.createTxFee(secpAccount.address, 1, false);
+            
             console.log('// Sending transaction..');
             const txHash = await madWallet.Transaction.sendTx(secpAccount.address, 1);
+            
+            console.log('// Retrieve valid txHash');
             const validTxHash = await waitForTx(txHash);
+
             console.log(validTxHash);
         } catch (ex) {
             console.log('RPC error message:' + String(ex));

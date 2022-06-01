@@ -20,7 +20,7 @@ class Wallet {
      * @param {string} [rpcServer=false]
      */
     constructor(chainId, rpcServer = false) {
-        this.chainId = chainId ? utils.isNumber(chainId) : 1;
+        this.chainId = chainId ? utils.isNumber(chainId) : undefined;
         this.Account = new Account(this)
         this.Transaction = new Transaction(this);
         this.Rpc = new RPC(this, rpcServer);

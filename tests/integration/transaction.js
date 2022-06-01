@@ -9,9 +9,6 @@ describe('Integration/Transaction:', function () {
     let privateKey, madWallet, madWalletWithoutRPC, madWalletSigned;
     let secpAccount, bnAccount, secpAccountSigned, bnAccountSigned;
     let invalidHexFrom, fees;
-    const testTimeout = 100 * 1000;
-
-    this.timeout(testTimeout);
 
     before(async function() {
         madWallet = (process.env.RPC && process.env.CHAIN_ID) ? new MadWalletJS(process.env.CHAIN_ID, process.env.RPC) : new MadWalletJS();
@@ -30,7 +27,7 @@ describe('Integration/Transaction:', function () {
         const balance = await madWallet.Account.accounts[0].getAccountBalance();
 
         if(balance === '00' ){
-            console.log(`Balance is ${balanceSECP}`, '\nInsufficient funds, skipping tests.');
+            console.log(`Balance is ${balance}`, '\nInsufficient funds, skipping tests.');
             this.skip();
         }
     });

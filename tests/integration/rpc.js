@@ -9,9 +9,6 @@ describe('Integration/RPC:', function () {
     let privateKey, secondaryPrivateKey, madWallet; 
     let validTxHash, invalidTxHash, invalidTx, fees;
     let secpAccount, secpSecondaryAccount;
-    const testTimeout = 800 * 1000;
-
-    this.timeout(testTimeout);
 
     before(async function() {
         invalidTxHash = '59e792f9409d45701f2505ef27bf0f2c15e6f24e51bd8075323aa846a98b37d7';
@@ -28,7 +25,7 @@ describe('Integration/RPC:', function () {
         const balance = await madWallet.Account.accounts[0].getAccountBalance();
 
         if(balance === '00' ){
-            console.log(`Balance is ${balanceSECP}`, '\nInsufficient funds, skipping tests.');
+            console.log(`Balance is ${balance}`, '\nInsufficient funds, skipping tests.');
             this.skip();
         }
         
