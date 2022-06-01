@@ -19,9 +19,8 @@ class Wallet {
      * @param {number} [chainId=1]
      * @param {string} [rpcServer=false]
      */
-    // constructor(chainId, rpcServer = false) {
     constructor(...params) {
-        let chainId, rpcServer;
+        let chainId, rpcServer, rpcTimeout;
 
         if (params.length === 2) {
             chainId = params[0];
@@ -31,16 +30,21 @@ class Wallet {
         if (params.length === 1 && typeof params[0] === "object") {
             chainId = params[0].chainId;
             rpcServer = params[0].rpcServer;
+            rpcTimeout = params[0].rpcTimeout;
         }
         
         if (params.length === 1 && typeof params[0] === "string") {
             rpcServer = params[0];
         }
 
+        if (!rpcServer) {
+            console.warn('The RPC requests will not work properly if an endpoint is not provided.');
+        }
+
         this.chainId = chainId ? utils.isNumber(chainId) : undefined;
         this.Account = new Account(this)
         this.Transaction = new Transaction(this);
-        this.Rpc = new RPC(this, rpcServer);
+        this.Rpc = new RPC(this, rpcServer, rpcTimeout);
         this.Utils = utils;
     }
 }

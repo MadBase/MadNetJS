@@ -17,7 +17,11 @@ describe('Integration/RPC:', function () {
         if (process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY && process.env.RPC && process.env.CHAIN_ID) {
             privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
             secondaryPrivateKey = process.env.OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY;
-            madWallet = new MadWalletJS(false, process.env.RPC);
+            madWallet = new MadWalletJS({ 
+                rpcTimeout: 20000,
+                chainId: false,
+                rpcServer: process.env.RPC
+            });
         }
 
         await madWallet.Account.addAccount(privateKey, 1);

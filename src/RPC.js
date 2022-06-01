@@ -16,10 +16,11 @@ class RPC {
      * @param {Wallet} Wallet - Circular wallet reference to use internally of RPC class
      * @param {String|Boolean} [rpcServer=false] - (Optional - Rpc endpoint to use for RPC requests)
      */
-    constructor(Wallet, rpcServer) {
+    constructor(Wallet, rpcServer, rpcTimeout = false) {
         this.Wallet = Wallet;
         this.rpcServer = rpcServer ? rpcServer : false;
         this.rpcServer = rpcServer ? addTrailingSlash(rpcServer) : false;
+        this.rpcTimeout = rpcTimeout || constant.ReqTimeout; 
     }
 
     /**
@@ -82,7 +83,7 @@ class RPC {
         try {
             // Directly call API for chainID to avoid recursive loop from this.request()'s chainID dependency
             const { data: { ChainID = null }} = await Axios.post(this.rpcServer + "get-chain-id", {}, {
-                timeout: constant.ReqTimeout
+                timeout: this.rpcTimeout
             });
             if (!ChainID) {
                 throw "Chain id not found"
@@ -457,7 +458,7 @@ class RPC {
             while (true) {
                 try {
                     resp = await Axios.post(this.rpcServer + route, data, {
-                        timeout: constant.ReqTimeout,
+                        timeout: this.rpcTimeout,
                         validateStatus: function (status) {
                             return status
                         }

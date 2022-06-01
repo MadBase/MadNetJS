@@ -6,7 +6,7 @@ const expect = chai.expect;
 const MadWalletJS = require('../../index.js');
 
 describe('Integration/Transaction:', function () {
-    let privateKey, madWallet, madWalletWithoutRPC, madWalletSigned;
+    let privateKey, madWallet,  madWalletSigned;
     let secpAccount, bnAccount, secpAccountSigned, bnAccountSigned;
     let invalidHexFrom, fees;
 
@@ -33,7 +33,6 @@ describe('Integration/Transaction:', function () {
     });
 
     beforeEach(async function() {
-        madWalletWithoutRPC = new MadWalletJS(process.env.CHAIN_ID, null);
         madWalletSigned = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
 
         await madWalletSigned.Account.addAccount(privateKey, 1);
@@ -45,6 +44,7 @@ describe('Integration/Transaction:', function () {
 
     describe('Fee Estimates', () => {
         it('Fail: Reject to get current fees when RPC server is invalid', async () => {
+            const madWalletWithoutRPC = new MadWalletJS(process.env.CHAIN_ID, null);
             await madWalletWithoutRPC.Account.addAccount(privateKey, 1);
             await expect(
                 madWalletWithoutRPC.Transaction._getFees()
@@ -119,6 +119,7 @@ describe('Integration/Transaction:', function () {
         });
 
         it('Fail: Reject createDataStore when issuedAt is invalid', async () => {
+            const madWalletWithoutRPC = new MadWalletJS(process.env.CHAIN_ID, null);
             await madWalletWithoutRPC.Account.addAccount(privateKey, 1);
             const secpAccountWRPC = madWalletWithoutRPC.Account.accounts[0];
             await expect(
@@ -292,6 +293,7 @@ describe('Integration/Transaction:', function () {
         });
     
         it('Fail: Reject createValueStore without Fee', async () => {
+            const madWalletWithoutRPC = new MadWalletJS(process.env.CHAIN_ID, null);
             await madWalletWithoutRPC.Account.addAccount(privateKey, 1);
             await expect(
                 madWalletWithoutRPC.Transaction.createValueStore(secpAccount.address, BigInt(1), bnAccount.address, 1, undefined)
