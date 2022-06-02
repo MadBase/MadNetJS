@@ -1,6 +1,7 @@
-const TxHasher = require('../GoWrappers/TxHasher.js');
-const MultiSig = require("../Signers/MultiSig.js")
-const utils = require('../Util/Tx.js');
+const appRoot = require('app-root-path');
+const MultiSig = require(appRoot + '/src/Signers/MultiSig');
+const TxHasher = require(appRoot + '/src/GoWrappers/TxHasher.js');
+const utils = require(appRoot + '/src/Util/Tx.js');
 
 /**
  * Transaction object creation

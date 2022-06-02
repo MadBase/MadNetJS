@@ -3,7 +3,8 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const Tx = require('../../src/Util/Tx');
+const appRoot = require('app-root-path');
+const Tx = require(appRoot + '/src/Util/Tx');
 
 const generateHex = size => [...Array(size)].map(
     () => Math.floor(Math.random() * 16).toString(16)

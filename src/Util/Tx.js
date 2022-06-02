@@ -1,5 +1,6 @@
-const constant = require("../Constants.js");
 const validator = require("./Validator.js");
+const appRoot = require('app-root-path');
+const constant = require(appRoot + '/src/Constants.js');
 
 /**
  * @typedef TxUtils - Collection of Tx Utilities

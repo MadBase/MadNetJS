@@ -3,7 +3,8 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const MadWalletJS = require('../../index.js');
+const appRoot = require('app-root-path');
+const MadWalletJS = require(appRoot + '/index.js');
 
 describe('Integration/Transaction/Tx:', () => {
     let privateKey, validHex;

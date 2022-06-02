@@ -3,7 +3,8 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const Validator = require('../../src/Util/Validator');
+const appRoot = require('app-root-path');
+const Validator = require(appRoot + '/src/Util/Validator');
 
 describe('Unit/Util/Validator:', () => {
     let privateKey, address, validHex;

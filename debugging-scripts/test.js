@@ -1,4 +1,5 @@
-const madnetjs = require("../index.js");
+const appRoot = require('app-root-path');
+const madnetjs = require(appRoot + '/index.js');
 const ethersutil = require('ethereumjs-util');
 // const runtimeListener = require('./runtimeListener');
 require('dotenv').config({ path: process.cwd() + '/.env' });

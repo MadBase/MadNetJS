@@ -1,4 +1,5 @@
-const MadWalletJS = require("../index.js");
+const appRoot = require('app-root-path');
+const MadWalletJS = require(appRoot + '/index.js');
 const madWallet = new MadWalletJS(false, process.env.RPC);
 
 async function main() {

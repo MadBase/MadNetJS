@@ -3,10 +3,11 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const MadWalletJS = require('../../index.js');
-const MultiSig = require('../../src/Signers/MultiSig');
-const SecpSigner = require('../../src/Signers/SecpSigner.js');
-const BNSigner = require('../../src/Signers/BNSigner.js');
+const appRoot = require('app-root-path');
+const MadWalletJS = require(appRoot + '/index.js');
+const MultiSig = require(appRoot + '/src/Signers/MultiSig');
+const SecpSigner = require(appRoot + '/src/Signers/SecpSigner.js');
+const BNSigner = require(appRoot + '/src/Signers/BNSigner.js');
 
 describe('Unit/MultiSig:', () => {
     let privateKey, secondaryPrivateKey, msgHex, madWallet, secpSigner;

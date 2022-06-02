@@ -1,4 +1,5 @@
-const BNSignerWrapper = require('../GoWrappers/BNSignerWrapper.js');
+const appRoot = require('app-root-path');
+const BNSignerWrapper = require(appRoot + '/src/GoWrappers/BNSignerWrapper.js');
 /**
  * MultiSig
  * @class MultiSig
