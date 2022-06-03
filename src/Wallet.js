@@ -31,17 +31,18 @@ class Wallet {
     _initializeParams(params) {
         let chainId, rpcServer, rpcTimeout;
 
+        // Backwards compatibility catch
         if (params.length === 2) {
             chainId = params[0];
             rpcServer = params[1];
         }
-        
+        // Object Based configuration
         if (params.length === 1 && typeof params[0] === "object") {
             chainId = params[0].chainId;
             rpcServer = params[0].rpcServer;
             rpcTimeout = params[0].rpcTimeout;
         }
-        
+        // Shorthand instancing w/ RPC only
         if (params.length === 1 && typeof params[0] === "string") {
             rpcServer = params[0];
         }
