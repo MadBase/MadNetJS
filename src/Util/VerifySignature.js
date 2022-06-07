@@ -2,7 +2,7 @@ import BNSignerWrapper from '../GoWrappers/BNSignerWrapper.cjs';
 import ethUtil from 'ethereumjs-util';
 import validator from './Validator.js';
 
-export default {
+const VerifySignature =  {
     BNSignerVerify: async (msg, sig) => {
         try {
             if (!msg || !sig) {
@@ -41,7 +41,7 @@ export default {
 
     MultiSigVerifyAggregate: async (msg, sig) => {
         try {
-            return BNSignerVerify(msg, sig);
+            return VerifySignature.BNSignerVerify(msg, sig);
         }
         catch (ex) {
             throw new Error("MultiSigVerifyAggregate:" + String(ex));
@@ -59,3 +59,5 @@ export default {
         }
     }
 };
+
+export default VerifySignature;
