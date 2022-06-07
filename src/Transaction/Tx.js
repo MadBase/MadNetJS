@@ -1,6 +1,6 @@
 import MultiSig from '../Signers/MultiSig.js';
 import utils from '../Util/Tx.js';
-import * as TxHasher from '../GoWrappers/TxHasher.cjs';
+import TxHasher from '../GoWrappers/TxHasher.cjs';
 
 /**
  * Transaction object creation
