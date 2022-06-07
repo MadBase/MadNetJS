@@ -1,4 +1,5 @@
-const BNSignerWrapper = require('../GoWrappers/BNSignerWrapper.js');
+import BNSignerWrapper from '../GoWrappers/BNSignerWrapper.cjs';
+
 /**
  * MultiSig
  * @class MultiSig
@@ -176,4 +177,4 @@ class MultiSig {
         }
     }
 }
-module.exports = MultiSig;
+export default MultiSig;

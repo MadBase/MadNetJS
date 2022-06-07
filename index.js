@@ -7,5 +7,6 @@
  * 
  */
 
-const MadWalletJS = require("./src/Wallet.js");
-module.exports = MadWalletJS;
+import MadWalletJS from './src/Wallet.js';
+
+export default MadWalletJS;

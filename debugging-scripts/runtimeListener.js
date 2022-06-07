@@ -1,5 +1,5 @@
-const EventEmitter = require('events');
-class RuntimeEventEmitter extends EventEmitter { };
+import EventEmitter from 'events';
+class RuntimeEventEmitter extends EventEmitter { }
 /**
  * Pub/Sub Module to listen to values as they happen  in runtime context
  * Can be used to extract values within a specific call context for testing / verifying outside of the runtime context
@@ -17,4 +17,4 @@ class RuntimeListener {
         this.emitter.emit(eventName, eventParam);
     }
 }
-module.exports = new RuntimeListener();
+export default new RuntimeListener();

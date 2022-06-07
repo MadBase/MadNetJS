@@ -1,5 +1,7 @@
-const ethUtil = require('ethereumjs-util');
-const { ecdsaSign, ecdsaRecover } = require('secp256k1');
+import ethUtil from 'ethereumjs-util';
+import pkg from 'secp256k1';
+const { ecdsaSign, ecdsaRecover } = pkg;
+
 /**
  * SECP256k1 signer
  * @class SecpSigner
@@ -140,4 +142,4 @@ class SecpSigner {
     }
 
 }
-module.exports = SecpSigner;
+export default SecpSigner;

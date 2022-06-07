@@ -1,8 +1,8 @@
-const BNSignerWrapper = require('../GoWrappers/BNSignerWrapper.js')
-const ethUtil = require('ethereumjs-util');
-const validator = require('./Validator');
+import BNSignerWrapper from '../GoWrappers/BNSignerWrapper.js';
+import ethUtil from 'ethereumjs-util';
+import validator from './Validator';
 
-module.exports = {
+export default {
     BNSignerVerify: async (msg, sig) => {
         try {
             if (!msg || !sig) {
@@ -41,7 +41,7 @@ module.exports = {
 
     MultiSigVerifyAggregate: async (msg, sig) => {
         try {
-            return module.exports.BNSignerVerify(msg, sig);
+            return BNSignerVerify(msg, sig);
         }
         catch (ex) {
             throw new Error("MultiSigVerifyAggregate:" + String(ex));
@@ -58,4 +58,4 @@ module.exports = {
             throw new Error("MultiSigVerifyAggregateSingle:" + String(ex));
         }
     }
-}
+};

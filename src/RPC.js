@@ -1,8 +1,10 @@
-const { default: Axios } = require('axios');
-const constant = require("./Constants.js");
-const { addTrailingSlash } = require("./Util");
+import { default as Axios } from 'axios';
+import constant from './Constants.js';
+import pkg from 'Util';
+const { addTrailingSlash } = pkg;
+
 // Below import for intellisense and type support on jsdoc
-const Wallet = require('./Wallet.js'); //eslint-disable-line
+import Wallet from './Wallet.js'; //eslint-disable-line
 
 /**
  * RPC request handler
@@ -507,4 +509,4 @@ class RPC {
     }
 }
 
-module.exports = RPC;
+export default RPC;

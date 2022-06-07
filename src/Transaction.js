@@ -1,7 +1,8 @@
-const Tx = require('./Transaction/Tx.js');
-const Constants = require('./Constants.js');
+import Tx from './Transaction/Tx.js';
+import Constants from './Constants.js';
+
 // Below import for intellisense and type support on jsdoc
-const Wallet = require('./Wallet.js'); //eslint-disable-line
+import Wallet from './Wallet.js'; //eslint-disable-line
 
 /**
  * Transaction handler
@@ -655,4 +656,4 @@ class Transaction {
         }
     }
 }
-module.exports = Transaction;
+export default Transaction;

@@ -1,6 +1,7 @@
-const validator = require('./Validator.js')
-const ethUtil = require('ethereumjs-util');
-module.exports = {
+import validator from './Validator.js';
+import ethUtil from 'ethereumjs-util';
+
+export default {
     hash: (msg) => {
         try {
             if(!msg) {
@@ -15,4 +16,4 @@ module.exports = {
             throw new Error("MultiSigner.hash\r\n" + String(ex));
         }
     }
-}
+};

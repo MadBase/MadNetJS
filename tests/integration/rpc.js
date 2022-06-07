@@ -1,9 +1,10 @@
-require('dotenv').config({ path: process.cwd() + '/.env' });
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
+//require('dotenv').config({ path: process.cwd() + '/.env' });
+import 'dotenv/config.js';
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const MadWalletJS = require('../../index.js');
+import MadWalletJS from '../../index.js';
 
 describe('Integration/RPC:', function () {
     let privateKey, secondaryPrivateKey, madWallet; 

@@ -1,5 +1,6 @@
-require('dotenv').config({ path: process.cwd() + '/.env' });
-const MadWalletJS = require("../index.js");
+//require('dotenv').config({ path: process.cwd() + '/.env' });
+import 'dotenv/config.js';
+import MadWalletJS from '../index.js';
 const madWallet = new MadWalletJS(false, process.env.RPC);
 
 async function waitForTx(txHash) {

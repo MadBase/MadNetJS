@@ -7,7 +7,7 @@
  * Try/Catch wrap to console the error during debugging
  * @param { Function } fx - The function to attempt to run
  */
-module.exports.tryIt = async (fx) => {
+export const tryIt = async (fx) => {
     try {
         let fxReturn = fx();
         if (fxReturn instanceof Promise) {
@@ -18,4 +18,4 @@ module.exports.tryIt = async (fx) => {
     } catch (ex) {
         console.error(ex);
     }
-}
+};

@@ -2,7 +2,7 @@
  * Basic utilities for input validation and mutation
  */
 const validHex = /^[0-9a-fA-F]+$/;
-var self = module.exports = {
+var self = {
     isHex: (str) => {
         try {
             if (!str ||
@@ -160,3 +160,4 @@ var self = module.exports = {
         }
     }
 }
+export default self;

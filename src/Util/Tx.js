@@ -1,10 +1,10 @@
-const constant = require("../Constants.js");
-const validator = require("./Validator.js");
+import constant from '../Constants.js';
+import validator from './Validator.js';
 
 /**
  * @typedef TxUtils - Collection of Tx Utilities
  */
-var self = module.exports = {
+var self = {
     /**
      * Extract SVA | Curve | PubHash
      * @param {hex} owner
@@ -146,3 +146,4 @@ var self = module.exports = {
         }
     }
 }
+export default self;

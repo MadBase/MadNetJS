@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     addTrailingSlash: (string) => {
         try {
             return string.replace(/\/$|$/, '/');
@@ -7,4 +7,4 @@ module.exports = {
             throw new Error(`Can't add trailing slash to: ${string}`);
         }
     }
-}
+};

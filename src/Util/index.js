@@ -1,15 +1,16 @@
-const Eth = require('./Eth');
-const Generic = require('./Generic');
-const Hash = require('./Hash');
-const Tx = require('./Tx');
-const Validator = require('./Validator');
-const String = require('./String');
-const VerifySignature = require('./VerifySignature');
-
+/*import Eth from './Eth';
+import Generic from './Generic';
+import Hash from './Hash';
+import Tx from './Tx';
+import Validator from './Validator';
+import String from './String';
+import VerifySignature from './VerifySignature';
+*/
 /**
  * @typedef UtilityCollection - Collection of all utility functions
  */
-module.exports = {
+/*
+export default {
     ...Eth,
     ...Generic,
     ...Hash,
@@ -17,4 +18,13 @@ module.exports = {
     ...Tx,
     ...Validator,
     ...VerifySignature
-}
+};*/
+
+
+export * from './Eth';
+export * from './Generic';
+export * from './Hash';
+export * from './String';
+export * from './Tx';
+export * from './Validator';
+export * from './VerifySignature';

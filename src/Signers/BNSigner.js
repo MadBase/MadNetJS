@@ -1,5 +1,6 @@
-const BNSignerWrapper = require('../GoWrappers/BNSignerWrapper.js')
-const ethUtil = require('ethereumjs-util');
+import ethUtil from 'ethereumjs-util';
+import * as BNSignerWrapper from '../GoWrappers/BNSignerWrapper.cjs';
+
 /**
  * BNSigner
  * @class BNSigner
@@ -128,4 +129,4 @@ class BNSigner {
     }
 
 }
-module.exports = BNSigner;
+export default BNSigner;

@@ -10,7 +10,7 @@ const EpochBlockSize = 1024;
 const EpochBoundary = 960;
 const MaxValue = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 
-module.exports = {
+export default {
     MaxUTXOs,
     ReqTimeout,
     MaxDataStoreSize,
@@ -19,4 +19,4 @@ module.exports = {
     EpochBlockSize,
     EpochBoundary,
     MaxValue
-}
+};

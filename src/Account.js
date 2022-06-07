@@ -1,8 +1,11 @@
-const MultiSig = require("./Signers/MultiSig.js");
-const BNSigner = require("./Signers/BNSigner.js");
-const SecpSigner = require("./Signers/SecpSigner.js");
+
+import * as MultiSig from './Signers/MultiSig.js';
+import * as BNSigner from './Signers/BNSigner.js';
+import * as SecpSigner from './Signers/SecpSigner.js';
+
+
 // Below import for intellisense and type support on jsdoc
-const Wallet = require('./Wallet.js'); //eslint-disable-line
+import Wallet from './Wallet.js'; //eslint-disable-line
 
 /**
  * Account handler
@@ -263,4 +266,4 @@ class Accounts {
     }
 }
 
-module.exports = Accounts;
+export default Accounts;

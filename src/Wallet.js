@@ -1,7 +1,7 @@
-const Account = require("./Account.js")
-const Transaction = require("./Transaction.js")
-const RPC = require("./RPC.js");
-const utils = require("./Util");
+import Account from './Account.js';
+import Transaction from './Transaction.js';
+import RPC from './RPC.js';
+import * as utils from 'Util';
 
 /**
  * Wallet handler
@@ -58,4 +58,4 @@ class Wallet {
         }
     }
 }
-module.exports = Wallet;
+export default Wallet;

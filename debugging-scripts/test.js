@@ -1,8 +1,8 @@
-const madnetjs = require("../index.js");
-const ethersutil = require('ethereumjs-util');
+import madnetjs from '../index.js';
+import ethersutil from 'ethereumjs-util';
 // const runtimeListener = require('./runtimeListener');
-require('dotenv').config({ path: process.cwd() + '/.env' });
-
+//require('dotenv').config({ path: process.cwd() + '/.env' });
+import 'dotenv/config.js';
 /**
  * Used for on the fly debugging of ValueStore ||| DataStores
  */

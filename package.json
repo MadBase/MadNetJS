@@ -2,7 +2,8 @@
   "name": "alicenetjs",
   "version": "1.0.0-rc.1",
   "description": "",
-  "main": "index.js",
+  "exports": "./index.js",
+  "type": "module",
   "scripts": {
     "test": "mocha --recursive tests/**/*.js",
     "test-unit": "mocha --recursive tests/unit",
@@ -31,7 +32,7 @@
     "dotenv": "8.4.0",
     "eslint": "8.8.0",
     "jsdoc": "3.6.6",
-    "mocha": "8.2.1",
+    "mocha": "10.0.0",
     "nyc": "15.1.0"
   }
 }

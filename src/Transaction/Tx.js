@@ -1,6 +1,6 @@
+import MultiSig from '../Signers/MultiSig.js';
+import utils from '../Util/Tx.js';
 const TxHasher = require('../GoWrappers/TxHasher.js');
-const MultiSig = require("../Signers/MultiSig.js")
-const utils = require('../Util/Tx.js');
 
 /**
  * Transaction object creation
@@ -608,4 +608,4 @@ class Tx {
         }
     }
 }
-module.exports = Tx;
+export default Tx;

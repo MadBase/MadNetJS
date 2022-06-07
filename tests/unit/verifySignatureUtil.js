@@ -1,12 +1,13 @@
-require('dotenv').config({ path: process.cwd() + '/.env' });
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
+//require('dotenv').config({ path: process.cwd() + '/.env' });
+import 'dotenv/config.js';
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const MadWalletJS = require('../../index.js');
-const BNSigner = require('../../src/Signers/BNSigner.js');
-const SecpSigner = require('../../src/Signers/SecpSigner.js');
-const VerifySignature = require('../../src/Util/VerifySignature');
+import MadWalletJS from '../../index.js';
+import BNSigner from '../../src/Signers/BNSigner.js';
+import SecpSigner from '../../src/Signers/SecpSigner.js';
+import VerifySignature from '../../src/Util/VerifySignature';
 
 describe('Unit/Util/VerifySignature:', () => {
     let privateKey, msgHex, madWallet, bnSigner, secpSigner;
