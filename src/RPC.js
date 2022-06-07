@@ -1,8 +1,7 @@
 import { default as Axios } from 'axios';
 import constant from './Constants.js';
-import pkg from 'Util';
-const { addTrailingSlash } = pkg;
-
+import StringUtil from './Util/String.js';
+const { addTrailingSlash } = StringUtil;
 // Below import for intellisense and type support on jsdoc
 import Wallet from './Wallet.js'; //eslint-disable-line
 
