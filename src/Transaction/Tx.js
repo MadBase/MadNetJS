@@ -4,12 +4,17 @@ const utils = require('../Util/Tx.js');
 
 /**
  * Transaction object creation
- * @class Tx
+ * @class
+ * @property {Wallet} Wallet - Circular Wallet reference
+ * @property {Array} Vin - Vin
+ * @property {Array} Vout - Vout
+ * @property {number} Fee - Fee
+ * @property {Array} txInOwners - Owners
  */
 class Tx {
     /**
      * Creates an instance of Tx.
-     * @param {Object} Wallet
+     * @param {Object} Wallet - Circular wallet reference to use internally of Account class
      */
     constructor(Wallet) {
         this.Wallet = Wallet;
@@ -23,7 +28,7 @@ class Tx {
 
     /**
      * Get transaction object with Vin and Vout
-     * @return {Object} 
+     * @returns {RpcTxObject} Tx 
      */
     getTx() {
         return {
@@ -37,7 +42,7 @@ class Tx {
 
     /**
      * Import a finalized transaction
-     * @param {Object} Tx
+     * @param {RpcTxObject} tx - The Tx Object from the RPC
      */
     async importTransaction(tx) {
         try {
@@ -53,7 +58,8 @@ class Tx {
 
     /**
      * Import a transaction preSigned
-     * @param {Object} tx 
+     * @param {RpcTxObject} tx - The Tx Object from the RPC 
+     * @throws RPC server must be set to fetch Vin data
      */
     async importRawTransaction(tx) {
         try {
@@ -116,7 +122,7 @@ class Tx {
      * Create TXInLinker
      * @param {hex} consumedTxHash
      * @param {number} consumedTxIdx
-     * @return {Object} 
+     * @returns {Object} TxHash, TXInPreImage
      */
     TxInLinker(consumedTxHash, consumedTxIdx) {
         return {
@@ -132,7 +138,7 @@ class Tx {
      * Create TXInPreimage
      * @param {hex} consumedTxHash
      * @param {number} consumedTxIdx
-     * @return {Object} 
+     * @returns {Object} ChainID, ConsumedTxIdx, ConsumedTxHash
      */
     TxInPreImage(consumedTxHash, consumedTxIdx) {
         return {
@@ -147,7 +153,8 @@ class Tx {
      * @param {number} value
      * @param {number} txOutIdx
      * @param {hex} owner
-     * @param {hex} fee
+     * @param {number} fee
+     * @returns {Object} Vout
      */
     ValueStore(value, txOutIdx, owner, fee) {
         this.Vout.push({
@@ -169,8 +176,8 @@ class Tx {
      * @param {number} value
      * @param {number} txOutIdx
      * @param {hex} owner
-     * @param {hex} fee
-     * @return {Object} 
+     * @param {number} fee
+     * @returns {Object} 
      */
     VSPreImage(value, txOutIdx, owner, fee) {
         return {
@@ -190,7 +197,8 @@ class Tx {
      * @param {hex} rawData
      * @param {number} txOutIdx
      * @param {hex} owner
-     * @param {hex} fee
+     * @param {number} fee
+     * @returns {Object}
      */
     DataStore(index, issuedAt, deposit, rawData, txOutIdx, owner, fee) {
         this.Vout.push({
@@ -218,8 +226,8 @@ class Tx {
      * @param {hex} rawData
      * @param {number} txOutIdx
      * @param {hex} owner
-     * @param {hex} fee
-     * @return {Object} 
+     * @param {number} fee
+     * @returns {Object} 
      */
     DSLinker(index, issuedAt, deposit, rawData, txOutIdx, owner, fee) {
         return {
@@ -244,8 +252,8 @@ class Tx {
      * @param {hex} rawData
      * @param {number} txOutIdx
      * @param {hex} owner
-     * @param {hex} fee
-     * @return {Object} 
+     * @param {number} fee
+     * @returns {Object} 
      */
     DSPreImage(index, issuedAt, deposit, rawData, txOutIdx, owner, fee) {
         return {
@@ -267,8 +275,8 @@ class Tx {
      * @param {number} issuedAt
      * @param {number} exp
      * @param {hex} owner
-     * @param {hex} fee
-     * @return {Object}
+     * @param {number} fee
+     * @returns {Object}
      */
     AtomicSwap(value, txOutIdx, issuedAt, exp, owner, fee) {
         this.Vout.push({
@@ -294,8 +302,8 @@ class Tx {
      * @param {number} issuedAt
      * @param {number} exp
      * @param {hex} owner
-     * @param {hex} fee
-     * @return {Object} 
+     * @param {number} fee
+     * @returns {Object} 
      */
     ASPreImage(value, txOutIdx, issuedAt, exp, owner, fee) {
         return {
@@ -317,10 +325,11 @@ class Tx {
         this.Fee = value;
     }
 
-
     /**
      * Get estimate of fees
-     * @return {Object} Fee Estimates
+     * @throws Cannot estimate fees without RPC
+     * @throws Could not inject get fee for undefined Vout object
+     * @returns {Object} Fee Estimates
      */
     async estimateFees() {
         if (!this.Wallet.Rpc.rpcServer) {
@@ -383,7 +392,7 @@ class Tx {
 
     /**
      * Hash the transaction and return it with the TxHash and signature (unsigned) fields filled 
-     * @returns {Object} Tx
+     * @returns {RpcTxObject} Tx 
      */
     async createRawTx() {
         try {
@@ -444,6 +453,8 @@ class Tx {
 
     /**
      * Sign required messages for signature fields
+     * @throws TxIn owner could not be found
+     * @param {RpcTxObject} Tx - The Tx Object from the RPC
      */
     async _signTx(Tx) {
         try {
@@ -491,12 +502,15 @@ class Tx {
     }
 
     /**
- * Aggreate the signatures from multiple signers and inject them into the transaction
- * [ [txidx_0_signature, txidx_1_signature] signer1 , txidx_0_signature, txidx_1_signature] signer2 ] vinSignatures
- * [ [txidx_0_signature, txidx_1_signature] signer1 , txidx_0_signature, txidx_1_signature] signer2 ] voutSignatures
- * @param {Array} vinSignatures - Array<Array<hex> 
- * @param {Array} voutSignatures - Array<Array<hex>
- */
+     * Aggreate the signatures from multiple signers and inject them into the transaction
+     * [ [txidx_0_signature, txidx_1_signature] signer1 , txidx_0_signature, txidx_1_signature] signer2 ] vinSignatures
+     * [ [txidx_0_signature, txidx_1_signature] signer1 , txidx_0_signature, txidx_1_signature] signer2 ] voutSignatures
+     * @param {Array<hex>} vinSignatures - Array<hex> 
+     * @param {Array<hex>} voutSignatures - Array<hex>
+     * @throws TxIn owner could not be found
+     * @throws Missing signature in Vin
+     * @throws Missing signature in Vout
+     */
     async injectSignaturesAggregate(vinSignatures, voutSignatures) {
         try {
             let Tx = this.getTx()
@@ -561,6 +575,7 @@ class Tx {
      * [ txidx_0_signature, txidx_1_signature] ] voutSignatures 
      * @param {Array<hex>} vinSignatures 
      * @param {Array<hex>} voutSignatures 
+     * @throws TxIn owner could not be found
      */
     async injectSignatures(vinSignatures, voutSignatures) {
         try {

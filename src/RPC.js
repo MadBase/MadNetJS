@@ -6,7 +6,7 @@ const Wallet = require('./Wallet.js'); //eslint-disable-line
 
 /**
  * RPC request handler
- * @class RPC
+ * @class
  * @property {Wallet} Wallet - Circular Wallet reference
  * @property {String|Boolean} rpcServer - (Optional) - RPC Endpoint to use for RPC requests 
  */
@@ -44,7 +44,7 @@ class RPC {
     /**
      * Get block header by height
      * @param {number} height
-     * @return {number}
+     * @returns {number}
      */
     async getBlockHeader(height) {
         height = this.Wallet.Utils.isNumber(height)
@@ -61,7 +61,7 @@ class RPC {
 
     /**
      * Get current block height
-     * @return {number} block height
+     * @returns {number} block height
      */
     async getBlockNumber() {
         try {
@@ -77,7 +77,7 @@ class RPC {
 
     /**
      * Get current chain id
-     * @return {number} chain id
+     * @returns {number} chain id
      */
     async getChainId() {
         try {
@@ -96,7 +96,7 @@ class RPC {
 
     /**
      * Get current epoch
-     * @return {number} epoch
+     * @returns {number} epoch
      */
     async getEpoch() {
         try {
@@ -168,7 +168,7 @@ class RPC {
      * @param {hex} address
      * @param {number} curve
      * @param {number} minValue !optional
-     * @return {Array} - [runningUTXOs, totalValue]
+     * @returns {Array} - [runningUTXOs, totalValue]
      */
     async getValueStoreUTXOIDs(address, curve, minValue = false) {
         try {
@@ -281,7 +281,7 @@ class RPC {
      * Get raw data for a data store
      * @param {hex} address
      * @param {hex} index
-     * @return {hex} raw data
+     * @returns {hex} raw data
      */
     async getData(address, curve, index) {
         try {
@@ -307,7 +307,7 @@ class RPC {
      * @param {hex} address
      * @param {number} curve
      * @param {hex} index
-     * @return {Object} DataStore
+     * @returns {Object} DataStore
      */
     async getDataStoreByIndex(address, curve, index) {
         try {
@@ -327,7 +327,7 @@ class RPC {
     /**
      * Send transaction
      * @param {Object} Tx
-     * @return {hex} transaction hash
+     * @returns {hex} transaction hash
      */
     async sendTransaction(Tx) {
         try {
@@ -344,7 +344,7 @@ class RPC {
     /**
      * Get mined transaction
      * @param {hex} txHash
-     * @return {Object} transaction object
+     * @returns {Object} transaction object
      */
     async getMinedTransaction(txHash) {
         try {
@@ -361,7 +361,7 @@ class RPC {
     /**
      * Get pending transaction
      * @param {hex} txHash
-     * @return {Object} transaction object
+     * @returns {Object} transaction object
      */
     async getPendingTransaction(txHash) {
         try {
@@ -378,7 +378,7 @@ class RPC {
     /**
      * Get block height of a transaction
      * @param {hex} txHash
-     * @return {number} Block height
+     * @returns {number} Block height
      */
     async getTxBlockHeight(txHash) {
         try {
@@ -399,7 +399,7 @@ class RPC {
      * @param {number} startDelay
      * @param {number} currCount
      *
-     * @return {Object} Tx Status
+     * @returns {Object} Tx Status
      */
     async getTxStatus(txHash, countMax = 30, startDelay = 1000, currCount = 1) {
         try {
@@ -437,7 +437,7 @@ class RPC {
      * Send a request to the rpc server
      * @param {string} route
      * @param {Object} data
-     * @return {Object} response
+     * @returns {Object} response
      */
     async request(route, data) {
         try {
