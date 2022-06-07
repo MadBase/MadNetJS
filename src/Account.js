@@ -1,8 +1,7 @@
 
-import * as MultiSig from './Signers/MultiSig.js';
-import * as BNSigner from './Signers/BNSigner.js';
-import * as SecpSigner from './Signers/SecpSigner.js';
-
+import MultiSig from './Signers/MultiSig.js';
+import BNSigner from './Signers/BNSigner.js';
+import SecpSigner from './Signers/SecpSigner.js';
 
 // Below import for intellisense and type support on jsdoc
 import Wallet from './Wallet.js'; //eslint-disable-line

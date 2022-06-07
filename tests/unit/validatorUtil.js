@@ -4,7 +4,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-import Validator from '../../src/Util/Validator';
+import Validator from '../../src/Util/Validator.js';
 
 describe('Unit/Util/Validator:', () => {
     let privateKey, address, validHex;

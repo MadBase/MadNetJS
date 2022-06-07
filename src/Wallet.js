@@ -1,7 +1,7 @@
 import Account from './Account.js';
 import Transaction from './Transaction.js';
 import RPC from './RPC.js';
-import * as utils from 'Util';
+import utils from './Util/index.js';
 
 /**
  * Wallet handler
@@ -20,7 +20,7 @@ class Wallet {
      * @param {string} [rpcServer=false]
      */
     constructor(...params) {
-        const { chainId, rpcServer, rpcTimeout } = this._initializeParams(params)        
+        const { chainId, rpcServer, rpcTimeout } = this._initializeParams(params);
         this.chainId = chainId ? utils.isNumber(chainId) : undefined;
         this.Account = new Account(this)
         this.Transaction = new Transaction(this);

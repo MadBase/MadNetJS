@@ -1,6 +1,6 @@
-import BNSignerWrapper from '../GoWrappers/BNSignerWrapper.js';
+import BNSignerWrapper from '../GoWrappers/BNSignerWrapper.cjs';
 import ethUtil from 'ethereumjs-util';
-import validator from './Validator';
+import validator from './Validator.js';
 
 export default {
     BNSignerVerify: async (msg, sig) => {

@@ -1,5 +1,5 @@
 import ethUtil from 'ethereumjs-util';
-import * as BNSignerWrapper from '../GoWrappers/BNSignerWrapper.cjs';
+import BNSignerWrapper from '../GoWrappers/BNSignerWrapper.cjs';
 
 /**
  * BNSigner

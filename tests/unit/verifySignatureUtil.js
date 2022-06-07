@@ -7,7 +7,7 @@ const expect = chai.expect;
 import MadWalletJS from '../../index.js';
 import BNSigner from '../../src/Signers/BNSigner.js';
 import SecpSigner from '../../src/Signers/SecpSigner.js';
-import VerifySignature from '../../src/Util/VerifySignature';
+import VerifySignature from '../../src/Util/VerifySignature.js';
 
 describe('Unit/Util/VerifySignature:', () => {
     let privateKey, msgHex, madWallet, bnSigner, secpSigner;

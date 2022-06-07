@@ -1,10 +1,10 @@
 //require('dotenv').config({ path: process.cwd() + '/.env' });
-import 'dotenv/config';
+import 'dotenv/config.js';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-import Tx from '../../src/Util/Tx';
+import Tx from '../../src/Util/Tx.js';
 
 const generateHex = size => [...Array(size)].map(
     () => Math.floor(Math.random() * 16).toString(16)
