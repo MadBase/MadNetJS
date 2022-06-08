@@ -1,7 +1,5 @@
 import madnetjs from '../index.js';
 import ethersutil from 'ethereumjs-util';
-// const runtimeListener = require('./runtimeListener');
-//require('dotenv').config({ path: process.cwd() + '/.env' });
 import 'dotenv/config.js';
 /**
  * Used for on the fly debugging of ValueStore ||| DataStores
@@ -54,6 +52,7 @@ async function main() {
         return "0x" + prand;
     }
 
+    /* eslint-disable no-unused-vars */
     async function waitNBlocksFromTxHashInclusion(blocksToWait, txHash, attempt = 0) {
         let txBn = await madWallet.Rpc.request("get-tx-block-number", { TxHash: txHash });
         txBn = txBn.BlockHeight;

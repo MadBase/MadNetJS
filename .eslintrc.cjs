@@ -8,7 +8,8 @@ module.exports = {
     },
     "extends": "eslint:recommended",
     "parserOptions": {
-        "ecmaVersion": "latest"
+        "ecmaVersion": "latest",
+        "sourceType": "module",
     },
     "rules": {
         "no-constant-condition": ["error", { "checkLoops": false }]
