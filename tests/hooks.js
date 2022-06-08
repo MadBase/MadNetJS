@@ -1,7 +1,6 @@
 /**
  * A Root Hook Plugin is loaded via --require which “registers” one or more root hooks to be used across all test files.
  */
-//require('dotenv').config({ path: process.cwd() + '/.env' });
 import 'dotenv/config.js';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';

@@ -1,4 +1,3 @@
-//require('dotenv').config({ path: process.cwd() + '/.env' });
 import 'dotenv/config.js';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
