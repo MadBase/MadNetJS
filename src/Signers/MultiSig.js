@@ -80,7 +80,7 @@ class MultiSig {
      * Sign a message
      * @param {hex} rawMsg
      * @throws Missing input
-     * @returns {hex} signature
+     * @returns {hex} Signed message
      */
     async sign(rawMsg, groupPubKey = false) {
         try {
@@ -102,7 +102,7 @@ class MultiSig {
     /**
      * Sign multiple messages
      * @param {hex} rawMsg
-     * @returns {hex} signature
+     * @returns {hex} Array of signed messages
      */
     async signMulti(rawMsgs, groupPubKey = false) {
         try {
@@ -136,7 +136,7 @@ class MultiSig {
     /**
      * Aggregate multiple signatures
      * @param {Array<hex>} signatures Array<hex>
-     * @returns {Array}
+     * @returns {Array} Array of Signatures
      */
     async aggregateSignaturesMulti(signatures) {
         try {
@@ -156,7 +156,7 @@ class MultiSig {
      * Verify aggregate signature
      * @param {hex} msg 
      * @param {hex} sig 
-     * @returns {hex} 
+     * @returns {hex} Signature
      */
     async verifyAggregate(msg, sig) {
         try {
@@ -172,7 +172,7 @@ class MultiSig {
      * Verify a solo signed aggregated message 
      * @param {hex} msg 
      * @param {hex} sig 
-     * @returns {hex} signature
+     * @returns {hex} Signature
      */
     async verifyAggregateSingle(msg, groupPubKey, sig) {
         try {

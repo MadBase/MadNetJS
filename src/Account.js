@@ -166,7 +166,7 @@ class Account {
      * Get account index in accounts array by address
      * @param {hex} address
      * @throws Could not find account index
-     * @returns {Promise<Number>}
+     * @returns {number}
      */
     async _getAccountIndex(address) {
         try {

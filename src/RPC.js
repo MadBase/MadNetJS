@@ -48,7 +48,7 @@ class RPC {
      * Get block header by height
      * @param {number} height
      * @throws Block header not found
-     * @returns {number}
+     * @returns {number} Block Header
      */
     async getBlockHeader(height) {
         height = this.Wallet.Utils.isNumber(height)
@@ -66,7 +66,7 @@ class RPC {
     /**
      * Get current block height
      * @throws Block height not found
-     * @returns {number} block height
+     * @returns {number} Block Height
      */
     async getBlockNumber() {
         try {
@@ -103,7 +103,7 @@ class RPC {
     /**
      * Get current epoch
      * @throws Epoch not found
-     * @returns {number} epoch
+     * @returns {number} Epoch
      */
     async getEpoch() {
         try {
@@ -324,7 +324,7 @@ class RPC {
      * @param {hex} address
      * @param {number} curve
      * @param {hex} index
-     * @returns {Object} DataStore
+     * @returns {(Object|Boolean)} DataStore or False
      */
     async getDataStoreByIndex(address, curve, index) {
         try {
@@ -363,7 +363,7 @@ class RPC {
      * Get mined transaction
      * @param {hex} txHash
      * @throws Transaction not mined
-     * @returns {Object} transaction object
+     * @returns {RpcTxObject} transaction object
      */
     async getMinedTransaction(txHash) {
         try {
@@ -447,7 +447,7 @@ class RPC {
      * @param {number} [countMax = 30] countMax
      * @param {number} [startDelay = 1000] startDelay
      * @param {number} [currCount = 1] currCount
-     * @returns {(Boolean|Promise<Boolean>)} true
+     * @returns {Boolean} true
      */
     async monitorPending(tx, countMax = 30, startDelay = 1000, currCount = 1) {
         try {
@@ -543,7 +543,7 @@ class RPC {
     /**
      * Waits for duration in miliseconds
      * @param {number} ms
-     * @returns {Promise<number>} ms
+     * @returns {Promise<void>} 
      */
     async sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));

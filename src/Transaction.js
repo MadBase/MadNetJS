@@ -47,7 +47,7 @@ class Transaction {
             txHash: txHash,
             /**
              * @param {Number} maxWait - Max amount of time in ms to wait for a Tx to mine -- Defaults to 2 minutes
-             * @returns {PolledTxObject}
+             * @returns {Promise<PolledTxObject>}
              */
             wait: async (maxWait = 120000) => {
                 try {
@@ -635,7 +635,6 @@ class Transaction {
      * @param {hex} [changeAddress=false]
      * @param {hex} [changeAddressCurve=false]
      * @throws Could not find highest value UTXO
-     * @returns {Promise<boolean>} exit 
      */
     async _spendUTXO(accountUTXO, account, currentValue, changeAddress, changeAddressCurve) {
         try {

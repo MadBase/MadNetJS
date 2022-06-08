@@ -25,7 +25,7 @@ class BNSigner {
      * @param {hex} msg
      * @throws Bad argument type
      * @throws Private key not set
-     * @returns {hex} signature
+     * @returns {hex} Signed message
      */
     async sign(msg) {
         try {
@@ -48,7 +48,7 @@ class BNSigner {
     /**
     * Sign multiple messages
     * @param {Array<hex>} msgs 
-    * @returns {Array<hex>} signatures
+    * @returns {Array<hex>} Array of signed messages
     */
     async signMulti(msgs) {
         try {

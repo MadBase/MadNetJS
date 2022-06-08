@@ -198,7 +198,7 @@ class Tx {
      * @param {number} txOutIdx
      * @param {hex} owner
      * @param {number} fee
-     * @returns {Object}
+     * @returns {Object} Vout
      */
     DataStore(index, issuedAt, deposit, rawData, txOutIdx, owner, fee) {
         this.Vout.push({
@@ -227,7 +227,7 @@ class Tx {
      * @param {number} txOutIdx
      * @param {hex} owner
      * @param {number} fee
-     * @returns {Object} 
+     * @returns {Object} TxHash, DSPreImage
      */
     DSLinker(index, issuedAt, deposit, rawData, txOutIdx, owner, fee) {
         return {
@@ -253,7 +253,7 @@ class Tx {
      * @param {number} txOutIdx
      * @param {hex} owner
      * @param {number} fee
-     * @returns {Object} 
+     * @returns {Object} DSPreImage
      */
     DSPreImage(index, issuedAt, deposit, rawData, txOutIdx, owner, fee) {
         return {
@@ -276,7 +276,7 @@ class Tx {
      * @param {number} exp
      * @param {hex} owner
      * @param {number} fee
-     * @returns {Object}
+     * @returns {Object} Vout
      */
     AtomicSwap(value, txOutIdx, issuedAt, exp, owner, fee) {
         this.Vout.push({
@@ -303,7 +303,7 @@ class Tx {
      * @param {number} exp
      * @param {hex} owner
      * @param {number} fee
-     * @returns {Object} 
+     * @returns {Object} ASPreImage
      */
     ASPreImage(value, txOutIdx, issuedAt, exp, owner, fee) {
         return {

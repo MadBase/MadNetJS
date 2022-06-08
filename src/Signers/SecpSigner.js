@@ -22,7 +22,7 @@ class SecpSigner {
      * @param {hex} msg
      * @throws Bad argument type
      * @throws Private key not set
-     * @returns {hex} signature 
+     * @returns {hex} Signature 
      */
     async sign(msg) {
         try {
@@ -49,7 +49,7 @@ class SecpSigner {
     /**
      * Sign multiple messages
      * @param {hex} msgs 
-     * @returns {Array<hex>} signedMsgs
+     * @returns {Array<hex>} Array of signed messages
      */
     async signMulti(msgs) {
         try {
