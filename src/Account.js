@@ -10,7 +10,7 @@ const Wallet = require('./Wallet.js'); //eslint-disable-line
  * @property {Wallet} Wallet - Circular Wallet reference
  * @property {Array} accounts - A list of associated account objects
  */
-class Accounts {
+class Account {
     /**
      * Creates an instance of Accounts.
      * @param {Wallet} Wallet - Circular wallet reference to use internally of Account class
@@ -267,4 +267,4 @@ class Accounts {
     }
 }
 
-module.exports = Accounts;
+module.exports = Account;

@@ -139,7 +139,6 @@ class MultiSig {
      * @returns {Array}
      */
     async aggregateSignaturesMulti(signatures) {
-        console.log(signatures)
         try {
             let signed = [];
             for (let i = 0; i < signatures.length; i++) {

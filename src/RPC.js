@@ -9,12 +9,14 @@ const Wallet = require('./Wallet.js'); //eslint-disable-line
  * @class
  * @property {Wallet} Wallet - Circular Wallet reference
  * @property {String|Boolean} rpcServer - (Optional) - RPC Endpoint to use for RPC requests 
+ * @property {String|Boolean} rpcTimeout - (Optional) - RPC Endpoint to use for RPC requests 
  */
 class RPC {
     /**
      * Creates an instance of RPC.
      * @param {Wallet} Wallet - Circular wallet reference to use internally of RPC class
      * @param {String|Boolean} [rpcServer=false] - (Optional - Rpc endpoint to use for RPC requests)
+     * @param {number} [rpcTimeout=false] - (Optional - Maximum time to wait for RPC requests)
      */
     constructor(Wallet, rpcServer, rpcTimeout = false) {
         this.Wallet = Wallet;

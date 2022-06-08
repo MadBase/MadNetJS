@@ -16,8 +16,7 @@ const utils = require("./Util");
 class Wallet {
     /**
      * Creates an instance of Wallet.
-     * @param {number} [chainId=1]
-     * @param {string} [rpcServer=false]
+     * @param {WalletParams} params
      */
     constructor(...params) {
         const { chainId, rpcServer, rpcTimeout } = this._initializeParams(params)        
@@ -28,6 +27,11 @@ class Wallet {
         this.Utils = utils;
     }
 
+    /**
+     * Initializes Wallet parameters.
+     * @param {WalletParams} params
+     * @returns {Object<WalletParams>}
+     */
     _initializeParams(params) {
         let chainId, rpcServer, rpcTimeout;
 
