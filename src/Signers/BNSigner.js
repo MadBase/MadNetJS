@@ -11,7 +11,7 @@ class BNSigner {
     /**
      * Creates an instance of BNSigner.
      * @param {Object} Wallet - Circular wallet reference to use internally of Account class
-     * @param {Object} multiSig - Currently unused
+     * @param {Object} multiSig - (Parameter currently unused)
      * @param {hex} privK - Private Key
      */
     constructor(Wallet, privK, multiSig) {
@@ -48,7 +48,7 @@ class BNSigner {
     /**
     * Sign multiple messages
     * @param {Array<hex>} msgs 
-    * @returns {Array<hex>} Array of signed messages
+    * @returns {Array<hex>} Signed messages
     */
     async signMulti(msgs) {
         try {
@@ -68,7 +68,7 @@ class BNSigner {
      * Verify signature
      * @param {hex} msg
      * @param {hex} sig
-     * @returns {hex} public key
+     * @returns {hex} Verified Signature
      */
     async verify(msg, sig) {
         try {
@@ -83,7 +83,7 @@ class BNSigner {
     /**
      * Get public key from the private key
      * @throws Private key not set
-     * @returns {hex} public key 
+     * @returns {hex} Public key 
      */
     async getPubK() {
         try {
@@ -102,7 +102,7 @@ class BNSigner {
      * Get the public key from a signature
      * @param {hex} sig
      * @throws Bad argument type
-     * @returns {hex} public key
+     * @returns {hex} Public key
      */
     async pubFromSig(sig) {
         try {
@@ -121,7 +121,7 @@ class BNSigner {
     /**
     *  Public key to a BN address
     * @param {hex} address 
-    * @returns {hex} address 
+    * @returns {hex} Address 
     */
     async getAddress(pubK) {
         try {

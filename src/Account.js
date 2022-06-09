@@ -25,7 +25,7 @@ class Account {
      * @param {number} curve
      * @param {hex} address
      * @param {hex} signer
-     * @returns {Object} account
+     * @returns {Object} Account Object
      */
     async _buildAccountObject(curve, address, signer) {
         const utxo = { 
@@ -66,7 +66,7 @@ class Account {
      * @param {number} [curve=1]
      * @throws Bad argument
      * @throws Account already added
-     * @returns {Object} account
+     * @returns {Object} Account Object
      */
     async addAccount(privateKey, curve = 1) {
         try {
@@ -103,7 +103,7 @@ class Account {
      * Add multisig account
      * @param {Array<hex>} publicKeys
      * @throws Invalid public key array
-     * @returns {Object} account
+     * @returns {Object} Account Object
      */
     async addMultiSig(publicKeys) {
         try {
@@ -145,7 +145,7 @@ class Account {
      * Get account object by address
      * @param {hex} address
      * @throws Could not find account
-     * @returns {Object}
+     * @returns {Object} Account Object
      */
     async getAccount(address) {
         try {
@@ -166,7 +166,7 @@ class Account {
      * Get account index in accounts array by address
      * @param {hex} address
      * @throws Could not find account index
-     * @returns {number}
+     * @returns {number} Index for the provided address
      */
     async _getAccountIndex(address) {
         try {

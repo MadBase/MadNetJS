@@ -28,7 +28,7 @@ class RPC {
      * Set RPC provider
      * @param {string} rpcServer
      * @throws RPC server not provided
-     * @returns {number} chainId
+     * @returns {number} ChainId
      */
     async setProvider(rpcServer) {
         try {
@@ -139,7 +139,7 @@ class RPC {
      * @param {hex} address
      * @param {Object} UTXOIDs
      * @throws Invalid arguments
-     * @returns {Array<Object>} - [DataStores, ValueStores, AtomicSwaps]
+     * @returns {Array<Object>} Array containing DataStores, ValueStores and AtomicSwaps
      */
     async getUTXOsByIds(UTXOIDs) {
         try {
@@ -179,7 +179,7 @@ class RPC {
      * @param {number} curve
      * @param {number} [minValue=false] minValue !optional
      * @throws Invalid arguments
-     * @returns {Array} - [runningUTXOs, totalValue]
+     * @returns {Array} Array containing runningUTXOs and totalValue
      */
     async getValueStoreUTXOIDs(address, curve, minValue = false) {
         try {
@@ -225,7 +225,7 @@ class RPC {
      * @param {number} limit
      * @param {number} offset
      * @throws Invalid arguments
-     * @returns {Array<DataStoreAndIndexObject>} - Object[] containing UTXOID and Index {@link DataStoreAndIndexObject}
+     * @returns {Array<DataStoreAndIndexObject>} Object[] containing UTXOID and Index {@link DataStoreAndIndexObject}
      */
     async getDataStoreUTXOIDsAndIndices(address, curve, limit, offset) {
         try {
@@ -275,7 +275,7 @@ class RPC {
      * @param {number} curve
      * @param {number} limit
      * @param {number} offset
-     * @returns {Array<DataStoreAndIndexObject>} - Array of Objects containing UTXOID and Index
+     * @returns {Array<DataStoreAndIndexObject>} Array of Objects containing UTXOID and Index
      */
     async getDataStoreUTXOIDs(address, curve, limit, offset) {
         try {
@@ -298,7 +298,7 @@ class RPC {
      * @param {hex} index
      * @throws Invalid arguments
      * @throws Data not found
-     * @returns {hex} raw data
+     * @returns {hex} Raw Data
      */
     async getData(address, curve, index) {
         try {
@@ -320,11 +320,11 @@ class RPC {
     }
 
     /**
-     *
+     * Get Data Store for the provided index
      * @param {hex} address
      * @param {number} curve
      * @param {hex} index
-     * @returns {(Object|Boolean)} DataStore or False
+     * @returns {(Object|Boolean)} Data Store or False
      */
     async getDataStoreByIndex(address, curve, index) {
         try {
@@ -345,7 +345,7 @@ class RPC {
      * Send transaction
      * @param {RpcTxObject} Tx
      * @throws Transaction Error
-     * @returns {hex} transaction hash
+     * @returns {hex} Transaction Hash
      */
     async sendTransaction(Tx) {
         try {
@@ -363,7 +363,7 @@ class RPC {
      * Get mined transaction
      * @param {hex} txHash
      * @throws Transaction not mined
-     * @returns {RpcTxObject} transaction object
+     * @returns {RpcTxObject} Transaction Object
      */
     async getMinedTransaction(txHash) {
         try {
@@ -381,7 +381,7 @@ class RPC {
      * Get pending transaction
      * @param {hex} txHash
      * @throws Transaction not pending
-     * @returns {RpcTxObject} transaction object
+     * @returns {RpcTxObject} Transaction Object
      */
     async getPendingTransaction(txHash) {
         try {
@@ -420,7 +420,7 @@ class RPC {
      * @param {number} [startDelay = 1000] startDelay
      * @param {number} [currCount = 1] currCount
      * @throws Argument txHash cannot be empty
-     * @returns {Object} Tx Status
+     * @returns {Object} Transaction Status
      */
     async getTxStatus(txHash, countMax = 30, startDelay = 1000, currCount = 1) {
         try {
@@ -447,7 +447,7 @@ class RPC {
      * @param {number} [countMax = 30] countMax
      * @param {number} [startDelay = 1000] startDelay
      * @param {number} [currCount = 1] currCount
-     * @returns {Boolean} true
+     * @returns {Boolean} Returns true when a transaction is mined
      */
     async monitorPending(tx, countMax = 30, startDelay = 1000, currCount = 1) {
         try {
@@ -468,7 +468,7 @@ class RPC {
      * @param {Object} data
      * @throws No rpc provider
      * @throws No route provided
-     * @returns {Object} response.data
+     * @returns {Object} Response Data
      */
     async request(route, data) {
         try {
@@ -516,7 +516,7 @@ class RPC {
      * @param {number} attempts
      * @param {number} timeout
      * @param {string} latestErr
-     * @returns {Array<number>} [attempts, timeout] 
+     * @returns {Array<number>} Array containing attempts and timeout 
      */
     async backOffRetry(attempts, timeout, latestErr) {
         try {
@@ -543,7 +543,7 @@ class RPC {
     /**
      * Waits for duration in miliseconds
      * @param {number} ms
-     * @returns {Promise<void>} 
+     * @returns {Promise<void>} A new promise that resolves after the specified miliseconds
      */
     async sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));

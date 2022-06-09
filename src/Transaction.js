@@ -24,11 +24,11 @@ class Transaction {
     }
 
     /**
-     * 
+     * Creates a polled transaction object
      * @param {hex} txHash - TxHash that was polled
      * @param {Boolean} isMined - Was the TxHash found to be mined
      * @param {RpcTxObject} Tx - The Tx Object from the RPC
-     * @returns {PolledTxObject}
+     * @returns {PolledTxObject} Polled Transaction Object
      */
     async PolledTxObject(txHash, isMined, Tx) {
         return {
@@ -39,8 +39,9 @@ class Transaction {
     }
 
     /**
+     * Monitor pending transaction
      * @param {Boolean} txHash - Transaction hash to return a Pending Object of
-     * @returns {PendingTxObject}
+     * @returns {PendingTxObject} Pending transaction object
      */
     async PendingTxObject(txHash) {
         return {
@@ -115,7 +116,7 @@ class Transaction {
      * @throws No Tx fee added
      * @throws No Vouts for transaction
      * @throws No RPC to send transaction
-     * @returns {Promise<PendingTxObject>} Pending Tx Object
+     * @returns {Promise<PendingTxObject>} Pending Transaction Object
      */
     async sendWaitableTx(changeAddress, changeAddressCurve, UTXOIDs = []) {
         try {
@@ -173,7 +174,7 @@ class Transaction {
      * Create a raw Transaction that requires signing
      * @throws No Tx fee added
      * @throws No Vouts for transaction
-     * @returns {RpcTxObject} Tx
+     * @returns {RpcTxObject} Transaction object
      */
     async createRawTransaction() {
         try {
@@ -197,13 +198,13 @@ class Transaction {
      * Create temporary TxIns and run tx.EstimateFees on the expected Tx state
      * TxOuts must already be added for this function call
      * Resets Tx state after running
-     * @param { String} changeAddress - Change address for the Tx
-     * @param { Int } changeAddressCurve - Curve of the change address == 1 (SECP256k1) || 2 (BN)
+     * @param {String} changeAddress - Change address for the Tx
+     * @param {Int} changeAddressCurve - Curve of the change address == 1 (SECP256k1) || 2 (BN)
      * @param {Array<String>} UTXOIDs - Array of UTXO ID strings
-     * @param { Boolean } - returnInsufficientOnGas - Return insufficient amount error in object form for insufficient funds per account, rather than throwing error
+     * @param {Boolean} - returnInsufficientOnGas - Return insufficient amount error in object form for insufficient funds per account, rather than throwing error
      * @throws No Tx fee added to tx
      * @throws No Vouts for fee estimation
-     * @returns { Object } - Fees from Tx.estimateFees()
+     * @returns {Object} Fees from Tx.estimateFees()
      */
     async getTxFeeEstimates(changeAddress, changeAddressCurve, UTXOIDs = [], returnInsufficientOnGas) {
         try {
@@ -287,7 +288,7 @@ class Transaction {
      * @throws Fee too low
      * @throws RPC server must be set to fetch fee
      * @throws Cannot get curve
-     * @returns {Object} ValueStore
+     * @returns {Object} Value Store
      */
     async createValueStore(from, value, to, toCurve, fee) {
         try {
@@ -357,7 +358,7 @@ class Transaction {
      * @throws Index too large
      * @throws Invalid fee
      * @throws RPC server must be set to fetch fee
-     * @returns {Object} DataStore
+     * @returns {Object} Data Store
      */
     async createDataStore(from, index, duration, rawData, issuedAt = false, fee) {
         try {
@@ -462,7 +463,7 @@ class Transaction {
         }
     }
     /**
-     * _reset transaction Objects
+     * Reset transaction Objects
      */
     async _reset() {
         this.Tx = new Tx(this.Wallet)
@@ -509,7 +510,7 @@ class Transaction {
      * @param {Object} [UTXOIDs=false]
      * @param {Boolean} - returnInsufficientOnGas - Return insuffieicent amount errors in object form for insufficient funds per account, rather than throwing error
      * @throws Insufficient funds
-     * @returns {Object} - Returns an array of funding errors if requested as {}.errors or null for successful pass without a throw
+     * @returns {Object} Returns an array of funding errors if requested as {}.errors or null for successful pass without a throw
      */
     async _createTxIns(changeAddress, changeAddressCurve, UTXOIDs = [], returnInsufficientOnGas) {
 

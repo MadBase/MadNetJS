@@ -28,7 +28,7 @@ class Tx {
 
     /**
      * Get transaction object with Vin and Vout
-     * @returns {RpcTxObject} Tx 
+     * @returns {RpcTxObject} Transaction object
      */
     getTx() {
         return {
@@ -122,7 +122,7 @@ class Tx {
      * Create TXInLinker
      * @param {hex} consumedTxHash
      * @param {number} consumedTxIdx
-     * @returns {Object} TxHash, TXInPreImage
+     * @returns {Object} Object containing TxHash and TXInPreImage
      */
     TxInLinker(consumedTxHash, consumedTxIdx) {
         return {
@@ -138,7 +138,7 @@ class Tx {
      * Create TXInPreimage
      * @param {hex} consumedTxHash
      * @param {number} consumedTxIdx
-     * @returns {Object} ChainID, ConsumedTxIdx, ConsumedTxHash
+     * @returns {Object} Object containing ChainID, ConsumedTxIdx and ConsumedTxHash
      */
     TxInPreImage(consumedTxHash, consumedTxIdx) {
         return {
@@ -154,7 +154,7 @@ class Tx {
      * @param {number} txOutIdx
      * @param {hex} owner
      * @param {number} fee
-     * @returns {Object} Vout
+     * @returns {Object} Latest Vout pushed to Vout[]
      */
     ValueStore(value, txOutIdx, owner, fee) {
         this.Vout.push({
@@ -177,7 +177,7 @@ class Tx {
      * @param {number} txOutIdx
      * @param {hex} owner
      * @param {number} fee
-     * @returns {Object} 
+     * @returns {Object} VSPreImage object cotaining ChainID, Value, TXOutIdx, Owner and Fee
      */
     VSPreImage(value, txOutIdx, owner, fee) {
         return {
@@ -198,7 +198,7 @@ class Tx {
      * @param {number} txOutIdx
      * @param {hex} owner
      * @param {number} fee
-     * @returns {Object} Vout
+     * @returns {Object} Latest Vout pushed to Vout[] 
      */
     DataStore(index, issuedAt, deposit, rawData, txOutIdx, owner, fee) {
         this.Vout.push({
@@ -227,7 +227,7 @@ class Tx {
      * @param {number} txOutIdx
      * @param {hex} owner
      * @param {number} fee
-     * @returns {Object} TxHash, DSPreImage
+     * @returns {Object} Object containing TxHash and DSPreImage
      */
     DSLinker(index, issuedAt, deposit, rawData, txOutIdx, owner, fee) {
         return {
@@ -253,7 +253,7 @@ class Tx {
      * @param {number} txOutIdx
      * @param {hex} owner
      * @param {number} fee
-     * @returns {Object} DSPreImage
+     * @returns {Object} DSPreImage Object cotaining ChainID, Index, IssuedAt, Deposit, RawData, TXOutIdx, Owner and Fee
      */
     DSPreImage(index, issuedAt, deposit, rawData, txOutIdx, owner, fee) {
         return {
@@ -276,7 +276,7 @@ class Tx {
      * @param {number} exp
      * @param {hex} owner
      * @param {number} fee
-     * @returns {Object} Vout
+     * @returns {Object} Latest Vout pushed to Vout[]
      */
     AtomicSwap(value, txOutIdx, issuedAt, exp, owner, fee) {
         this.Vout.push({
@@ -303,7 +303,7 @@ class Tx {
      * @param {number} exp
      * @param {hex} owner
      * @param {number} fee
-     * @returns {Object} ASPreImage
+     * @returns {Object} ASPreImage Object cotaining ChainID, Index, TXOutIdx, IssuedAt, Exp, Owner and Fee
      */
     ASPreImage(value, txOutIdx, issuedAt, exp, owner, fee) {
         return {
@@ -392,7 +392,7 @@ class Tx {
 
     /**
      * Hash the transaction and return it with the TxHash and signature (unsigned) fields filled 
-     * @returns {RpcTxObject} Tx 
+     * @returns {RpcTxObject} Transaction Object
      */
     async createRawTx() {
         try {
@@ -408,8 +408,8 @@ class Tx {
     }
 
     /**
-     * return the signature fields of a transaction
-     * @returns {Object} Vin, Vout
+     * Get signature fields of a transaction
+     * @returns {Object} Object containing Vin and Vout
      */
     async getSignatures() {
         try {
@@ -453,8 +453,8 @@ class Tx {
 
     /**
      * Sign required messages for signature fields
-     * @throws TxIn owner could not be found
      * @param {RpcTxObject} Tx - The Tx Object from the RPC
+     * @throws TxIn owner could not be found
      */
     async _signTx(Tx) {
         try {

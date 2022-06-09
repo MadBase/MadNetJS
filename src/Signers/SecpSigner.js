@@ -49,7 +49,7 @@ class SecpSigner {
     /**
      * Sign multiple messages
      * @param {hex} msgs 
-     * @returns {Array<hex>} Array of signed messages
+     * @returns {Array<hex>} Signed messages
      */
     async signMulti(msgs) {
         try {
@@ -111,7 +111,7 @@ class SecpSigner {
     /**
      * Get the public key from the private key
      * @throws Private key not set
-     * @returns {hex} 
+     * @returns {hex} Public Key
      */
     async getPubK() {
         try {
@@ -128,7 +128,7 @@ class SecpSigner {
 
     /**
      * Public key to Ethereum Address
-     * @returns {hex} address
+     * @returns {hex} Address
      */
     async getAddress() {
         try {

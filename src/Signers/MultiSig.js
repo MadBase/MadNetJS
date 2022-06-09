@@ -22,7 +22,7 @@ class MultiSig {
      * Add public keys
      * @param {Array<hex>} publicKeys 
      * @throws Need public keys
-     * @returns {hex} publicKey
+     * @returns {hex} Public Key
      */
     async addPublicKeys(publicKeys) {
         try {
@@ -60,7 +60,7 @@ class MultiSig {
     /**
      * Get the multisig address
      * @throws Need public keys
-     * @returns {hex} address
+     * @returns {hex} Address
      */
     async getAddress() {
         try {
@@ -102,7 +102,7 @@ class MultiSig {
     /**
      * Sign multiple messages
      * @param {hex} rawMsg
-     * @returns {hex} Array of signed messages
+     * @returns {hex} Signed messages
      */
     async signMulti(rawMsgs, groupPubKey = false) {
         try {
@@ -121,7 +121,7 @@ class MultiSig {
     /**
      * Aggregate signatures from multiple parties
      * @param {Array<hex>} signature
-     * @returns {Array<hex>} signature
+     * @returns {Array<hex>} Signature
      */
     async aggregateSignatures(signatures) {
         try {
@@ -136,7 +136,7 @@ class MultiSig {
     /**
      * Aggregate multiple signatures
      * @param {Array<hex>} signatures Array<hex>
-     * @returns {Array} Array of Signatures
+     * @returns {Array} Signatures
      */
     async aggregateSignaturesMulti(signatures) {
         try {
@@ -156,7 +156,7 @@ class MultiSig {
      * Verify aggregate signature
      * @param {hex} msg 
      * @param {hex} sig 
-     * @returns {hex} Signature
+     * @returns {hex} Verified Signature
      */
     async verifyAggregate(msg, sig) {
         try {
@@ -172,7 +172,7 @@ class MultiSig {
      * Verify a solo signed aggregated message 
      * @param {hex} msg 
      * @param {hex} sig 
-     * @returns {hex} Signature
+     * @returns {hex} Verified Signature
      */
     async verifyAggregateSingle(msg, groupPubKey, sig) {
         try {

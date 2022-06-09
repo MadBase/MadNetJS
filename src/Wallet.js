@@ -16,7 +16,7 @@ const utils = require("./Util");
 class Wallet {
     /**
      * Creates an instance of Wallet.
-     * @param {WalletParams} params
+     * @param {WalletParams} params 
      */
     constructor(...params) {
         const { chainId, rpcServer, rpcTimeout } = this._initializeParams(params)        
@@ -29,8 +29,8 @@ class Wallet {
 
     /**
      * Initializes Wallet parameters.
-     * @param {WalletParams} params
-     * @returns {Object<WalletParams>}
+     * @param {WalletParams} params - Accepts a chainId and rpcServer arguments for backwards compatibility, a shorthand instancing w/ RPC endpoint only or object Based configuration
+     * @returns {Object<WalletParams>} Wallet parameters
      */
     _initializeParams(params) {
         let chainId, rpcServer, rpcTimeout;
