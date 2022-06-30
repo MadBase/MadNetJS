@@ -6,10 +6,12 @@ const faucetServer = process.env.FAUCET_API_URL;
 module.exports = {
     requestTestnetFunds: async (address, curve) => {
         try {
-            if (!Validator.isAddress(address) || !Validator.isCurve(curve)) {
+            if (!address || !curve) {
                 throw "Arguments cannot be empty";
             }
-            const res = await Axios.get(faucetServer + "/faucet/" + address);
+            const validAddress = Validator.isAddress(address);
+            const validCurve = Validator.isCurve(curve);
+            const res = await Axios.get(faucetServer + "/faucet/" + validAddress);
             if (res.error) { 
                 throw new Error(res.error); 
             }

@@ -1,6 +1,7 @@
 ## General Settings
 RPC="https://testnet.edge.mnexplore.com/v1/"
 CHAIN_ID=42
+FAUCET_API_URL="https://fund.catmad.duckdns.org"
 ## For test suite and debugging-scripts
 OPTIONAL_TEST_SUITE_PRIVATE_KEY=""
 OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY=""

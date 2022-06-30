@@ -26,13 +26,27 @@ describe('Unit/Util/Faucet:', () => {
         it('Success: Request testnet funds for a Secp address', async () => {
             const curve = 1;
             const funds = await Faucet.requestTestnetFunds(secpAccount.address, curve);
-            expect(funds).to.be.a('number');
+            expect(funds.error).to.be.false;
         });
 
-        it('Fail: Request testnet funds rejects', async () => {
+        it('Fail: Cannnot request funds with a invalid address', async () => {
             const curve = 1;
-            const funds = await Faucet.requestTestnetFunds(secpAccount.address, curve);
-            expect(funds).to.throw;
+            await expect(
+                Faucet.requestTestnetFunds('wrongaddressformat', curve)
+            ).to.eventually.be.rejectedWith('Invalid hex character');
+        });
+
+        it('Fail: Cannnot request funds with a invalid curve', async () => {
+            const curve = 3;
+            await expect(
+                Faucet.requestTestnetFunds(secpAccount.address, curve)
+            ).to.eventually.be.rejectedWith('Invalid curve');
+        });
+
+        it('Fail: Cannot request testnet funds without arguments', async () => {
+            await expect(
+                Faucet.requestTestnetFunds()
+            ).to.eventually.be.rejectedWith('Arguments cannot be empty');
         });
     });
 });
