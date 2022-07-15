@@ -6,19 +6,20 @@ const Wallet = require('./Wallet.js'); //eslint-disable-line
 
 /**
  * RPC request handler
- * @class RPC
+ * @class
  * @property {Wallet} Wallet - Circular Wallet reference
  * @property {String|Boolean} rpcServer - (Optional) - RPC Endpoint to use for RPC requests 
+ * @property {String|Boolean} rpcTimeout - (Optional) - RPC Endpoint to use for RPC requests 
  */
 class RPC {
     /**
      * Creates an instance of RPC.
      * @param {Wallet} Wallet - Circular wallet reference to use internally of RPC class
      * @param {String|Boolean} [rpcServer=false] - (Optional - Rpc endpoint to use for RPC requests)
+     * @param {number} [rpcTimeout=false] - (Optional - Maximum time to wait for RPC requests)
      */
     constructor(Wallet, rpcServer, rpcTimeout = false) {
         this.Wallet = Wallet;
-        this.rpcServer = rpcServer ? rpcServer : false;
         this.rpcServer = rpcServer ? addTrailingSlash(rpcServer) : false;
         this.rpcTimeout = rpcTimeout || constant.ReqTimeout; 
     }
@@ -26,6 +27,8 @@ class RPC {
     /**
      * Set RPC provider
      * @param {string} rpcServer
+     * @throws RPC server not provided
+     * @returns {number} ChainId
      */
     async setProvider(rpcServer) {
         try {
@@ -44,7 +47,8 @@ class RPC {
     /**
      * Get block header by height
      * @param {number} height
-     * @return {number}
+     * @throws Block header not found
+     * @returns {number} Block Header
      */
     async getBlockHeader(height) {
         height = this.Wallet.Utils.isNumber(height)
@@ -61,7 +65,8 @@ class RPC {
 
     /**
      * Get current block height
-     * @return {number} block height
+     * @throws Block height not found
+     * @returns {number} Block Height
      */
     async getBlockNumber() {
         try {
@@ -77,7 +82,8 @@ class RPC {
 
     /**
      * Get current chain id
-     * @return {number} chain id
+     * @throws Chain id not found
+     * @returns {number} ChainId
      */
     async getChainId() {
         try {
@@ -96,7 +102,8 @@ class RPC {
 
     /**
      * Get current epoch
-     * @return {number} epoch
+     * @throws Epoch not found
+     * @returns {number} Epoch
      */
     async getEpoch() {
         try {
@@ -112,6 +119,7 @@ class RPC {
 
     /**
      * Get fees for this epoch
+     * @throws Could not get fees
      * @returns {Object} Fees
      */
     async getFees() {
@@ -130,6 +138,8 @@ class RPC {
      * Get UTXOs for account by array of utxo ids
      * @param {hex} address
      * @param {Object} UTXOIDs
+     * @throws Invalid arguments
+     * @returns {Array<Object>} Array containing DataStores, ValueStores and AtomicSwaps
      */
     async getUTXOsByIds(UTXOIDs) {
         try {
@@ -167,8 +177,9 @@ class RPC {
      * Get account balance
      * @param {hex} address
      * @param {number} curve
-     * @param {number} minValue !optional
-     * @return {Array} - [runningUTXOs, totalValue]
+     * @param {number} [minValue=false] minValue !optional
+     * @throws Invalid arguments
+     * @returns {Array} Array containing runningUTXOs and totalValue
      */
     async getValueStoreUTXOIDs(address, curve, minValue = false) {
         try {
@@ -210,9 +221,11 @@ class RPC {
     /**
      * Get Data Store UTXO IDs and Indices for account
      * @param {hex} address
+     * @param {number} curve
      * @param {number} limit
      * @param {number} offset
-     * @returns {Array<DataStoreAndIndexObject>} - Object[] containing UTXOID and Index {@link DataStoreAndIndexObject}
+     * @throws Invalid arguments
+     * @returns {Array<DataStoreAndIndexObject>} Object[] containing UTXOID and Index {@link DataStoreAndIndexObject}
      */
     async getDataStoreUTXOIDsAndIndices(address, curve, limit, offset) {
         try {
@@ -259,9 +272,10 @@ class RPC {
     /**
      * Get Data Store UTXO IDs for account
      * @param {hex} address
+     * @param {number} curve
      * @param {number} limit
      * @param {number} offset
-     * @returns {Array<DataStoreAndIndexObject>} - Array of Objects containing UTXOID and Index
+     * @returns {Array<DataStoreAndIndexObject>} Array of Objects containing UTXOID and Index
      */
     async getDataStoreUTXOIDs(address, curve, limit, offset) {
         try {
@@ -280,8 +294,11 @@ class RPC {
     /**
      * Get raw data for a data store
      * @param {hex} address
+     * @param {hex} curve
      * @param {hex} index
-     * @return {hex} raw data
+     * @throws Invalid arguments
+     * @throws Data not found
+     * @returns {hex} Raw Data
      */
     async getData(address, curve, index) {
         try {
@@ -303,11 +320,11 @@ class RPC {
     }
 
     /**
-     *
+     * Get Data Store for the provided index
      * @param {hex} address
      * @param {number} curve
      * @param {hex} index
-     * @return {Object} DataStore
+     * @returns {(Object|Boolean)} Data Store or False
      */
     async getDataStoreByIndex(address, curve, index) {
         try {
@@ -326,8 +343,9 @@ class RPC {
 
     /**
      * Send transaction
-     * @param {Object} Tx
-     * @return {hex} transaction hash
+     * @param {RpcTxObject} Tx
+     * @throws Transaction Error
+     * @returns {hex} Transaction Hash
      */
     async sendTransaction(Tx) {
         try {
@@ -344,7 +362,8 @@ class RPC {
     /**
      * Get mined transaction
      * @param {hex} txHash
-     * @return {Object} transaction object
+     * @throws Transaction not mined
+     * @returns {RpcTxObject} Transaction Object
      */
     async getMinedTransaction(txHash) {
         try {
@@ -361,7 +380,8 @@ class RPC {
     /**
      * Get pending transaction
      * @param {hex} txHash
-     * @return {Object} transaction object
+     * @throws Transaction not pending
+     * @returns {RpcTxObject} Transaction Object
      */
     async getPendingTransaction(txHash) {
         try {
@@ -378,7 +398,8 @@ class RPC {
     /**
      * Get block height of a transaction
      * @param {hex} txHash
-     * @return {number} Block height
+     * @throws Block height not found
+     * @returns {number} Block height
      */
     async getTxBlockHeight(txHash) {
         try {
@@ -395,11 +416,11 @@ class RPC {
     /**
      * Poll transaction current status
      * @param {hex} txHash
-     * @param {number} countMax
-     * @param {number} startDelay
-     * @param {number} currCount
-     *
-     * @return {Object} Tx Status
+     * @param {number} [countMax = 30] countMax
+     * @param {number} [startDelay = 1000] startDelay
+     * @param {number} [currCount = 1] currCount
+     * @throws Argument txHash cannot be empty
+     * @returns {Object} Transaction Status
      */
     async getTxStatus(txHash, countMax = 30, startDelay = 1000, currCount = 1) {
         try {
@@ -420,6 +441,14 @@ class RPC {
         }
     }
 
+    /**
+     * Monitor pending transactions
+     * @param {hex} txHash
+     * @param {number} [countMax = 30] countMax
+     * @param {number} [startDelay = 1000] startDelay
+     * @param {number} [currCount = 1] currCount
+     * @returns {Boolean} Returns true when a transaction is mined
+     */
     async monitorPending(tx, countMax = 30, startDelay = 1000, currCount = 1) {
         try {
             await this.getMinedTransaction(tx);
@@ -437,7 +466,9 @@ class RPC {
      * Send a request to the rpc server
      * @param {string} route
      * @param {Object} data
-     * @return {Object} response
+     * @throws No rpc provider
+     * @throws No route provided
+     * @returns {Object} Response Data
      */
     async request(route, data) {
         try {
@@ -480,6 +511,13 @@ class RPC {
         }
     }
 
+    /**
+     * Attempts a request until the timeout is exceeded
+     * @param {number} attempts
+     * @param {number} timeout
+     * @param {string} latestErr
+     * @returns {Array<number>} Array containing attempts and timeout 
+     */
     async backOffRetry(attempts, timeout, latestErr) {
         try {
             if (attempts >= 5) {
@@ -502,6 +540,11 @@ class RPC {
         }
     }
 
+    /**
+     * Waits for duration in miliseconds
+     * @param {number} ms
+     * @returns {Promise<void>} A new promise that resolves after the specified miliseconds
+     */
     async sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
