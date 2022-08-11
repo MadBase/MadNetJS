@@ -57,8 +57,7 @@ describe('Integration/Transaction:', function () {
             expect(currentFees).to.be.an('object').that.has.all.keys(
                 'MinTxFee', 
                 'ValueStoreFee', 
-                'DataStoreFee', 
-                'AtomicSwapFee'
+                'DataStoreFee'
             );
         });
     });

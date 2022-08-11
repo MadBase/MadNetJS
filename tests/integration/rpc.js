@@ -116,8 +116,7 @@ describe('Integration/RPC:', function () {
             expect(fees).to.be.an('object').that.has.all.keys(
                 'MinTxFee', 
                 'ValueStoreFee', 
-                'DataStoreFee', 
-                'AtomicSwapFee'
+                'DataStoreFee'
             );
         });
 

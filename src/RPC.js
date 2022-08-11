@@ -139,7 +139,7 @@ class RPC {
      * @param {hex} address
      * @param {Object} UTXOIDs
      * @throws Invalid arguments
-     * @returns {Array<Object>} Array containing DataStores, ValueStores and AtomicSwaps
+     * @returns {Array<Object>} Array containing DataStores and ValueStores
      */
     async getUTXOsByIds(UTXOIDs) {
         try {
@@ -150,7 +150,6 @@ class RPC {
             let minrequests = Math.ceil(UTXOIDs.length / constant.MaxUTXOs);
             let DataStores = [];
             let ValueStores = [];
-            let AtomicSwaps = [];
             for (let i = 0; i < minrequests; i++) {
                 let reqData = { "UTXOIDs": UTXOIDs.slice((i * constant.MaxUTXOs), ((i + 1) * constant.MaxUTXOs)) }
                 let utxos = await this.request("get-utxo", reqData)
@@ -162,12 +161,10 @@ class RPC {
                         DataStores.push(utxo["DataStore"]);
                     } else if (utxo["ValueStore"]) {
                         ValueStores.push(utxo["ValueStore"]);
-                    } else if (utxo["AtomicSwap"]) {
-                        AtomicSwaps.push(utxo["AtomicSwap"]);
                     }
                 }
             }
-            return [DataStores, ValueStores, AtomicSwaps];
+            return [DataStores, ValueStores];
         } catch (ex) {
             throw new Error("RPC.getUTXOsByIds\r\n" + String(ex));
         }

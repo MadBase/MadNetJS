@@ -269,33 +269,6 @@ class Tx {
     }
 
     /**
-     * Create AtomicSwap
-     * @param {number} value
-     * @param {number} txOutIdx
-     * @param {number} issuedAt
-     * @param {number} exp
-     * @param {hex} owner
-     * @param {number} fee
-     * @returns {Object} Latest Vout pushed to Vout[]
-     */
-    AtomicSwap(value, txOutIdx, issuedAt, exp, owner, fee) {
-        this.Vout.push({
-            "AtomicSwap": {
-                "TxHash": "C0FFEE",
-                "ASPreImage": this.ASPreImage(
-                    value,
-                    txOutIdx,
-                    issuedAt,
-                    exp,
-                    owner,
-                    fee
-                )
-            }
-        })
-        return this.Vout[this.Vout.length - 1];
-    }
-
-    /**
      * Create ASPreImage
      * @param {number} value
      * @param {number} txOutIdx
@@ -362,12 +335,6 @@ class Tx {
                             thisTotal = BigInt(thisTotal) - BigInt(reward);
                         }
                     }
-                    total = BigInt(total) + BigInt(thisTotal)
-                    voutCost.push(thisTotal.toString())
-                    break;
-                }
-                case 'AtomicSwap': {
-                    thisTotal = BigInt("0x" + fees["AtomicSwapFee"]);
                     total = BigInt(total) + BigInt(thisTotal)
                     voutCost.push(thisTotal.toString())
                     break;

@@ -120,24 +120,6 @@ describe('Integration/Transaction/Tx:', () => {
             ).to.eventually.be.rejectedWith('Cannot read properties of undefined (reading \'Vin\')');
         });
 
-        it('Success: Create AtomicSwap', async () => {
-            const atomicSwapResult = {
-                AtomicSwap: {
-                    TxHash: 'C0FFEE',
-                    ASPreImage: {
-                        ChainID: parseInt(process.env.CHAIN_ID),
-                        Exp: 4,
-                        Fee: 6,
-                        IssuedAt: 3,
-                        Owner: 5,
-                        TXOutIdx: 2,
-                        Value: 1
-                    },
-                }
-            };
-            expect(madWallet.Transaction.Tx.AtomicSwap(1, 2, 3, 4, 5, 6)).to.deep.eql(atomicSwapResult);
-        });
-
         it('Success: Calls ASPreImage', async () => {
             const preImageResult = {
                 ChainID: parseInt(process.env.CHAIN_ID),
@@ -159,13 +141,6 @@ describe('Integration/Transaction/Tx:', () => {
     });
 
     describe('Fees Estimate', () => {  
-        it('Success: Get estimate of fees with AtomicSwap', async () => {
-            madWallet.Transaction.Tx.AtomicSwap(1, 1, 1, 1, validHex, validHex);
-            await expect(
-                madWallet.Transaction.Tx.estimateFees()
-            ).to.eventually.be.fulfilled.and.include.all.keys('baseFees', 'totalFees', 'costByVoutIdx');
-        });
-                
         it('Fail: Reject get estimate of fees when RPC Server is invalid', async () => {
             const madWalletWithoutRPC = new MadWalletJS(null, null);
             await expect(

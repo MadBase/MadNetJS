@@ -31,10 +31,8 @@ class Account {
         const utxo = { 
             "DataStores": [], 
             "ValueStores": [], 
-            "AtomicSwaps": [], 
             "ValueStoreIDs": [], 
             "DataStoreIDs": [], 
-            "AtomicSwapIDs": [], 
             "Value": "" 
         };
 
@@ -192,7 +190,7 @@ class Account {
         try {
             address = this.Wallet.Utils.isAddress(address)
             let accountIndex = await this._getAccountIndex(address)
-            this.accounts[accountIndex]["UTXO"] = { "DataStores": [], "ValueStores": [], "AtomicSwaps": [], "ValueStoreIDs": [], "DataStoreIDs": [], "AtomicSwapIDs": [], "Value": "" }
+            this.accounts[accountIndex]["UTXO"] = { "DataStores": [], "ValueStores": [], "ValueStoreIDs": [], "DataStoreIDs": [], "Value": "" }
             let UTXOIDs = [];
             let [valueUTXOIDs, TotalValue] = await this.Wallet.Rpc.getValueStoreUTXOIDs(address, this.accounts[accountIndex]["curve"], minValue)
             this.accounts[accountIndex]["UTXO"]["ValueStoreIDs"] = valueUTXOIDs;
@@ -201,10 +199,9 @@ class Account {
             let dataUTXOIDs = await this.Wallet.Rpc.getDataStoreUTXOIDs(address, this.accounts[accountIndex]["curve"], false, false)
             this.accounts[accountIndex]["UTXO"]["DataStoreIDs"] = dataUTXOIDs;
             UTXOIDs = UTXOIDs.concat(dataUTXOIDs)
-            let [DS, VS, AS] = await this.Wallet.Rpc.getUTXOsByIds(UTXOIDs)
+            let [DS, VS] = await this.Wallet.Rpc.getUTXOsByIds(UTXOIDs)
             this.accounts[accountIndex]["UTXO"]["DataStores"] = DS;
             this.accounts[accountIndex]["UTXO"]["ValueStores"] = VS;
-            this.accounts[accountIndex]["UTXO"]["AtomicSwaps"] = AS;
         }
         catch (ex) {
             throw new Error("Account._getAccountUTXOs\r\n" + String(ex));
@@ -223,16 +220,13 @@ class Account {
             }
             address = this.Wallet.Utils.isAddress(address)
             let accountIndex = await this._getAccountIndex(address)
-            this.accounts[accountIndex]["UTXO"] = { "DataStores": [], "ValueStores": [], "AtomicSwaps": [], "ValueStoreIDs": [], "DataStoreIDs": [], "AtomicSwapIDs": [], "Value": "" }
-            let [DS, VS, AS] = await this.Wallet.Rpc.getUTXOsByIds(utxoIds)
+            this.accounts[accountIndex]["UTXO"] = { "DataStores": [], "ValueStores": [], "ValueStoreIDs": [], "DataStoreIDs": [], "Value": "" }
+            let [DS, VS] = await this.Wallet.Rpc.getUTXOsByIds(utxoIds)
             if (DS.length > 0) {
                 this.accounts[accountIndex]["UTXO"]["DataStores"] = DS;
             }
             if (VS.length > 0) {
                 this.accounts[accountIndex]["UTXO"]["ValueStores"] = VS;
-            }
-            if (AS.length > 0) {
-                this.accounts[accountIndex]["UTXO"]["AtomicSwaps"] = AS;
             }
             let totalValue = BigInt(0);
             for (let i = 0; i < this.accounts[accountIndex]["UTXO"]["ValueStores"].length; i++) {
@@ -254,7 +248,7 @@ class Account {
         try {
             address = this.Wallet.Utils.isAddress(address)
             let accountIndex = await this._getAccountIndex(address)
-            this.accounts[accountIndex]["UTXO"] = { "DataStores": [], "ValueStores": [], "AtomicSwaps": [], "ValueStoreIDs": [], "DataStoreIDs": [], "AtomicSwapIDs": [], "Value": "" }
+            this.accounts[accountIndex]["UTXO"] = { "DataStores": [], "ValueStores": [], "ValueStoreIDs": [], "DataStoreIDs": [], "Value": "" }
             let [valueUTXOIDs, TotalValue] = await this.Wallet.Rpc.getValueStoreUTXOIDs(address, this.accounts[accountIndex]["curve"], minValue)
             this.accounts[accountIndex]["UTXO"]["ValueStoreIDs"] = valueUTXOIDs;
             this.accounts[accountIndex]["UTXO"]["Value"] = BigInt("0x" + TotalValue);
