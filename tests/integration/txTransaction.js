@@ -117,25 +117,7 @@ describe('Integration/Transaction/Tx:', () => {
             const tx = {};
             await expect(
                 madWallet.Transaction.Tx._signTx(tx)
-            ).to.eventually.be.rejectedWith('Cannot read properties of undefined (reading \'Vin\')');
-        });
-
-        it('Success: Create AtomicSwap', async () => {
-            const atomicSwapResult = {
-                AtomicSwap: {
-                    TxHash: 'C0FFEE',
-                    ASPreImage: {
-                        ChainID: parseInt(process.env.CHAIN_ID),
-                        Exp: 4,
-                        Fee: 6,
-                        IssuedAt: 3,
-                        Owner: 5,
-                        TXOutIdx: 2,
-                        Value: 1
-                    },
-                }
-            };
-            expect(madWallet.Transaction.Tx.AtomicSwap(1, 2, 3, 4, 5, 6)).to.deep.eql(atomicSwapResult);
+            ).to.eventually.be.rejectedWith('TypeError: Cannot read property \'Vin\' of undefined');
         });
 
         it('Success: Calls ASPreImage', async () => {
@@ -159,13 +141,6 @@ describe('Integration/Transaction/Tx:', () => {
     });
 
     describe('Fees Estimate', () => {  
-        it('Success: Get estimate of fees with AtomicSwap', async () => {
-            madWallet.Transaction.Tx.AtomicSwap(1, 1, 1, 1, validHex, validHex);
-            await expect(
-                madWallet.Transaction.Tx.estimateFees()
-            ).to.eventually.be.fulfilled.and.include.all.keys('baseFees', 'totalFees', 'costByVoutIdx');
-        });
-                
         it('Fail: Reject get estimate of fees when RPC Server is invalid', async () => {
             const madWalletWithoutRPC = new MadWalletJS(null, null);
             await expect(
@@ -185,7 +160,7 @@ describe('Integration/Transaction/Tx:', () => {
             const tx = {};
             await expect(
                 madWallet.Transaction.Tx.importTransaction(tx)
-            ).to.eventually.be.rejectedWith('Cannot read properties of undefined (reading \'Vin\')');
+            ).to.eventually.be.rejectedWith('TypeError: Cannot read property \'Vin\' of undefined');
         });
 
         it('Success: Import a transaction preSigned', async () => {
