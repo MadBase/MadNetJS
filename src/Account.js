@@ -84,11 +84,11 @@ class Account {
                 signer.multiSig = new MultiSig(this.Wallet, signer);
             }
             let address = await signer.getAddress();
-            for (let i = 0; i < this.accounts.length; i++) {
-                if (this.accounts[i]["address"] === address) {
-                    throw "Account already added"
-                }
-            }
+
+            const existingAccount = this.accounts.find(a => a.address === address);
+            if(existingAccount) 
+                throw "Account already added";
+
             const account = this._buildAccountObject(curve, address, signer);
             return account;
         }
