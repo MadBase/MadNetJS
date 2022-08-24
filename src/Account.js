@@ -147,13 +147,12 @@ class Account {
      */
     async getAccount(address) {
         try {
-            address = this.Wallet.Utils.isAddress(address)
-            for (let i = 0; i < this.accounts.length; i++) {
-                if (this.accounts[i]["address"] === address) {
-                    return this.accounts[i];
-                }
-            }
-            throw "Could not find account";
+            address = this.Wallet.Utils.isAddress(address);
+            const account = this.accounts.find(a => a.address === address);
+            if(account) 
+                return account
+            else 
+                throw "Could not find account";
         }
         catch (ex) {
             throw new Error("Account.getAccount\r\n" + String(ex));
