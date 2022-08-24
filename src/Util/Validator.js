@@ -8,10 +8,10 @@ var self = module.exports = {
             if (!str ||
                 typeof str != "string"    
             ) { 
-                throw "No input provided"
+                throw "No input provided";
              }
             if (str.indexOf("0x") === 0) {
-                str = str.slice(2)
+                str = str.slice(2);
             }
             if (!validHex.test(str)) {
                 throw "Invalid hex character";
@@ -29,12 +29,12 @@ var self = module.exports = {
     isPrivateKey: (str) => {
         try {
             if (!str) { 
-                throw "No input provided"
+                throw "No input provided";
              }
             if (str.length != 64 && str.length != 66) {
                 throw "Invalid length";
             }
-            str = self.isHex(str)
+            str = self.isHex(str);
             if (!str ||
                 str.length != 64
             ) {
@@ -51,7 +51,7 @@ var self = module.exports = {
     isNumber: (num) => {
         try {
             if (!num) { 
-                throw "No input provided"
+                throw "No input provided";
              }
             if (typeof num === "bigint") {
                 num = num.toString();
@@ -87,15 +87,15 @@ var self = module.exports = {
     isAddress: (str) => {
         try {
             if (!str) { 
-                throw "No input provided"
+                throw "No input provided";
             }
-            str = self.isHex(str)
+            str = self.isHex(str);
             if (str.length != 40 && str.length != 42) {
                 throw "Invalid length";
             }
-            str = self.isHex(str)
+            str = self.isHex(str);
             if (str.length != 40) {
-                throw "Invalid length"
+                throw "Invalid length";
             }
             return str.toLowerCase();
         }
