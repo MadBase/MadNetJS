@@ -168,13 +168,12 @@ class Account {
      */
     async _getAccountIndex(address) {
         try {
-            address = this.Wallet.Utils.isAddress(address)
-            for (let i = 0; i < this.accounts.length; i++) {
-                if (this.accounts[i]["address"] === address) {
-                    return i;
-                }
-            }
-            throw "Could not find account index";
+            address = this.Wallet.Utils.isAddress(address);
+            const accountIndex = this.accounts.findIndex(a => a.address === address);
+            if(accountIndex === -1)
+                throw "Could not find account index";
+            else
+                return accountIndex;
         }
         catch (ex) {
             throw new Error("Account._getAccountIndex\r\n" + String(ex));
