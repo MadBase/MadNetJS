@@ -1,4 +1,6 @@
 const BNSignerWrapper = require('../GoWrappers/BNSignerWrapper.js');
+const BNSigner = require("./BNSigner.js");
+
 /**
  * MultiSig
  * @class
@@ -13,6 +15,7 @@ class MultiSig {
      * @param {Object} signer - Signer instance
      */
     constructor(Wallet, bnSigner) {
+        if(!(bnSigner instanceof BNSigner)) throw new Error("bnSigner param must be an instance of BnSigner");
         this.Wallet = Wallet;
         this.bnSigner = bnSigner;
         this.publicKeys = [];
