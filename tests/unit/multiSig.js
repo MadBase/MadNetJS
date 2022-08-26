@@ -55,5 +55,9 @@ describe('Unit/MultiSig:', () => {
             expect(signature).to.be.a('string');
         });
 
+        it('Fail:Verify bnSigner in MultiSIg constructor is an instance of BnSigner', async () => {
+            expect(new MultiSig(madWallet, secpSigner)).to.throw('bnSigner param must be an instance of BnSigner');
+        });
+
     });
 });
