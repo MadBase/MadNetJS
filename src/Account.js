@@ -12,7 +12,7 @@ import Wallet from './Wallet.js'; //eslint-disable-line
  * @property {Wallet} Wallet - Circular Wallet reference
  * @property {Array} accounts - A list of associated account objects
  */
-class Accounts {
+class Account {
     /**
      * Creates an instance of Accounts.
      * @param {Wallet} Wallet - Circular wallet reference to use internally of Account class
@@ -27,17 +27,14 @@ class Accounts {
      * @param {number} curve
      * @param {hex} address
      * @param {hex} signer
-     * 
-     * @return {Object} account
+     * @returns {Object} Account Object
      */
     async _buildAccountObject(curve, address, signer) {
         const utxo = { 
             "DataStores": [], 
             "ValueStores": [], 
-            "AtomicSwaps": [], 
             "ValueStoreIDs": [], 
             "DataStoreIDs": [], 
-            "AtomicSwapIDs": [], 
             "Value": "" 
         };
 
@@ -67,7 +64,9 @@ class Accounts {
      * Add account to accounts array
      * @param {hex} privateKey
      * @param {number} [curve=1]
-     * @return {Object} account
+     * @throws Bad argument
+     * @throws Account already added
+     * @returns {Object} Account Object
      */
     async addAccount(privateKey, curve = 1) {
         try {
@@ -87,11 +86,11 @@ class Accounts {
                 signer.multiSig = new MultiSig(this.Wallet, signer);
             }
             let address = await signer.getAddress();
-            for (let i = 0; i < this.accounts.length; i++) {
-                if (this.accounts[i]["address"] === address) {
-                    throw "Account already added"
-                }
-            }
+
+            const existingAccount = this.accounts.find(a => a.address === address);
+            if(existingAccount) 
+                throw "Account already added";
+
             const account = this._buildAccountObject(curve, address, signer);
             return account;
         }
@@ -103,7 +102,8 @@ class Accounts {
     /**
      * Add multisig account
      * @param {Array<hex>} publicKeys
-     * @return {Object} account
+     * @throws Invalid public key array
+     * @returns {Object} Account Object
      */
     async addMultiSig(publicKeys) {
         try {
@@ -144,17 +144,17 @@ class Accounts {
     /**
      * Get account object by address
      * @param {hex} address
-     * @return {Object}
+     * @throws Could not find account
+     * @returns {Object} Account Object
      */
     async getAccount(address) {
         try {
-            address = this.Wallet.Utils.isAddress(address)
-            for (let i = 0; i < this.accounts.length; i++) {
-                if (this.accounts[i]["address"] === address) {
-                    return this.accounts[i];
-                }
-            }
-            throw "Could not find account";
+            address = this.Wallet.Utils.isAddress(address);
+            const account = this.accounts.find(a => a.address === address);
+            if(account) 
+                return account
+            else 
+                throw "Could not find account";
         }
         catch (ex) {
             throw new Error("Account.getAccount\r\n" + String(ex));
@@ -164,17 +164,17 @@ class Accounts {
     /**
      * Get account index in accounts array by address
      * @param {hex} address
-     * @return {Promise<Number>}
+     * @throws Could not find account index
+     * @returns {number} Index for the provided address
      */
     async _getAccountIndex(address) {
         try {
-            address = this.Wallet.Utils.isAddress(address)
-            for (let i = 0; i < this.accounts.length; i++) {
-                if (this.accounts[i]["address"] === address) {
-                    return i;
-                }
-            }
-            throw "Could not find account index";
+            address = this.Wallet.Utils.isAddress(address);
+            const accountIndex = this.accounts.findIndex(a => a.address === address);
+            if(accountIndex === -1)
+                throw "Could not find account index";
+            else
+                return accountIndex;
         }
         catch (ex) {
             throw new Error("Account._getAccountIndex\r\n" + String(ex));
@@ -190,7 +190,7 @@ class Accounts {
         try {
             address = this.Wallet.Utils.isAddress(address)
             let accountIndex = await this._getAccountIndex(address)
-            this.accounts[accountIndex]["UTXO"] = { "DataStores": [], "ValueStores": [], "AtomicSwaps": [], "ValueStoreIDs": [], "DataStoreIDs": [], "AtomicSwapIDs": [], "Value": "" }
+            this.accounts[accountIndex]["UTXO"] = { "DataStores": [], "ValueStores": [], "ValueStoreIDs": [], "DataStoreIDs": [], "Value": "" }
             let UTXOIDs = [];
             let [valueUTXOIDs, TotalValue] = await this.Wallet.Rpc.getValueStoreUTXOIDs(address, this.accounts[accountIndex]["curve"], minValue)
             this.accounts[accountIndex]["UTXO"]["ValueStoreIDs"] = valueUTXOIDs;
@@ -199,10 +199,9 @@ class Accounts {
             let dataUTXOIDs = await this.Wallet.Rpc.getDataStoreUTXOIDs(address, this.accounts[accountIndex]["curve"], false, false)
             this.accounts[accountIndex]["UTXO"]["DataStoreIDs"] = dataUTXOIDs;
             UTXOIDs = UTXOIDs.concat(dataUTXOIDs)
-            let [DS, VS, AS] = await this.Wallet.Rpc.getUTXOsByIds(UTXOIDs)
+            let [DS, VS] = await this.Wallet.Rpc.getUTXOsByIds(UTXOIDs)
             this.accounts[accountIndex]["UTXO"]["DataStores"] = DS;
             this.accounts[accountIndex]["UTXO"]["ValueStores"] = VS;
-            this.accounts[accountIndex]["UTXO"]["AtomicSwaps"] = AS;
         }
         catch (ex) {
             throw new Error("Account._getAccountUTXOs\r\n" + String(ex));
@@ -221,16 +220,13 @@ class Accounts {
             }
             address = this.Wallet.Utils.isAddress(address)
             let accountIndex = await this._getAccountIndex(address)
-            this.accounts[accountIndex]["UTXO"] = { "DataStores": [], "ValueStores": [], "AtomicSwaps": [], "ValueStoreIDs": [], "DataStoreIDs": [], "AtomicSwapIDs": [], "Value": "" }
-            let [DS, VS, AS] = await this.Wallet.Rpc.getUTXOsByIds(utxoIds)
+            this.accounts[accountIndex]["UTXO"] = { "DataStores": [], "ValueStores": [], "ValueStoreIDs": [], "DataStoreIDs": [], "Value": "" }
+            let [DS, VS] = await this.Wallet.Rpc.getUTXOsByIds(utxoIds)
             if (DS.length > 0) {
                 this.accounts[accountIndex]["UTXO"]["DataStores"] = DS;
             }
             if (VS.length > 0) {
                 this.accounts[accountIndex]["UTXO"]["ValueStores"] = VS;
-            }
-            if (AS.length > 0) {
-                this.accounts[accountIndex]["UTXO"]["AtomicSwaps"] = AS;
             }
             let totalValue = BigInt(0);
             for (let i = 0; i < this.accounts[accountIndex]["UTXO"]["ValueStores"].length; i++) {
@@ -252,7 +248,7 @@ class Accounts {
         try {
             address = this.Wallet.Utils.isAddress(address)
             let accountIndex = await this._getAccountIndex(address)
-            this.accounts[accountIndex]["UTXO"] = { "DataStores": [], "ValueStores": [], "AtomicSwaps": [], "ValueStoreIDs": [], "DataStoreIDs": [], "AtomicSwapIDs": [], "Value": "" }
+            this.accounts[accountIndex]["UTXO"] = { "DataStores": [], "ValueStores": [], "ValueStoreIDs": [], "DataStoreIDs": [], "Value": "" }
             let [valueUTXOIDs, TotalValue] = await this.Wallet.Rpc.getValueStoreUTXOIDs(address, this.accounts[accountIndex]["curve"], minValue)
             this.accounts[accountIndex]["UTXO"]["ValueStoreIDs"] = valueUTXOIDs;
             this.accounts[accountIndex]["UTXO"]["Value"] = BigInt("0x" + TotalValue);
@@ -265,4 +261,4 @@ class Accounts {
     }
 }
 
-export default Accounts;
+export default Account;

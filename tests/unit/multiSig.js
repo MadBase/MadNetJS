@@ -84,7 +84,7 @@ describe('Unit/MultiSig:', () => {
         it('Fail: Reject Sign Multi when called with invalid rawMsgs', async () => {
             await expect(
                 multiSigSecp.signMulti(null)
-            ).to.eventually.be.rejectedWith('Cannot read properties of null (reading \'length\')');
+            ).to.eventually.be.rejectedWith('TypeError: Cannot read property \'length\' of null');
         });
 
         it('Success: Sign one message', async () => {
@@ -108,7 +108,7 @@ describe('Unit/MultiSig:', () => {
         it('Fail: Reject Aggregate Multi Signatures when called with invalid argument', async () => {
             await expect(
                 multiSigSecp.aggregateSignaturesMulti(null)
-            ).to.eventually.be.rejectedWith('Cannot read properties of null (reading \'length\')');
+            ).to.eventually.be.rejectedWith('TypeError: Cannot read property \'length\' of null');
         });
 
         it('Fail: Reject Verify Aggregate when called with invalid argument', async () => {

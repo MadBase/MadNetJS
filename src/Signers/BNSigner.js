@@ -3,12 +3,17 @@ import BNSignerWrapper from '../GoWrappers/BNSignerWrapper.cjs';
 
 /**
  * BNSigner
- * @class BNSigner
+ * @class
+ * @property {Wallet} Wallet - Circular Wallet reference
+ * @property {Array} multiSig - MultiSig instance
+ * @property {hex} privK - Public Key
  */
 class BNSigner {
     /**
      * Creates an instance of BNSigner.
-     * @param {hex} privK
+     * @param {Object} Wallet - Circular wallet reference to use internally of Account class
+     * @param {Object} multiSig - (Parameter currently unused)
+     * @param {hex} privK - Private Key
      */
     constructor(Wallet, privK, multiSig) {
         this.Wallet = Wallet;
@@ -19,7 +24,9 @@ class BNSigner {
     /**
      * Sign a message
      * @param {hex} msg
-     * @return {hex} signature
+     * @throws Bad argument type
+     * @throws Private key not set
+     * @returns {hex} Signed message
      */
     async sign(msg) {
         try {
@@ -40,9 +47,9 @@ class BNSigner {
     }
 
     /**
-    * 
-    * @param {hex} msgs 
-    * @returns { Array }
+    * Sign multiple messages
+    * @param {Array<hex>} msgs 
+    * @returns {Array<hex>} Signed messages
     */
     async signMulti(msgs) {
         try {
@@ -62,7 +69,7 @@ class BNSigner {
      * Verify signature
      * @param {hex} msg
      * @param {hex} sig
-     * @return {hex} public key
+     * @returns {hex} Verified Signature
      */
     async verify(msg, sig) {
         try {
@@ -76,7 +83,8 @@ class BNSigner {
 
     /**
      * Get public key from the private key
-     * @return {hex} public key 
+     * @throws Private key not set
+     * @returns {hex} Public key 
      */
     async getPubK() {
         try {
@@ -94,7 +102,8 @@ class BNSigner {
     /**
      * Get the public key from a signature
      * @param {hex} sig
-     * @return {hex} public key
+     * @throws Bad argument type
+     * @returns {hex} Public key
      */
     async pubFromSig(sig) {
         try {
@@ -112,7 +121,8 @@ class BNSigner {
 
     /**
     *  Public key to a BN address
-    * @return {hex} address 
+    * @param {hex} address 
+    * @returns {hex} Address 
     */
     async getAddress(pubK) {
         try {

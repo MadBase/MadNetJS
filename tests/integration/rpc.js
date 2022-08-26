@@ -113,12 +113,9 @@ describe('Integration/RPC:', function () {
         });
 
         it('Success: Return Fees with the correct keys', async () => {
-            expect(fees).to.be.an('object').that.has.all.keys(
-                'MinTxFee', 
-                'ValueStoreFee', 
-                'DataStoreFee', 
-                'AtomicSwapFee'
-            );
+            expect(fees.hasOwnProperty('MinTxFee')).to.true;
+            expect(fees.hasOwnProperty('ValueStoreFee')).to.true;
+            expect(fees.hasOwnProperty('DataStoreFee')).to.true;
         });
 
         it('Success: Return Fees with the correct length', async () => {

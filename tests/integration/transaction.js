@@ -54,12 +54,9 @@ describe('Integration/Transaction:', function () {
         it('Success: Get the current fees and store them', async () => {
             await madWallet.Transaction._getFees();
             const currentFees = madWallet.Transaction.fees;
-            expect(currentFees).to.be.an('object').that.has.all.keys(
-                'MinTxFee', 
-                'ValueStoreFee', 
-                'DataStoreFee', 
-                'AtomicSwapFee'
-            );
+            expect(currentFees.hasOwnProperty('MinTxFee')).to.true;
+            expect(currentFees.hasOwnProperty('ValueStoreFee')).to.true;
+            expect(currentFees.hasOwnProperty('DataStoreFee')).to.true;
         });
     });
 
@@ -74,20 +71,20 @@ describe('Integration/Transaction:', function () {
         it('Fail: Cannot consume UTXOs when argument accountUTXO is invalid', async () => {
             await expect(
                 madWallet.Transaction._spendUTXO(null)
-            ).to.eventually.be.rejectedWith('Cannot read properties of null (reading \'ValueStores\')');
+            ).to.eventually.be.rejectedWith('TypeError: Cannot read property \'ValueStores\' of null');
         });
     });
     
     describe('Data Store', () => {
          it('Success: Send DataStore with SECP address', async () => {
-            await madWallet.Transaction.createTxFee(secpAccount.address, secpAccount.curve, BigInt('0x' + fees.MinTxFee).toString());
+            await madWallet.Transaction.createTxFee(secpAccount.address, secpAccount.curve, false);
             await madWallet.Transaction.createDataStore(secpAccount.address, '0x02', 1, '0x02');
             await expect(madWallet.Transaction.sendTx()).to.eventually.be.fulfilled;
         });
 
         it('Success: Send DataStore with BN address', async () => {
             await madWallet.Transaction.createDataStore(bnAccount.address, '0x03', 2, '0x02');
-            await madWallet.Transaction.createTxFee(bnAccount.address, bnAccount.curve, BigInt('0x' + fees.MinTxFee).toString());
+            await madWallet.Transaction.createTxFee(bnAccount.address, bnAccount.curve, false);
             await expect(madWallet.Transaction.sendTx()).to.eventually.be.fulfilled;
         });
 
@@ -275,13 +272,13 @@ describe('Integration/Transaction:', function () {
         it('Fail: Reject _createValueTxIn with invalid arguments', async () => {
             await expect(
                 madWallet.Transaction._createValueTxIn('invalidaddress')
-            ).to.eventually.be.rejectedWith('Cannot read properties of undefined (reading \'TxHash\')');
+            ).to.eventually.be.rejectedWith('TypeError: Cannot read property \'TxHash\' of undefined');
         });
 
         it('Fail: Reject _createDataTxIn with invalid arguments', async () => {
             await expect(
                 madWallet.Transaction._createDataTxIn('invalidaddress')
-            ).to.eventually.be.rejectedWith('Cannot read properties of undefined (reading \'DSLinker\')');
+            ).to.eventually.be.rejectedWith('TypeError: Cannot read property \'DSLinker\' of undefined');
         });
     });
 
@@ -350,7 +347,7 @@ describe('Integration/Transaction:', function () {
         });
 
         it('Fail: Insufficient funds', async () => {
-            await madWallet.Transaction.createValueStore(secpAccount.address, 1000000000, bnAccount.address, bnAccount.curve);
+            await madWallet.Transaction.createValueStore(secpAccount.address, 1000000000000000000000000000000, bnAccount.address, bnAccount.curve);
             await expect(madWallet.Transaction.sendTx()).to.eventually.be.rejectedWith('Insufficient funds');
         });
     
@@ -374,14 +371,16 @@ describe('Integration/Transaction:', function () {
         });
 
         it('Success: Send ValueStore with SECP address', async () => {
-            await madWallet.Transaction.createTxFee(secpAccount.address, secpAccount.curve, BigInt('0x' + fees.MinTxFee).toString());
+            console.log(secpAccount.address)
+            console.log(bnAccount.address)
+            await madWallet.Transaction.createTxFee(secpAccount.address, secpAccount.curve, false);
             await madWallet.Transaction.createValueStore(secpAccount.address, 9995, bnAccount.address, bnAccount.curve);
             await expect(madWallet.Transaction.sendTx()).to.eventually.be.fulfilled;
         });
         
         it('Success: Send ValueStore with BN address', async () => {
             await madWallet.Transaction.createValueStore(bnAccount.address, 1, secpAccount.address, secpAccount.curve);
-            await madWallet.Transaction.createTxFee(bnAccount.address, bnAccount.curve, BigInt('0x' + fees.MinTxFee).toString());
+            await madWallet.Transaction.createTxFee(bnAccount.address, bnAccount.curve, false);
             await expect(madWallet.Transaction.sendTx()).to.eventually.be.fulfilled;
         });
     });  
