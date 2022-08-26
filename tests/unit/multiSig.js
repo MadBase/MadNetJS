@@ -55,7 +55,7 @@ describe('Unit/MultiSig:', () => {
             expect(signature).to.be.a('string');
         });
 
-        it('Fail: Verify bnSigner in MultiSig constructor is an instance of BnSigner', async () => {
+        it('Fail: Fail if bnSigner in MultiSig constructor is not an instance of BnSigner', async () => {
             expect(() => new MultiSig(madWallet, secpSigner)).to.throw(Error);
         });
 
