@@ -1,4 +1,4 @@
-const BNSignerWrapper = require('../GoWrappers/BNSignerWrapper.js')
+const BNSignerWrapper = require('../GoWrappers/BNSignerWrapper.js');
 const ethUtil = require('ethereumjs-util');
 const validator = require('./Validator');
 

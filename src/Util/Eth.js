@@ -14,7 +14,7 @@ module.exports = {
             return uint256;
         }
         catch (ex) {
-            throw new Error("hexToUint256Array: " + ex)
+            throw new Error("hexToUint256Array: " + ex);
         }
     },
     removePubFromSig: (sig) => {
@@ -22,7 +22,7 @@ module.exports = {
             return sig.slice(sig.length - 128);
         }
         catch(ex) {
-            throw new Error("removePubFromSig: " + ex)
+            throw new Error("removePubFromSig: " + ex);
         }
     }
 }
