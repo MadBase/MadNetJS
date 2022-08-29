@@ -36,7 +36,7 @@ class RPC {
                 throw "RPC server not provided"
             }
             this.rpcServer = addTrailingSlash(rpcServer);
-            let chainId = await this.getChainId();
+            const chainId = await this.getChainId();
             this.Wallet.chainId = chainId;
             return chainId;
         } catch (ex) {
@@ -53,11 +53,11 @@ class RPC {
     async getBlockHeader(height) {
         height = this.Wallet.Utils.isNumber(height)
         try {
-            let BH = await this.request("get-block-header", { "Height": height });
-            if (!BH["BlockHeader"]) {
-                throw "Block header not found"
+            const BH = await this.request("get-block-header", { "Height": height });
+            if (!BH.BlockHeader) {
+                throw "Block header not found";
             }
-            return BH["BlockHeader"];
+            return BH.BlockHeader;
         } catch (ex) {
             throw new Error("RPC.getBlockHeader\r\n" + String(ex));
         }
@@ -70,11 +70,11 @@ class RPC {
      */
     async getBlockNumber() {
         try {
-            let BN = await this.request("get-block-number")
-            if (!BN["BlockHeight"]) {
-                throw "Block height not found"
+            const BN = await this.request("get-block-number");
+            if (!BN.BlockHeight) {
+                throw "Block height not found";
             }
-            return BN["BlockHeight"]
+            return BN.BlockHeight;
         } catch (ex) {
             throw new Error("RPC.getBlockNumber\r\n" + String(ex));
         }
@@ -92,7 +92,7 @@ class RPC {
                 timeout: this.rpcTimeout
             });
             if (!ChainID) {
-                throw "Chain id not found"
+                throw "Chain id not found";
             }
             return ChainID;
         } catch (ex) {
@@ -107,11 +107,11 @@ class RPC {
      */
     async getEpoch() {
         try {
-            let epoch = await this.request("get-epoch-number")
-            if (!epoch["Epoch"]) {
-                throw "Epoch not found"
+            const epoch = await this.request("get-epoch-number");
+            if (!epoch.Epoch) {
+                throw "Epoch not found";
             }
-            return epoch["Epoch"]
+            return epoch.Epoch;
         } catch (ex) {
             throw new Error("RPC.getEpoch\r\n" + String(ex));
         }
@@ -124,9 +124,9 @@ class RPC {
      */
     async getFees() {
         try {
-            let fees = await this.request("get-fees")
-            if (!fees["MinTxFee"]) {
-                throw "Could not get fees"
+            const fees = await this.request("get-fees");
+            if (!fees.MinTxFee) {
+                throw "Could not get fees";
             }
             return fees;
         } catch (ex) {
@@ -143,24 +143,24 @@ class RPC {
      */
     async getUTXOsByIds(UTXOIDs) {
         try {
-            let isArray = Array.isArray(UTXOIDs)
+            const isArray = Array.isArray(UTXOIDs);
             if (!isArray) {
-                throw "Invalid arguments"
+                throw "Invalid arguments";
             }
-            let minrequests = Math.ceil(UTXOIDs.length / constant.MaxUTXOs);
+            const minrequests = Math.ceil(UTXOIDs.length / constant.MaxUTXOs);
             let DataStores = [];
             let ValueStores = [];
             for (let i = 0; i < minrequests; i++) {
-                let reqData = { "UTXOIDs": UTXOIDs.slice((i * constant.MaxUTXOs), ((i + 1) * constant.MaxUTXOs)) }
-                let utxos = await this.request("get-utxo", reqData)
-                if (!utxos["UTXOs"]) {
-                    utxos["UTXOs"] = []
+                const reqData = { "UTXOIDs": UTXOIDs.slice((i * constant.MaxUTXOs), ((i + 1) * constant.MaxUTXOs)) };
+                let utxos = await this.request("get-utxo", reqData);
+                if (!utxos.UTXOs) {
+                    utxos.UTXOs = [];
                 }
-                for await (let utxo of utxos["UTXOs"]) {
-                    if (utxo["DataStore"]) {
-                        DataStores.push(utxo["DataStore"]);
-                    } else if (utxo["ValueStore"]) {
-                        ValueStores.push(utxo["ValueStore"]);
+                for await (let utxo of utxos.UTXOs) {
+                    if (utxo.DataStore) {
+                        DataStores.push(utxo.DataStore);
+                    } else if (utxo.ValueStore) {
+                        ValueStores.push(utxo.ValueStore);
                     }
                 }
             }
@@ -181,31 +181,31 @@ class RPC {
     async getValueStoreUTXOIDs(address, curve, minValue = false) {
         try {
             if (!address || !curve) {
-                throw "Invalid arguments"
+                throw "Invalid arguments";
             }
-            address = this.Wallet.Utils.isAddress(address)
-            curve = this.Wallet.Utils.isNumber(curve)
+            address = this.Wallet.Utils.isAddress(address);
+            curve = this.Wallet.Utils.isNumber(curve);
             if (!minValue) {
                 minValue = constant.MaxValue;
             } else {
-                minValue = this.Wallet.Utils.numToHex(minValue)
+                minValue = this.Wallet.Utils.numToHex(minValue);
             }
-            let valueForOwner = { "CurveSpec": curve, "Account": address, "Minvalue": minValue, "PaginationToken": "" }
+            const valueForOwner = { "CurveSpec": curve, "Account": address, "Minvalue": minValue, "PaginationToken": "" };
             let runningUtxos = [];
             let runningTotal = BigInt("0");
             while (true) {
-                let value = await this.request("get-value-for-owner", valueForOwner)
-                if (!value["UTXOIDs"] || value["UTXOIDs"].length == 0 || !value["TotalValue"]) {
+                const value = await this.request("get-value-for-owner", valueForOwner);
+                if (!value.UTXOIDs || value.UTXOIDs.length == 0 || !value["TotalValue"]) {
                     break;
                 }
-                runningUtxos = runningUtxos.concat(value["UTXOIDs"]);
-                runningTotal = BigInt(BigInt("0x" + value["TotalValue"]) + BigInt(runningTotal));
-                if (!value["PaginationToken"]) {
+                runningUtxos = runningUtxos.concat(value.UTXOIDs);
+                runningTotal = BigInt(BigInt("0x" + value.TotalValue) + BigInt(runningTotal));
+                if (!value.PaginationToken) {
                     break;
                 }
-                valueForOwner["PaginationToken"] = value["PaginationToken"];
+                valueForOwner.PaginationToken = value.PaginationToken;
             }
-            runningTotal = runningTotal.toString(16)
+            runningTotal = runningTotal.toString(16);
             if (runningTotal.length % 2) {
                 runningTotal = '0' + runningTotal;
             }
@@ -227,10 +227,10 @@ class RPC {
     async getDataStoreUTXOIDsAndIndices(address, curve, limit, offset) {
         try {
             if (!address || !curve) {
-                throw "Invalid arguments"
+                throw "Invalid arguments";
             }
-            address = this.Wallet.Utils.isAddress(address)
-            curve = this.Wallet.Utils.isNumber(curve)
+            address = this.Wallet.Utils.isAddress(address);
+            curve = this.Wallet.Utils.isNumber(curve);
             let getAll = false;
             if (!limit || limit > constant.MaxUTXOs) {
                 if (!limit) {
@@ -243,20 +243,20 @@ class RPC {
             if (!offset) {
                 offset = "";
             } else {
-                offset = this.Wallet.Utils.isHex(offset)
+                offset = this.Wallet.Utils.isHex(offset);
             }
             let DataStoreUTXOResults = [];
             while (true) {
                 let reqData = { "CurveSpec": curve, "Account": address, "Number": limit, "StartIndex": offset }
                 let dataStoreIDs = await this.request("iterate-name-space", reqData);
-                if (!dataStoreIDs["Results"].length) {
+                if (!dataStoreIDs.Results.length) {
                     break
                 }
-                DataStoreUTXOResults = DataStoreUTXOResults.concat(dataStoreIDs["Results"]);
-                if (dataStoreIDs["Results"].length <= limit && !getAll) {
+                DataStoreUTXOResults = DataStoreUTXOResults.concat(dataStoreIDs.Results);
+                if (dataStoreIDs.Results.length <= limit && !getAll) {
                     break;
                 }
-                offset = dataStoreIDs["Results"][dataStoreIDs["Results"].length - 1]["Index"];
+                offset = dataStoreIDs.Results[dataStoreIDs.Results.length - 1].Index;
             }
             /** @type { DataStoreAndIndexObject } */
             return DataStoreUTXOResults;
@@ -276,11 +276,11 @@ class RPC {
      */
     async getDataStoreUTXOIDs(address, curve, limit, offset) {
         try {
-            let dsAndIndices = await this.getDataStoreUTXOIDsAndIndices(address, curve, limit, offset);
+            const dsAndIndices = await this.getDataStoreUTXOIDsAndIndices(address, curve, limit, offset);
             let DataStoreUTXOIDs = [];
             // Filter out the datastore UTXOIDs, don't return indices that are in the results objects
             dsAndIndices.forEach(dsAndIdx => {
-                DataStoreUTXOIDs.push(dsAndIdx["UTXOID"]);
+                DataStoreUTXOIDs.push(dsAndIdx.UTXOID);
             })
             return DataStoreUTXOIDs;
         } catch (ex) {
@@ -299,18 +299,18 @@ class RPC {
      */
     async getData(address, curve, index) {
         try {
-            address = this.Wallet.Utils.isAddress(address)
+            address = this.Wallet.Utils.isAddress(address);
             curve = this.Wallet.Utils.isNumber(curve);
             index = this.Wallet.Utils.isHex(index);
             if (!address || !index || !curve) {
-                throw "Invalid arguments"
+                throw "Invalid arguments";
             }
-            let reqData = { "Account": address, "CurveSpec": curve, "Index": index }
-            let dataStoreData = await this.request("get-data", reqData);
-            if (!dataStoreData["Rawdata"]) {
-                throw "Data not found"
+            const reqData = { "Account": address, "CurveSpec": curve, "Index": index };
+            const dataStoreData = await this.request("get-data", reqData);
+            if (!dataStoreData.Rawdata) {
+                throw "Data not found";
             }
-            return dataStoreData["Rawdata"];
+            return dataStoreData.Rawdata;
         } catch (ex) {
             throw new Error("RPC.getData\r\n" + String(ex));
         }
@@ -325,9 +325,9 @@ class RPC {
      */
     async getDataStoreByIndex(address, curve, index) {
         try {
-            let dsUTXOIDS = await this.getDataStoreUTXOIDs(address, curve, 1, index);
+            const dsUTXOIDS = await this.getDataStoreUTXOIDs(address, curve, 1, index);
             if (dsUTXOIDS.length > 0) {
-                let [DS] = await this.getUTXOsByIds(dsUTXOIDS);
+                const [DS] = await this.getUTXOsByIds(dsUTXOIDS);
                 if (DS.length > 0) {
                     return DS[0];
                 }
@@ -346,11 +346,11 @@ class RPC {
      */
     async sendTransaction(Tx) {
         try {
-            let sendTx = await this.request("send-transaction", Tx);
-            if (!sendTx["TxHash"]) {
-                throw "Transaction Error"
+            const sendTx = await this.request("send-transaction", Tx);
+            if (!sendTx.TxHash) {
+                throw "Transaction Error";
             }
-            return sendTx["TxHash"];
+            return sendTx.TxHash;
         } catch (ex) {
             throw new Error("RPC.sendTransaction\r\n" + String(ex));
         }
@@ -364,9 +364,9 @@ class RPC {
      */
     async getMinedTransaction(txHash) {
         try {
-            let getMined = await this.request("get-mined-transaction", { "TxHash": txHash });
-            if (!getMined["Tx"]) {
-                throw "Transaction not mined"
+            const getMined = await this.request("get-mined-transaction", { "TxHash": txHash });
+            if (!getMined.Tx) {
+                throw "Transaction not mined";
             }
             return getMined;
         } catch (ex) {
@@ -382,11 +382,11 @@ class RPC {
      */
     async getPendingTransaction(txHash) {
         try {
-            let getPending = await this.request("get-pending-transaction", { "TxHash": txHash });
-            if (!getPending["Tx"]) {
-                throw "Transaction not pending"
+            const getPending = await this.request("get-pending-transaction", { "TxHash": txHash });
+            if (!getPending.Tx) {
+                throw "Transaction not pending";
             }
-            return getPending["Tx"];
+            return getPending.Tx;
         } catch (ex) {
             throw new Error("RPC.getPendingTransaction\r\n" + String(ex));
         }
@@ -400,11 +400,11 @@ class RPC {
      */
     async getTxBlockHeight(txHash) {
         try {
-            let txHeight = await this.request('get-tx-block-number', { "TxHash": txHash });
-            if (!txHeight["BlockHeight"]) {
-                throw "Block height not found"
+            const txHeight = await this.request('get-tx-block-number', { "TxHash": txHash });
+            if (!txHeight.BlockHeight) {
+                throw "Block height not found";
             }
-            return txHeight['BlockHeight'];
+            return txHeight.BlockHeight;
         } catch (ex) {
             throw new Error("RPC.getTxBlockHeight\r\n" + String(ex));
         }
@@ -473,7 +473,7 @@ class RPC {
                 await this.setProvider(this.rpcServer);
             }
             if (!this.rpcServer) {
-                throw "No rpc provider"
+                throw "No rpc provider";
             }
             if (!route) {
                 throw "No route provided";
@@ -495,12 +495,12 @@ class RPC {
                     [attempts, timeout] = await this.backOffRetry(attempts, timeout, String(ex));
                     continue;
                 }
-                if (!resp || !resp.data || resp.data["error"] || resp.data["code"]) {
-                    let parsedErr = resp.data ? (resp.data["error"] || resp.data["message"]) : "Unable to parse RPC Error Msg";
+                if (!resp || !resp.data || resp.data.error || resp.data.code) {
+                    let parsedErr = resp.data ? (resp.data.error || resp.data.message) : "Unable to parse RPC Error Msg";
                     [attempts, timeout] = await this.backOffRetry(attempts, timeout, parsedErr);
                     continue;
                 }
-                break
+                break;
             }
             return resp.data;
         } catch (ex) {
@@ -521,16 +521,16 @@ class RPC {
                 throw new Error("RPC.backOffRetry\r\nRPC request attempt limit reached\r\nLatest error: " + latestErr);
             }
             if (!attempts) {
-                attempts = 1
+                attempts = 1;
             } else {
-                attempts++
+                attempts++;
             }
             if (!timeout) {
                 timeout = 1000;
             } else {
                 timeout = Math.floor(timeout * 1.25);
             }
-            await this.sleep(timeout)
+            await this.sleep(timeout);
             return [attempts, timeout];
         } catch (ex) {
             throw new Error("RPC.request\r\n" + String(ex));
