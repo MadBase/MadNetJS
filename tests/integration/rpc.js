@@ -88,7 +88,7 @@ describe('Integration/RPC:', function () {
             ).to.eventually.be.rejectedWith('invalid value for uint32');
         });
 
-        it('Success: Get TX BlockHeihgt with valid argument', async () => {
+        it('Success: Get TX BlockHeight with valid argument', async () => {
             await expect(madWallet.Rpc.getTxBlockHeight(validTxHash)).to.eventually.be.fulfilled;
         });
 
