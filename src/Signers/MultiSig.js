@@ -15,7 +15,6 @@ class MultiSig {
      * @param {Object} signer - Signer instance
      */
     constructor(Wallet, bnSigner) {
-        
         if(bnSigner && !(bnSigner instanceof BNSigner)){
             throw new Error('bnSigner param must be an instance of BnSigner');
         } 

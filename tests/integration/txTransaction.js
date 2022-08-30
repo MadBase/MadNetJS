@@ -64,8 +64,7 @@ describe('Integration/Transaction/Tx:', () => {
         it('Fail: Reject to Inject Signatures Aggregate when voutSignatures is invalid', async () => {
             await madWalletThree.Transaction.Tx.DataStore(validHex, 1, 1, validHex, 1, secpAccountThree.address, 5); 
             await expect(
-                madWalletThree.Transaction.Tx.injectSignaturesAggregate([validHex], [null])
-                ).to.eventually.be.rejectedWith('Missing signature in Vout');
+                madWalletThree.Transaction.Tx.injectSignaturesAggregate([validHex], [null])).to.eventually.be.rejectedWith('Missing signature in Vout');
         });
 
         it('Fail: Reject to Inject Signatures Aggregate when Hex length is invalid', async () => {
