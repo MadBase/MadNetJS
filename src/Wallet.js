@@ -1,5 +1,5 @@
-const Account = require("./Account.js")
-const Transaction = require("./Transaction.js")
+const Account = require("./Account.js");
+const Transaction = require("./Transaction.js");
 const RPC = require("./RPC.js");
 const utils = require("./Util");
 
@@ -16,18 +16,22 @@ const utils = require("./Util");
 class Wallet {
     /**
      * Creates an instance of Wallet.
-     * @param {number} [chainId=1]
-     * @param {string} [rpcServer=false]
+     * @param {WalletParams} params 
      */
     constructor(...params) {
         const { chainId, rpcServer, rpcTimeout } = this._initializeParams(params)        
         this.chainId = chainId ? utils.isNumber(chainId) : undefined;
-        this.Account = new Account(this)
+        this.Account = new Account(this);
         this.Transaction = new Transaction(this);
         this.Rpc = new RPC(this, rpcServer, rpcTimeout);
         this.Utils = utils;
     }
 
+    /**
+     * Initializes Wallet parameters.
+     * @param {WalletParams} params - Accepts a chainId and rpcServer arguments for backwards compatibility, a shorthand instancing w/ RPC endpoint only or object Based configuration
+     * @returns {Object<WalletParams>} Wallet parameters
+     */
     _initializeParams(params) {
         let chainId, rpcServer, rpcTimeout;
 

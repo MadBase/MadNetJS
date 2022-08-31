@@ -1,23 +1,31 @@
 const BNSignerWrapper = require('../GoWrappers/BNSignerWrapper.js');
+const BNSigner = require("./BNSigner.js");
+
 /**
  * MultiSig
- * @class MultiSig
+ * @class
+ * @property {Wallet} Wallet - Circular Wallet reference
+ * @property {Object} bnSigner - Signer
+ * @property {Array} publicKeys - Public Keys
  */
 class MultiSig {
     /**
      * Creates an instance of MultiSig.
-     * @param {Object} MultiSig class
+     * @param {Object} Wallet - Circular wallet reference to use internally of Account class 
+     * @param {Object} signer - Signer instance
      */
     constructor(Wallet, bnSigner) {
+        if(!(bnSigner instanceof BNSigner)) throw new Error("bnSigner param must be an instance of BnSigner");
         this.Wallet = Wallet;
         this.bnSigner = bnSigner;
         this.publicKeys = [];
     }
 
     /**
-     * 
+     * Add public keys
      * @param {Array<hex>} publicKeys 
-     * @returns publicKey
+     * @throws Need public keys
+     * @returns {hex} Public Key
      */
     async addPublicKeys(publicKeys) {
         try {
@@ -36,7 +44,8 @@ class MultiSig {
 
     /**
      * Get the multsig public key
-     * @returns Public Key
+     * @throws Need public keys
+     * @returns {hex} Public Key
      */
     async getPubK() {
         try {
@@ -52,8 +61,9 @@ class MultiSig {
     }
 
     /**
-     * get the multisig address
-     * @returns address
+     * Get the multisig address
+     * @throws Need public keys
+     * @returns {hex} Address
      */
     async getAddress() {
         try {
@@ -72,7 +82,8 @@ class MultiSig {
     /**
      * Sign a message
      * @param {hex} rawMsg
-     * @return {hex} signature
+     * @throws Missing input
+     * @returns {hex} Signed message
      */
     async sign(rawMsg, groupPubKey = false) {
         try {
@@ -92,10 +103,10 @@ class MultiSig {
     }
 
     /**
- * Sign a message
- * @param {hex} rawMsg
- * @return {hex} signature
- */
+     * Sign multiple messages
+     * @param {hex} rawMsg
+     * @returns {hex} Signed messages
+     */
     async signMulti(rawMsgs, groupPubKey = false) {
         try {
             let signedMsgs = [];
@@ -113,7 +124,7 @@ class MultiSig {
     /**
      * Aggregate signatures from multiple parties
      * @param {Array<hex>} signature
-     * @returns { Array<hex> } signature
+     * @returns {Array<hex>} Signature
      */
     async aggregateSignatures(signatures) {
         try {
@@ -127,8 +138,8 @@ class MultiSig {
 
     /**
      * Aggregate multiple signatures
-     * @param {Array<Array<hex>>} signatures Array<Array<hex>>
-     * @returns {Array}
+     * @param {Array<hex>} signatures Array<hex>
+     * @returns {Array} Signatures
      */
     async aggregateSignaturesMulti(signatures) {
         try {
@@ -148,7 +159,7 @@ class MultiSig {
      * Verify aggregate signature
      * @param {hex} msg 
      * @param {hex} sig 
-     * @returns {hex} 
+     * @returns {hex} Verified Signature
      */
     async verifyAggregate(msg, sig) {
         try {
@@ -161,10 +172,10 @@ class MultiSig {
     }
 
     /**
-     * Verify an solo signed aggregated message 
+     * Verify a solo signed aggregated message 
      * @param {hex} msg 
      * @param {hex} sig 
-     * @returns {hex} signature
+     * @returns {hex} Verified Signature
      */
     async verifyAggregateSingle(msg, groupPubKey, sig) {
         try {

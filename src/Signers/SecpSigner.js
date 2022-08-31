@@ -2,12 +2,15 @@ const ethUtil = require('ethereumjs-util');
 const { ecdsaSign, ecdsaRecover } = require('secp256k1');
 /**
  * SECP256k1 signer
- * @class SecpSigner
+ * @class
+ * @property {Wallet} Wallet - Circular Wallet reference
+ * @property {hex} privK - Private Key
  */
 class SecpSigner {
     /**
      * Creates an instance of SecpSigner.
-     * @param {hex} privK
+     * @param {Object} Wallet - Circular wallet reference to use internally of Account class 
+     * @param {hex} privK - Private Key
      */
     constructor(Wallet, privK) {
         this.Wallet = Wallet;
@@ -17,7 +20,9 @@ class SecpSigner {
     /**
      * Sign a message
      * @param {hex} msg
-     * @return {hex} signature 
+     * @throws Bad argument type
+     * @throws Private key not set
+     * @returns {hex} Signature 
      */
     async sign(msg) {
         try {
@@ -42,9 +47,9 @@ class SecpSigner {
     }
 
     /**
-     * 
+     * Sign multiple messages
      * @param {hex} msgs 
-     * @returns {Array.hex} signedMsgs
+     * @returns {Array<hex>} Signed messages
      */
     async signMulti(msgs) {
         try {
@@ -61,11 +66,12 @@ class SecpSigner {
     }
 
     /**
-     *
      * Verify a signature
      * @param {hex} msg
      * @param {hex} sig
-     * @return {hex} Recovered Public Key 
+     * @throws Bad argument type
+     * @throws Public Keys don't match
+     * @returns {hex} Recovered Public Key 
      */
     async verify(msg, sig) {
         try {
@@ -104,7 +110,8 @@ class SecpSigner {
 
     /**
      * Get the public key from the private key
-     * @return {hex} 
+     * @throws Private key not set
+     * @returns {hex} Public Key
      */
     async getPubK() {
         try {
@@ -121,8 +128,7 @@ class SecpSigner {
 
     /**
      * Public key to Ethereum Address
-     * @param {hex} pubK
-     * @return {hex} address
+     * @returns {hex} Address
      */
     async getAddress() {
         try {
