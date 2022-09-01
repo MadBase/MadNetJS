@@ -45,11 +45,11 @@ class Account {
             "getAccountUTXOsByIds": async (utxoIds) => this._getAccountUTXOsByIds(address, utxoIds), 
             "getAccountValueStores": async (minValue) => this._getAccountValueStores(address, minValue), 
             "getAccountDataStores": async (minValue) => {
-                let dataStoreUTXOs = await this.Wallet.Rpc.getDataStoreUTXOIDsAndIndices(address, curve, minValue, false);
+                const dataStoreUTXOs = await this.Wallet.Rpc.getDataStoreUTXOIDsAndIndices(address, curve, minValue, false);
                 return dataStoreUTXOs;
             },
             "getAccountBalance": async () => {
-                let [,balance] = await this.Wallet.Rpc.getValueStoreUTXOIDs(address, curve, false);
+                const [,balance] = await this.Wallet.Rpc.getValueStoreUTXOIDs(address, curve, false);
                 return balance;
             }
         };
@@ -68,27 +68,27 @@ class Account {
      */
     async addAccount(privateKey, curve = 1) {
         try {
-            privateKey = this.Wallet.Utils.isPrivateKey(privateKey)
-            curve = this.Wallet.Utils.isCurve(curve)
+            privateKey = this.Wallet.Utils.isPrivateKey(privateKey);
+            curve = this.Wallet.Utils.isCurve(curve);
 
             if (!privateKey || !curve) {
-                throw "Bad argument"
+                throw "Bad argument";
             }
 
             let signer;
             if (curve === 1) {
-                signer = new SecpSigner(this.Wallet, privateKey)
+                signer = new SecpSigner(this.Wallet, privateKey);
             }
             else {
-                signer = new BNSigner(this.Wallet, privateKey)
+                signer = new BNSigner(this.Wallet, privateKey);
                 signer.multiSig = new MultiSig(this.Wallet, signer);
             }
-            let address = await signer.getAddress();
+            const address = await signer.getAddress();
 
             const existingAccount = this.accounts.find(a => a.address === address);
-            if(existingAccount) 
+            if(existingAccount) {
                 throw "Account already added";
-
+            }
             const account = this._buildAccountObject(curve, address, signer);
             return account;
         }
@@ -106,17 +106,17 @@ class Account {
     async addMultiSig(publicKeys) {
         try {
             if (!publicKeys || !Array.isArray(publicKeys) || publicKeys.length <= 0) {
-                throw "Invalid public key array"
+                throw "Invalid public key array";
             }
-            let pubs = []
+            let pubs = [];
             for (let i = 0; i < publicKeys.length; i++) {
                 let pCheck = this.Wallet.Utils.isHex(publicKeys[i]);
                 pubs.push(pCheck);
             }
-            let bnSigner = new BNSigner(this.Wallet)
-            let signer = new MultiSig(this.Wallet, bnSigner);
-            let multiPub = await signer.addPublicKeys(publicKeys);
-            let multiAddr = await signer.getAddress(multiPub);
+            const bnSigner = new BNSigner(this.Wallet);
+            const signer = new MultiSig(this.Wallet, bnSigner);
+            const multiPub = await signer.addPublicKeys(publicKeys);
+            const multiAddr = await signer.getAddress(multiPub);
             const account = this._buildAccountObject(2, multiAddr, signer);
             return account;
         }
@@ -131,7 +131,7 @@ class Account {
      */
     async removeAccount(address) {
         try {
-            let acctIdx = await this._getAccountIndex(address)
+            const acctIdx = await this._getAccountIndex(address);
             this.accounts.splice(acctIdx, 1);
         }
         catch (ex) {
@@ -150,7 +150,7 @@ class Account {
             address = this.Wallet.Utils.isAddress(address);
             const account = this.accounts.find(a => a.address === address);
             if(account) 
-                return account
+                return account;
             else 
                 throw "Could not find account";
         }
@@ -169,10 +169,12 @@ class Account {
         try {
             address = this.Wallet.Utils.isAddress(address);
             const accountIndex = this.accounts.findIndex(a => a.address === address);
-            if(accountIndex === -1)
+            if(accountIndex === -1){
                 throw "Could not find account index";
-            else
+            } 
+            else {
                 return accountIndex;
+            }
         }
         catch (ex) {
             throw new Error("Account._getAccountIndex\r\n" + String(ex));
@@ -186,20 +188,20 @@ class Account {
      */
     async _getAccountUTXOs(address, minValue) {
         try {
-            address = this.Wallet.Utils.isAddress(address)
-            let accountIndex = await this._getAccountIndex(address)
-            this.accounts[accountIndex]["UTXO"] = { "DataStores": [], "ValueStores": [], "ValueStoreIDs": [], "DataStoreIDs": [], "Value": "" }
+            address = this.Wallet.Utils.isAddress(address);
+            const accountIndex = await this._getAccountIndex(address);
+            this.accounts[accountIndex].UTXO = { "DataStores": [], "ValueStores": [], "ValueStoreIDs": [], "DataStoreIDs": [], "Value": "" };
             let UTXOIDs = [];
-            let [valueUTXOIDs, TotalValue] = await this.Wallet.Rpc.getValueStoreUTXOIDs(address, this.accounts[accountIndex]["curve"], minValue)
-            this.accounts[accountIndex]["UTXO"]["ValueStoreIDs"] = valueUTXOIDs;
-            this.accounts[accountIndex]["UTXO"]["Value"] = BigInt("0x" + TotalValue);
-            UTXOIDs = UTXOIDs.concat(valueUTXOIDs)
-            let dataUTXOIDs = await this.Wallet.Rpc.getDataStoreUTXOIDs(address, this.accounts[accountIndex]["curve"], false, false)
-            this.accounts[accountIndex]["UTXO"]["DataStoreIDs"] = dataUTXOIDs;
-            UTXOIDs = UTXOIDs.concat(dataUTXOIDs)
-            let [DS, VS] = await this.Wallet.Rpc.getUTXOsByIds(UTXOIDs)
-            this.accounts[accountIndex]["UTXO"]["DataStores"] = DS;
-            this.accounts[accountIndex]["UTXO"]["ValueStores"] = VS;
+            const [valueUTXOIDs, TotalValue] = await this.Wallet.Rpc.getValueStoreUTXOIDs(address, this.accounts[accountIndex].curve, minValue);
+            this.accounts[accountIndex].UTXO.ValueStoreIDs = valueUTXOIDs;
+            this.accounts[accountIndex].UTXO.Value = BigInt("0x" + TotalValue);
+            UTXOIDs = UTXOIDs.concat(valueUTXOIDs);
+            const dataUTXOIDs = await this.Wallet.Rpc.getDataStoreUTXOIDs(address, this.accounts[accountIndex].curve, false, false);
+            this.accounts[accountIndex].UTXO.DataStoreIDs = dataUTXOIDs;
+            UTXOIDs = UTXOIDs.concat(dataUTXOIDs);
+            const [DS, VS] = await this.Wallet.Rpc.getUTXOsByIds(UTXOIDs);
+            this.accounts[accountIndex].UTXO.DataStores = DS;
+            this.accounts[accountIndex].UTXO.ValueStores = VS;
         }
         catch (ex) {
             throw new Error("Account._getAccountUTXOs\r\n" + String(ex));
@@ -216,21 +218,21 @@ class Account {
             if (!Array.isArray(utxoIds)) {
                 utxoIds = [utxoIds];
             }
-            address = this.Wallet.Utils.isAddress(address)
-            let accountIndex = await this._getAccountIndex(address)
-            this.accounts[accountIndex]["UTXO"] = { "DataStores": [], "ValueStores": [], "ValueStoreIDs": [], "DataStoreIDs": [], "Value": "" }
-            let [DS, VS] = await this.Wallet.Rpc.getUTXOsByIds(utxoIds)
+            address = this.Wallet.Utils.isAddress(address);
+            const accountIndex = await this._getAccountIndex(address);
+            this.accounts[accountIndex].UTXO = { "DataStores": [], "ValueStores": [], "ValueStoreIDs": [], "DataStoreIDs": [], "Value": "" };
+            const [DS, VS] = await this.Wallet.Rpc.getUTXOsByIds(utxoIds);
             if (DS.length > 0) {
-                this.accounts[accountIndex]["UTXO"]["DataStores"] = DS;
+                this.accounts[accountIndex].UTXODataStores = DS;
             }
             if (VS.length > 0) {
-                this.accounts[accountIndex]["UTXO"]["ValueStores"] = VS;
+                this.accounts[accountIndex].UTXO.ValueStores = VS;
             }
             let totalValue = BigInt(0);
-            for (let i = 0; i < this.accounts[accountIndex]["UTXO"]["ValueStores"].length; i++) {
-                totalValue += BigInt("0x" + this.accounts[accountIndex]["UTXO"]["ValueStores"][i]["VSPreImage"]["Value"]);
+            for (let i = 0; i < this.accounts[accountIndex].UTXO.ValueStores.length; i++) {
+                totalValue += BigInt("0x" + this.accounts[accountIndex].UTXO.ValueStores[i].VSPreImage.Value);
             }
-            this.accounts[accountIndex]["UTXO"]["Value"] = totalValue;
+            this.accounts[accountIndex].UTXO.Value = totalValue;
         }
         catch (ex) {
             throw new Error("Account._getAccountUTXOsByIds\r\n" + String(ex));
@@ -244,14 +246,14 @@ class Account {
      */
     async _getAccountValueStores(address, minValue) {
         try {
-            address = this.Wallet.Utils.isAddress(address)
-            let accountIndex = await this._getAccountIndex(address)
-            this.accounts[accountIndex]["UTXO"] = { "DataStores": [], "ValueStores": [], "ValueStoreIDs": [], "DataStoreIDs": [], "Value": "" }
-            let [valueUTXOIDs, TotalValue] = await this.Wallet.Rpc.getValueStoreUTXOIDs(address, this.accounts[accountIndex]["curve"], minValue)
-            this.accounts[accountIndex]["UTXO"]["ValueStoreIDs"] = valueUTXOIDs;
-            this.accounts[accountIndex]["UTXO"]["Value"] = BigInt("0x" + TotalValue);
-            let [,VS] = await this.Wallet.Rpc.getUTXOsByIds(valueUTXOIDs)
-            this.accounts[accountIndex]["UTXO"]["ValueStores"] = VS;
+            address = this.Wallet.Utils.isAddress(address);
+            const accountIndex = await this._getAccountIndex(address);
+            this.accounts[accountIndex].UTXO = { "DataStores": [], "ValueStores": [], "ValueStoreIDs": [], "DataStoreIDs": [], "Value": "" };
+            const [valueUTXOIDs, TotalValue] = await this.Wallet.Rpc.getValueStoreUTXOIDs(address, this.accounts[accountIndex]["curve"], minValue);
+            this.accounts[accountIndex].UTXO.ValueStoreIDs = valueUTXOIDs;
+            this.accounts[accountIndex].UTXO.Value = BigInt("0x" + TotalValue);
+            const [,VS] = await this.Wallet.Rpc.getUTXOsByIds(valueUTXOIDs);
+            this.accounts[accountIndex].UTXO.ValueStores = VS;
         }
         catch (ex) {
             throw new Error("Account._getAccountValueStores\r\n" + String(ex));

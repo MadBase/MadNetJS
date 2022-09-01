@@ -1,5 +1,5 @@
-const Account = require("./Account.js")
-const Transaction = require("./Transaction.js")
+const Account = require("./Account.js");
+const Transaction = require("./Transaction.js");
 const RPC = require("./RPC.js");
 const utils = require("./Util");
 
@@ -21,7 +21,7 @@ class Wallet {
     constructor(...params) {
         const { chainId, rpcServer, rpcTimeout } = this._initializeParams(params)        
         this.chainId = chainId ? utils.isNumber(chainId) : undefined;
-        this.Account = new Account(this)
+        this.Account = new Account(this);
         this.Transaction = new Transaction(this);
         this.Rpc = new RPC(this, rpcServer, rpcTimeout);
         this.Utils = utils;

@@ -16,13 +16,13 @@ var self = module.exports = {
             if (!owner) {
                 throw "Bad argument";
             }
-            let ownerBuf = Buffer.from(owner, "hex");
+            const ownerBuf = Buffer.from(owner, "hex");
             if (ownerBuf.length != 22) {
-                throw 'Invalid owner'
+                throw 'Invalid owner';
             }
-            let validation = ownerBuf.slice(0, 1).toString("hex");
-            let curve = ownerBuf.slice(1, 2).toString("hex");
-            let pubHash = ownerBuf.slice(2, 22).toString("hex");
+            const validation = ownerBuf.slice(0, 1).toString("hex");
+            const curve = ownerBuf.slice(1, 2).toString("hex");
+            const pubHash = ownerBuf.slice(2, 22).toString("hex");
             return [validator.isNumber(validation), validator.isNumber(curve), validator.isHex(pubHash)];
         } catch (ex) {
             throw "Transaction.extractOwner: " + String(ex);
@@ -42,12 +42,12 @@ var self = module.exports = {
             curve = validator.numToHex(curve);
             base = validator.isHex(base);
             if (!validation || !curve || !base) {
-                throw "Bad argument type"
+                throw "Bad argument type";
             }
-            let v = Buffer.from(validation, "hex");
-            let c = Buffer.from(curve, "hex");
-            let p = Buffer.from(base, "hex");
-            let prefixed = Buffer.concat([v, c, p]);
+            const v = Buffer.from(validation, "hex");
+            const c = Buffer.from(curve, "hex");
+            const p = Buffer.from(base, "hex");
+            const prefixed = Buffer.concat([v, c, p]);
             return prefixed.toString("hex");
         } catch (ex) {
             throw "Transaction.prefixSVACurve: " + String(ex);
@@ -64,14 +64,14 @@ var self = module.exports = {
         try {
             // dspi.go - BaseDepositEquation
             data = validator.isHex(data);
-            let dataSize = BigInt(Buffer.from(data, "hex").length)
+            const dataSize = BigInt(Buffer.from(data, "hex").length);
             if (dataSize > BigInt(constant.MaxDataStoreSize)) {
-                throw "Data size is too large"
+                throw "Data size is too large";
             }
-            let deposit = BigInt((BigInt(dataSize) + BigInt(constant.BaseDatasizeConst)) * (BigInt(2) + BigInt(duration)))
+            const deposit = BigInt((BigInt(dataSize) + BigInt(constant.BaseDatasizeConst)) * (BigInt(2) + BigInt(duration)));
             return deposit;
         } catch (ex) {
-            throw "Transaction.calculateDeposit: " + String(ex)
+            throw "Transaction.calculateDeposit: " + String(ex);
         }
     },
 
@@ -83,26 +83,27 @@ var self = module.exports = {
     remainingDeposit: async(DataStore, thisEpoch) => {
         try {
             // dspi.go - RemainingValue
-            let issuedAt = DataStore["DSLinker"]["DSPreImage"]["IssuedAt"]
-            let deposit = BigInt("0x" + DataStore["DSLinker"]["DSPreImage"]["Deposit"])
-            let rawData = DataStore["DSLinker"]["DSPreImage"]["RawData"]
-            let dataSize = BigInt(Buffer.from(rawData, "hex").length)
+            const DSPreImage = DataStore.DSLinker.DSPreImage;
+            const issuedAt = DSPreImage.IssuedAt;
+            const deposit = BigInt("0x" + DSPreImage.Deposit);
+            const rawData = DSPreImage.RawData;
+            const dataSize = BigInt(Buffer.from(rawData, "hex").length);
             if (BigInt(thisEpoch) < BigInt(issuedAt)) {
-                throw "thisEpoch < issuedAt"
+                throw "thisEpoch < issuedAt";
             }
-            let epochDiff = BigInt(BigInt(thisEpoch) - BigInt(issuedAt));
-            let epochCost = BigInt(BigInt(dataSize) + BigInt(constant.BaseDatasizeConst));
-            let numEpochs = await self.calculateNumEpochs(dataSize, deposit);
-            let expEpoch = (BigInt(issuedAt) + BigInt(numEpochs))
+            const epochDiff = BigInt(BigInt(thisEpoch) - BigInt(issuedAt));
+            const epochCost = BigInt(BigInt(dataSize) + BigInt(constant.BaseDatasizeConst));
+            const numEpochs = await self.calculateNumEpochs(dataSize, deposit);
+            const expEpoch = (BigInt(issuedAt) + BigInt(numEpochs));
             if (BigInt(thisEpoch) > BigInt(expEpoch)) {
                 return false;
             }
             if (epochDiff > numEpochs) {
                 return epochCost;
             }
-            let currentDep = await self.calculateDeposit(rawData, epochDiff);
-            let newDep = BigInt(deposit) - BigInt(currentDep);
-            let remainder = BigInt(BigInt(newDep) + (BigInt(2) * BigInt(epochCost)))
+            const currentDep = await self.calculateDeposit(rawData, epochDiff);
+            const newDep = BigInt(deposit) - BigInt(currentDep);
+            const remainder = BigInt(BigInt(newDep) + (BigInt(2) * BigInt(epochCost)));
             return remainder;
         } catch (ex) {
             throw "Transaction.rewardDeposit: " + String(ex);
@@ -118,14 +119,14 @@ var self = module.exports = {
     calculateNumEpochs: async(dataSize, deposit) => {
         try {
             if (BigInt(dataSize) > BigInt(constant.MaxDataStoreSize)) {
-                throw "Data size is too large"
+                throw "Data size is too large";
             }
-            let epoch = BigInt(deposit) / BigInt((BigInt(dataSize) + BigInt(constant.BaseDatasizeConst)))
+            const epoch = BigInt(deposit) / BigInt((BigInt(dataSize) + BigInt(constant.BaseDatasizeConst)));
             if (BigInt(epoch) < BigInt(2)) {
-                throw "invalid dataSize and deposit causing integer overflow"
+                throw "invalid dataSize and deposit causing integer overflow";
             }
-            let numEpochs = BigInt(BigInt(epoch) - BigInt(2));
-            return numEpochs
+            const numEpochs = BigInt(BigInt(epoch) - BigInt(2));
+            return numEpochs;
         } catch (ex) {
             throw "Transaction.calculateNumEpochs: " + String(ex);
         }
