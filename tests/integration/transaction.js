@@ -71,7 +71,7 @@ describe('Integration/Transaction:', function () {
         it('Fail: Cannot consume UTXOs when argument accountUTXO is invalid', async () => {
             await expect(
                 madWallet.Transaction._spendUTXO(null)
-            ).to.eventually.be.rejectedWith('TypeError: Cannot read property \'ValueStores\' of null');
+            ).to.eventually.be.rejectedWith('TypeError: Cannot read properties of null (reading \'ValueStores\')');
         });
     });
     
@@ -272,13 +272,13 @@ describe('Integration/Transaction:', function () {
         it('Fail: Reject _createValueTxIn with invalid arguments', async () => {
             await expect(
                 madWallet.Transaction._createValueTxIn('invalidaddress')
-            ).to.eventually.be.rejectedWith('TypeError: Cannot read property \'TxHash\' of undefined');
+            ).to.eventually.be.rejectedWith('TypeError: Cannot read properties of undefined (reading \'TxHash\')');
         });
 
         it('Fail: Reject _createDataTxIn with invalid arguments', async () => {
             await expect(
                 madWallet.Transaction._createDataTxIn('invalidaddress')
-            ).to.eventually.be.rejectedWith('TypeError: Cannot read property \'DSLinker\' of undefined');
+            ).to.eventually.be.rejectedWith('TypeError: Cannot read properties of undefined (reading \'DSLinker\')');
         });
     });
 
@@ -371,8 +371,6 @@ describe('Integration/Transaction:', function () {
         });
 
         it('Success: Send ValueStore with SECP address', async () => {
-            console.log(secpAccount.address)
-            console.log(bnAccount.address)
             await madWallet.Transaction.createTxFee(secpAccount.address, secpAccount.curve, false);
             await madWallet.Transaction.createValueStore(secpAccount.address, 9995, bnAccount.address, bnAccount.curve);
             await expect(madWallet.Transaction.sendTx()).to.eventually.be.fulfilled;

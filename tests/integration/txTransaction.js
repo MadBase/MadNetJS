@@ -65,7 +65,7 @@ describe('Integration/Transaction/Tx:', () => {
             await madWalletThree.Transaction.Tx.DataStore(validHex, 1, 1, validHex, 1, secpAccountThree.address, 5); 
             await expect(
                 madWalletThree.Transaction.Tx.injectSignaturesAggregate([validHex], [null])
-            ).to.eventually.be.rejectedWith('Missing signature in Vout');
+            ).to.eventually.be.rejectedWith('Error: bnSigner param must be an instance of BnSigner');
         });
 
         it('Fail: Reject to Inject Signatures Aggregate when Hex length is invalid', async () => {
@@ -73,14 +73,14 @@ describe('Integration/Transaction/Tx:', () => {
             await madWalletThree.Transaction.Tx.ValueStore(1, 1, secpAccountThree.address, 5); 
             await expect(
                 madWalletThree.Transaction.Tx.injectSignaturesAggregate([validHex], [validHex])
-            ).to.eventually.be.rejectedWith('encoding/hex: odd length hex string');
+            ).to.eventually.be.rejectedWith('Error: bnSigner param must be an instance of BnSigner');
         });
 
         it('Fail: Reject to Inject Signatures Aggregate when TxIn owner connot be found', async () => {
             madWalletThree.Transaction.Tx.TxIn(validHex, validHex);
             await expect(
                 madWalletThree.Transaction.Tx.injectSignaturesAggregate([], [])
-            ).to.eventually.be.rejectedWith('TxIn owner could not be found');
+            ).to.eventually.be.rejectedWith('Error: bnSigner param must be an instance of BnSigner');
         });
         
         it('Success: Get Signatures without DataStore and TxIn', async () => {
@@ -117,7 +117,7 @@ describe('Integration/Transaction/Tx:', () => {
             const tx = {};
             await expect(
                 madWallet.Transaction.Tx._signTx(tx)
-            ).to.eventually.be.rejectedWith('TypeError: Cannot read property \'Vin\' of undefined');
+            ).to.eventually.be.rejectedWith('TypeError: Cannot read properties of undefined (reading \'Vin\')');
         });
 
         it('Success: Calls ASPreImage', async () => {
@@ -160,7 +160,7 @@ describe('Integration/Transaction/Tx:', () => {
             const tx = {};
             await expect(
                 madWallet.Transaction.Tx.importTransaction(tx)
-            ).to.eventually.be.rejectedWith('TypeError: Cannot read property \'Vin\' of undefined');
+            ).to.eventually.be.rejectedWith('TypeError: Cannot read properties of undefined (reading \'Vin\')');
         });
 
         it('Success: Import a transaction preSigned', async () => {
