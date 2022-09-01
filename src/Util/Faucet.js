@@ -11,18 +11,19 @@ module.exports = {
     /**
      * Request funds for an address on Testnet only. This function does not provide funds on Mainnet. 
      * @param {hex} address - Address to be funded
-     * @param {number} curve - Secp or BN curve
+     * @param {Boolean} [ isBN = false ] isBN - BN address
      * @returns {object}
      */
-    requestTestnetFunds: async (address, curve) => {
+    requestTestnetFunds: async (address, isBN = false) => {
         try {
-            if (!address || !curve) {
+            if (!address) {
                 throw "Arguments cannot be empty";
             }
             const validAddress = Validator.isAddress(address);
-            // TODO - Add curve to faucet request
-            const validCurve = Validator.isCurve(curve);
-            const res = await Axios.get(FAUCET_SERVER + "/faucet/" + validAddress);
+            const res = await Axios.post(FAUCET_SERVER + "/faucet/", {
+                address: validAddress,
+                curve: isBN ? 2 : 1
+            });
             if (res.error) { 
                 throw new Error(res.error); 
             }

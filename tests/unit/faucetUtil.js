@@ -24,23 +24,29 @@ describe('Unit/Util/Faucet:', () => {
     
     describe('Faucet', () => {  
         it('Success: Request testnet funds for a Secp address', async () => {
-            const curve = 1;
-            const funds = await Faucet.requestTestnetFunds(secpAccount.address, curve);
+            const isBN = false;
+            const funds = await Faucet.requestTestnetFunds(secpAccount.address, isBN);
             expect(funds.error).to.be.false;
         });
 
-        it('Fail: Cannnot request funds with a invalid address', async () => {
-            const curve = 1;
+        it('Fail: Cannnot request funds with a invalid Secp address', async () => {
+            const isBN = false;
             await expect(
-                Faucet.requestTestnetFunds('wrongaddressformat', curve)
+                Faucet.requestTestnetFunds('wrongaddressformat', isBN)
             ).to.eventually.be.rejectedWith('Invalid hex character');
         });
 
-        it('Fail: Cannnot request funds with a invalid curve', async () => {
-            const curve = 3;
+        it('Success: Request testnet funds for a BN address', async () => {
+            const isBN = true;
+            const funds = await Faucet.requestTestnetFunds(bnAccount.address, isBN);
+            expect(funds.error).to.be.false;
+        });
+
+        it('Fail: Cannnot request funds with a invalid BN address', async () => {
+            const isBN = true;
             await expect(
-                Faucet.requestTestnetFunds(secpAccount.address, curve)
-            ).to.eventually.be.rejectedWith('Invalid curve');
+                Faucet.requestTestnetFunds('wrongaddressformat', isBN)
+            ).to.eventually.be.rejectedWith('Invalid hex character');
         });
 
         it('Fail: Cannot request testnet funds without arguments', async () => {
