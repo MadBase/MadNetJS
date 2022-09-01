@@ -551,6 +551,7 @@ class Transaction {
                 if (BigInt(outValue.totalValue) == BigInt(0)) {
                     return;
                 }
+
                 if (BigInt(outValue.totalValue) < BigInt(0)) {
                     // Don't bother creating a reward value store if the cost for the value store undermines the reward, just use as priortization on the Tx
                     if (BigInt(BigInt(BigInt(outValue.totalValue) * BigInt(-1)) - BigInt("0x" + this.fees.ValueStoreFee)) <= BigInt("0")) {
@@ -642,7 +643,7 @@ class Transaction {
                 if (!highestUnspent) {
                     throw "Could not find highest value UTXO";
                 }
-                highestUnspent.VSPreImage.Value = BigInt("0x" + highestUnspent.VSPreImag.Value);
+                highestUnspent.VSPreImage.Value = BigInt("0x" + highestUnspent.VSPreImage.Value);   
                 await this._createValueTxIn(account.address, highestUnspent);
                 for (let i = 0; i < accountUTXO.length; i++) {
                     if (accountUTXO[i].TxHash === highestUnspent.TxHash &&
