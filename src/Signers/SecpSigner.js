@@ -132,7 +132,7 @@ class SecpSigner {
      */
     async getAddress() {
         try {
-            const pubK = await this.getPubK();
+            let pubK = await this.getPubK();
             pubK = Buffer.from(pubK, "hex");
             if (pubK.length === 32) {
                 return pubK.slice(12);
