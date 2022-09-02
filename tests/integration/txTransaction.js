@@ -65,7 +65,7 @@ describe('Integration/Transaction/Tx:', () => {
             await madWalletThree.Transaction.Tx.DataStore(validHex, 1, 1, validHex, 1, secpAccountThree.address, 5); 
             await expect(
                 madWalletThree.Transaction.Tx.injectSignaturesAggregate([validHex], [null])
-            ).to.eventually.be.rejectedWith('Error: bnSigner param must be an instance of BnSigner');
+            ).to.eventually.be.rejectedWith('Missing signature in Vou');
         });
 
         it('Fail: Reject to Inject Signatures Aggregate when Hex length is invalid', async () => {
@@ -73,14 +73,14 @@ describe('Integration/Transaction/Tx:', () => {
             await madWalletThree.Transaction.Tx.ValueStore(1, 1, secpAccountThree.address, 5); 
             await expect(
                 madWalletThree.Transaction.Tx.injectSignaturesAggregate([validHex], [validHex])
-            ).to.eventually.be.rejectedWith('Error: bnSigner param must be an instance of BnSigner');
+            ).to.eventually.be.rejectedWith('encoding/hex: odd length hex string');
         });
 
         it('Fail: Reject to Inject Signatures Aggregate when TxIn owner connot be found', async () => {
             madWalletThree.Transaction.Tx.TxIn(validHex, validHex);
             await expect(
                 madWalletThree.Transaction.Tx.injectSignaturesAggregate([], [])
-            ).to.eventually.be.rejectedWith('Error: bnSigner param must be an instance of BnSigner');
+            ).to.eventually.be.rejectedWith('TxIn owner could not be found');
         });
         
         it('Success: Get Signatures without DataStore and TxIn', async () => {
