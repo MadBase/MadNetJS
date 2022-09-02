@@ -30,10 +30,10 @@ class MultiSig {
     async addPublicKeys(publicKeys) {
         try {
             if (!publicKeys || publicKeys.length == 0) {
-                throw "Need public keys"
+                throw "Need public keys";
             }
-            this.publicKeys = this.publicKeys.concat(publicKeys)
-            let pub = await BNSignerWrapper.AggregatePublicKeys(publicKeys)
+            this.publicKeys = this.publicKeys.concat(publicKeys);
+            const pub = await BNSignerWrapper.AggregatePublicKeys(publicKeys);
             this.publicKey = pub;
             return pub;
         }
@@ -49,8 +49,8 @@ class MultiSig {
      */
     async getPubK() {
         try {
-            if (!this.publicKeys || this.publicKeys.length == 0) {
-                throw "Need public keys"
+            if (!this.publicKeys || +this.publicKeys.length === 0) {
+                throw "Need public keys";
             }
             let pub = await BNSignerWrapper.AggregatePublicKeys(this.publicKeys)
             return pub;
@@ -67,11 +67,11 @@ class MultiSig {
      */
     async getAddress() {
         try {
-            if (!this.publicKeys || this.publicKeys.length == 0) {
-                throw "Need public keys"
+            if (!this.publicKeys || +this.publicKeys.length === 0) {
+                throw "Need public keys";
             }
-            let pubKey = await this.getPubK();
-            let pub = await this.bnSigner.getAddress(pubKey)
+            const pubKey = await this.getPubK();
+            const pub = await this.bnSigner.getAddress(pubKey);
             return pub;
         }
         catch (ex) {
@@ -91,9 +91,9 @@ class MultiSig {
                 throw "Missing input";
             }
             if (!groupPubKey) {
-                groupPubKey = await this.getPubK()
+                groupPubKey = await this.getPubK();
             }
-            let sig = await BNSignerWrapper.AggregateSign(rawMsg, groupPubKey, this.bnSigner.privK);
+            const sig = await BNSignerWrapper.AggregateSign(rawMsg, groupPubKey, this.bnSigner.privK);
             await this.verifyAggregateSingle(rawMsg, groupPubKey, sig);
             return sig;
         }
@@ -111,8 +111,8 @@ class MultiSig {
         try {
             let signedMsgs = [];
             for (let i = 0; i < rawMsgs.length; i++) {
-                let sig = await this.sign(rawMsgs[i], groupPubKey)
-                signedMsgs.push(sig)
+                let sig = await this.sign(rawMsgs[i], groupPubKey);
+                signedMsgs.push(sig);
             }
             return signedMsgs;
         }
@@ -128,7 +128,7 @@ class MultiSig {
      */
     async aggregateSignatures(signatures) {
         try {
-            let sig = await BNSignerWrapper.AggregateSignatures(signatures)
+            const sig = await BNSignerWrapper.AggregateSignatures(signatures);
             return sig;
         }
         catch (ex) {
@@ -145,8 +145,8 @@ class MultiSig {
         try {
             let signed = [];
             for (let i = 0; i < signatures.length; i++) {
-                let sig = await this.aggregateSignatures(signatures[i])
-                signed.push(sig)
+                let sig = await this.aggregateSignatures(signatures[i]);
+                signed.push(sig);
             }
             return signed;
         }
