@@ -1,5 +1,5 @@
 require('dotenv').config({ path: process.cwd() + '/.env' });
-const { default: Axios } = require('axios');
+const Api = require("../Http/Api.js");
 const Validator = require('../../src/Util/Validator');
 const FAUCET_SERVER = process.env.FAUCET_API_URL;
 
@@ -21,7 +21,7 @@ module.exports = {
                 throw "Arguments cannot be empty";
             }
             const validAddress = Validator.isAddress(address);
-            const res = await Axios.post(FAUCET_SERVER + "/faucet/", {
+            const res = await Api.post(FAUCET_SERVER + "/faucet/", {
                 address: validAddress,
                 curve: isBN ? 2 : 1
             },{
