@@ -49,7 +49,7 @@ class MultiSig {
      */
     async getPubK() {
         try {
-            if (!this.publicKeys || +this.publicKeys.length === 0) {
+            if (!this.publicKeys || parseInt(this.publicKeys.length) === 0) {
                 throw "Need public keys";
             }
             let pub = await BNSignerWrapper.AggregatePublicKeys(this.publicKeys)
@@ -67,7 +67,7 @@ class MultiSig {
      */
     async getAddress() {
         try {
-            if (!this.publicKeys || +this.publicKeys.length === 0) {
+            if (!this.publicKeys || parseInt(this.publicKeys.length) === 0) {
                 throw "Need public keys";
             }
             const pubKey = await this.getPubK();
