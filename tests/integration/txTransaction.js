@@ -117,7 +117,7 @@ describe('Integration/Transaction/Tx:', () => {
             const tx = {};
             await expect(
                 madWallet.Transaction.Tx._signTx(tx)
-            ).to.eventually.be.rejectedWith('TypeError: Cannot read properties of undefined (reading \'Vin\')');
+            ).to.eventually.be.rejectedWith("TypeError: Cannot read properties of undefined (reading 'Vin')");
         });
 
         it('Success: Calls ASPreImage', async () => {
@@ -160,7 +160,7 @@ describe('Integration/Transaction/Tx:', () => {
             const tx = {};
             await expect(
                 madWallet.Transaction.Tx.importTransaction(tx)
-            ).to.eventually.be.rejectedWith('TypeError: Cannot read properties of undefined (reading \'Vin\')');
+            ).to.eventually.be.rejectedWith("TypeError: Cannot read properties of undefined (reading 'Vin')");
         });
 
         it('Success: Import a transaction preSigned', async () => {
