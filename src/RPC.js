@@ -1,5 +1,5 @@
 const { default: Axios } = require('axios');
-const constant = require("./Constants.js");
+const constant = require("./Config/Constants.js");
 const { addTrailingSlash } = require("./Util");
 // Below import for intellisense and type support on jsdoc
 const Wallet = require('./Wallet.js'); //eslint-disable-line

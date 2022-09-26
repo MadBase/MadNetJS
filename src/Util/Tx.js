@@ -1,4 +1,4 @@
-const constant = require("../Constants.js");
+const constant = require("../Config/Constants.js");
 const validator = require("./Validator.js");
 
 /**
