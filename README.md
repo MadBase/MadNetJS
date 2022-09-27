@@ -101,3 +101,57 @@ await aliceWallet.Transaction.sendTx(0x4240A00833065c29D1EB117e200a87c95D640289,
 
 #### Test Coverage
 > When you run `npm run test-coverage` it generates a file under `coverage/cobertura-coverage.xml` with a general test coverage output.
+
+
+#### Webpack5 environment
+
+Use node core modules polyfill if you choose to run the library on Webpack5 environment.
+
+If you run into this error:
+
+ BREAKING CHANGE: webpack<5 used to include polyfills for node.js core modules by default.
+
+1.- Install react-app-rewired package 
+
+	npm i react-app-rewired package
+
+2.- Install missing dependencies
+
+	npm install --save-dev crypto-browserify stream-browserify assert stream-http https-browserify os-browserify url buffer process
+
+3.-	Create config-overrides.js
+
+	const webpack = require('webpack'); 
+	module.exports = function override(config) { 
+		const fallback = config.resolve.fallback || {}; 
+		Object.assign(fallback, { 
+			"crypto": require.resolve("crypto-browserify"), 
+			"stream": require.resolve("stream-browserify"), 
+			"assert": require.resolve("assert"), 
+			"http": require.resolve("stream-http"), 
+			"https": require.resolve("https-browserify"), 
+			"os": require.resolve("os-browserify"), 
+			"url": require.resolve("url") 
+	}) 
+	config.resolve.fallback = fallback; 
+	config.plugins = (config.plugins || []).concat([ 
+		new webpack.ProvidePlugin({ 
+			process: 'process/browser', 
+			Buffer: ['buffer', 'Buffer'] 
+		}) 
+	]) 
+	return config; 
+   }
+
+4.-	Override package.json
+	"scripts": { 
+		"start": "react-app-rewired start", 
+		"build": "react-app-rewired build", 
+		"test": "react-app-rewired test", 
+		"eject": "react-scripts eject" 
+	},
+
+Now your missing NodeJS polyfills should be included in your app and the error will be gone.
+
+> https://devdojo.com/erickagulopez/how-to-polyfill-node-core-modules-in-webpack
+
