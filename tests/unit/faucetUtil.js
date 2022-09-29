@@ -4,9 +4,8 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 const MadWalletJS = require('../../index.js');
-const BNSigner = require('../../src/Signers/BNSigner.js');
-const SecpSigner = require('../../src/Signers/SecpSigner.js');
 const Faucet = require('../../src/Util/Faucet');
+const FAUCET_SERVER = process.env.FAUCET_API_URL;
 
 describe('Unit/Util/Faucet:', () => {
     let privateKey, madWallet, bnAccount, secpAccount;
@@ -25,7 +24,7 @@ describe('Unit/Util/Faucet:', () => {
     describe('Faucet', () => {  
         it('Success: Request testnet funds for a Secp address', async () => {
             const isBN = false;
-            const funds = await Faucet.requestTestnetFunds(secpAccount.address, isBN, 45000);
+            const funds = await Faucet.requestTestnetFunds(secpAccount.address, isBN, FAUCET_SERVER, 45000);
             expect(funds.error).to.be.false;
         });
 
@@ -38,21 +37,21 @@ describe('Unit/Util/Faucet:', () => {
 
         it('Success: Request testnet funds for a BN address', async () => {
             const isBN = true;
-            const funds = await Faucet.requestTestnetFunds(bnAccount.address, isBN, 45000);
+            const funds = await Faucet.requestTestnetFunds(bnAccount.address, isBN, FAUCET_SERVER, 45000);
             expect(funds.error).to.be.false;
         });
 
         it('Fail: Cannnot request funds with a invalid BN address', async () => {
             const isBN = true;
             await expect(
-                Faucet.requestTestnetFunds('wrongaddressformat', isBN, 45000)
+                Faucet.requestTestnetFunds('wrongaddressformat', isBN, FAUCET_SERVER, 45000)
             ).to.eventually.be.rejectedWith('Invalid hex character');
         });
 
         it('Fail: Cannot request testnet funds without arguments', async () => {
             await expect(
                 Faucet.requestTestnetFunds()
-            ).to.eventually.be.rejectedWith('Arguments cannot be empty');
+            ).to.eventually.be.rejectedWith('Arguments address and faucetServer cannot be empty');
         });
     });
 });
