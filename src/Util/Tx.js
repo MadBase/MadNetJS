@@ -17,8 +17,8 @@ var self = module.exports = {
                 throw "Bad argument";
             }
             const ownerBuf = Buffer.from(owner, "hex");
-            if (ownerBuf.length != 22) {
-                throw 'Invalid owner';
+            if (ownerBuf.length !== 22) {
+                throw "Invalid owner";
             }
             const validation = ownerBuf.slice(0, 1).toString("hex");
             const curve = ownerBuf.slice(1, 2).toString("hex");

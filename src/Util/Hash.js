@@ -7,7 +7,7 @@ module.exports = {
                 throw "Argument msg cannot be empty.";
             }
             msg = validator.isHex(msg);
-            const msgBuffer = Buffer.from(msg, "hex");
+            const msgBuffer = Buffer.from(validator.isHex(msg), "hex");
             const msgHash = ethUtil.keccak256(msgBuffer);
             return msgHash.toString("hex");
         }

@@ -264,7 +264,7 @@ class Transaction {
             else {
                 fee = this.Wallet.Utils.isBigInt(fee);
                 if (fee <= BigInt(0)) {
-                    throw "Invalid value"
+                    throw "Invalid value";
                 }
             }
             let account = await this.Wallet.Account.getAccount(payeerAddress);
