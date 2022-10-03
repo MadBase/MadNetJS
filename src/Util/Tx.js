@@ -63,8 +63,7 @@ var self = module.exports = {
     calculateDeposit: async(data, duration) => {
         try {
             // dspi.go - BaseDepositEquation
-            data = validator.isHex(data);
-            const dataSize = BigInt(Buffer.from(data, "hex").length);
+            const dataSize = BigInt(Buffer.from(validator.isHex(data), "hex").length);
             if (dataSize > BigInt(constant.MaxDataStoreSize)) {
                 throw "Data size is too large";
             }
