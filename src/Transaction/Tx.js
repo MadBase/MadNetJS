@@ -1,5 +1,5 @@
 const TxHasher = require('../GoWrappers/TxHasher.js');
-const MultiSig = require("../Signers/MultiSig.js")
+const MultiSig = require('../Signers/MultiSig.js');
 const utils = require('../Util/Tx.js');
 
 /**
@@ -46,9 +46,9 @@ class Tx {
      */
     async importTransaction(tx) {
         try {
-            this.Vin = tx["Tx"]["Vin"];
-            this.Vout = tx["Tx"]["Vout"];
-            this.Fee = tx["Tx"]["Fee"];
+            this.Vin = tx.Tx.Vin;
+            this.Vout = tx.Tx.Vout;
+            this.Fee = tx.Tx.Fee;
         }
         catch (ex) {
             throw new Error("Tx.importTransaction\r\n" + String(ex));
@@ -64,36 +64,36 @@ class Tx {
     async importRawTransaction(tx) {
         try {
             if (!this.Wallet.Rpc.rpcServer) {
-                throw "RPC server must be set to fetch Vin data"
+                throw "RPC server must be set to fetch Vin data";
             }
-            this.Vin = tx["Tx"]["Vin"];
-            this.Vout = tx["Tx"]["Vout"];
-            this.Fee = tx["Tx"]["Fee"];
-            for (let i = 0; i < tx["Tx"]["Vin"].length; i++) {
-                let cTx = await this.Wallet.Rpc.getMinedTransaction(tx["Tx"]["Vin"][i]["TXInLinker"]["TXInPreImage"]["ConsumedTxHash"])
+            this.Vin = tx.Tx.Vin;
+            this.Vout = tx.Tx.Vout;
+            this.Fee = tx.Tx.Fee;
+            for (let i = 0; i < tx.Tx.Vin.length; i++) {
+                const cTx = await this.Wallet.Rpc.getMinedTransaction(tx.Tx.Vin[i].TXInLinker.TXInPreImage.ConsumedTxHash)
                 let isValueStore, address;
-                if (cTx["Tx"]["Vout"][parseInt(tx["Tx"]["Vin"][i]["TXInLinker"]["TXInPreImage"]["ConsumedTxIdx"])]["ValueStore"]) {
+                if (cTx.Tx.Vout[parseInt(tx.Tx.Vin[i].TXInLinker.TXInPreImage.ConsumedTxIdx)].ValueStore) {
                     isValueStore = true;
-                    let owner = cTx["Tx"]["Vout"][parseInt(tx["Tx"]["Vin"][i]["TXInLinker"]["TXInPreImage"]["ConsumedTxIdx"])]["ValueStore"]["VSPreImage"]["Owner"];
-                    address = owner[2]
+                    const owner = cTx.Tx.Vout[parseInt(tx.Tx.Vin[i].TXInLinker.TXInPreImage.ConsumedTxIdx)].ValueStore.VSPreImage.Owner;
+                    address = owner[2];
                 }
                 else {
-                    let owner = cTx["Tx"]["Vout"][parseInt(tx["Tx"]["Vin"][i]["TXInLinker"]["TXInPreImage"]["ConsumedTxIdx"])]["DataStore"]["DSLinker"]["DSPreImage"]["Owner"];
-                    address = owner[2]
+                    const owner = cTx.Tx.Vout[parseInt(tx.Tx.Vin[i].TXInLinker.TXInPreImage.ConsumedTxIdx)].DataStore.DSLinker.DSPreImage.Owner;
+                    address = owner[2];
                 }
                 this.txInOwners.push({
                     "address": address,
                     "txOutIdx": isValueStore ? (
-                        tx["Tx"]["Vin"][i]["VSPreImage"]["TXOutIdx"] ?
-                            tx["Tx"]["Vin"][i]["VSPreImage"]["TXOutIdx"] :
+                        tx.Tx.Vin[i].VSPreImage.TXOutIdx ?
+                            tx.Tx.Vin[i].VSPreImage.TXOutIdx :
                             0
                     ) :
                         (
-                            tx["Tx"]["Vin"][i]["DSLinker"]["DSPreImage"]["TXOutIdx"] ?
-                                tx["Tx"]["Vin"][i]["DSLinker"]["DSPreImage"]["TXOutIdx"] :
+                            txTx.Vin[i].DSLinker.DSPreImage.TXOutIdx ?
+                                tx.Tx.Vin[i].DSLinker.DSPreImage.TXOutIdx :
                                 0
                         ),
-                    "txHash": tx["Tx"]["Vin"][i]["TXInLinker"]["TXInPreImage"]["ConsumedTxHash"],
+                    "txHash": tx.Tx.Vin[i].TXInLinker.TXInPreImage.ConsumedTxHash,
                     "isDataStore": isValueStore
                 });
             }
@@ -306,47 +306,47 @@ class Tx {
      */
     async estimateFees() {
         if (!this.Wallet.Rpc.rpcServer) {
-            throw 'Cannot estimate fees without RPC'
+            throw 'Cannot estimate fees without RPC';
         }
-        let fees = await this.Wallet.Rpc.getFees();
+        const fees = await this.Wallet.Rpc.getFees();
         let total = BigInt(0);
-        let thisTotal = BigInt(0)
+        let thisTotal = BigInt(0);
         let voutCost = [];
 
         for (let i = 0; i < this.Vout.length; i++) {
             switch (Object.keys(this.Vout[i])[0]) {
                 case 'ValueStore': {
-                    thisTotal = BigInt("0x" + fees["ValueStoreFee"]);
-                    total = BigInt(total) + BigInt(thisTotal)
-                    voutCost.push(thisTotal.toString())
+                    thisTotal = BigInt("0x" + fees.ValueStoreFee);
+                    total = BigInt(total) + BigInt(thisTotal);
+                    voutCost.push(thisTotal.toString());
                     break;
                 }
                 case 'DataStore': {
-                    let rawData = this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["RawData"]
-                    let dataSize = BigInt(Buffer.from(rawData, "hex").length)
-                    let dsEpochs = await utils.calculateNumEpochs(dataSize, BigInt("0x" + this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Deposit"]))
-                    thisTotal = await utils.calculateFee(BigInt("0x" + fees["DataStoreFee"]), BigInt(dsEpochs))
-                    thisTotal = BigInt(thisTotal) + BigInt(BigInt("0x" + this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Deposit"]));
-                    let owner = await utils.extractOwner(this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Owner"])
-                    let DS = await this.Wallet.Rpc.getDataStoreByIndex(owner[2], owner[1], this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Index"]);
-                    if (DS && DS["DSLinker"]["DSPreImage"]["Index"] == this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["Index"]) {
-                        let reward = await utils.remainingDeposit(DS, this.Vout[i]["DataStore"]["DSLinker"]["DSPreImage"]["IssuedAt"]);
+                    const rawData = this.Vout[i].DataStore.DSLinker.DSPreImage.RawData;
+                    const dataSize = BigInt(Buffer.from(rawData, "hex").length);
+                    const dsEpochs = await utils.calculateNumEpochs(dataSize, BigInt("0x" + this.Vout[i].DataStore.DSLinker.DSPreImage.Deposit))
+                    thisTotal = await utils.calculateFee(BigInt("0x" + fees.DataStoreFee), BigInt(dsEpochs));
+                    thisTotal = BigInt(thisTotal) + BigInt(BigInt("0x" + this.Vout[i].DataStore.DSLinker.DSPreImage.Deposit));
+                    const owner = await utils.extractOwner(this.Vout[i].DataStore.DSLinker.DSPreImage.Owner);
+                    const DS = await this.Wallet.Rpc.getDataStoreByIndex(owner[2], owner[1], this.Vout[i].DataStore.DSLinker.DSPreImage.Index);
+                    if (DS && DS.DSLinker.DSPreImage.Index == this.Vout[i].DataStore.DSLinker.DSPreImage.Index) {
+                        const reward = await utils.remainingDeposit(DS, this.Vout[i].DataStore.DSLinker.DSPreImage.IssuedAt);
                         if (reward) {
                             thisTotal = BigInt(thisTotal) - BigInt(reward);
                         }
                     }
-                    total = BigInt(total) + BigInt(thisTotal)
-                    voutCost.push(thisTotal.toString())
+                    total = BigInt(total) + BigInt(thisTotal);
+                    voutCost.push(thisTotal.toString());
                     break;
                 }
                 default: {
-                    throw "Could not inject get fee for undefined Vout object"
+                    throw "Could not inject get fee for undefined Vout object";
                 }
             }
         }
-        total = BigInt(total) + BigInt("0x" + fees["MinTxFee"])
-        total = total.toString()
-        let feesInt = JSON.parse(JSON.stringify(fees));
+        total = BigInt(total) + BigInt("0x" + fees.MinTxFee);
+        total = total.toString();
+        const feesInt = JSON.parse(JSON.stringify(fees));
         for (let i = 0; i < Object.keys(feesInt).length; i++) {
             feesInt[Object.keys(feesInt)[i]] = BigInt("0x" + feesInt[Object.keys(feesInt)[i]]);
         }
@@ -363,11 +363,11 @@ class Tx {
      */
     async createRawTx() {
         try {
-            let tx = this.getTx()["Tx"]
-            let injected = await TxHasher.TxHasher(JSON.stringify(tx))
-            let Tx = JSON.parse(injected)
-            this.Vin = Tx["Vin"]
-            this.Vout = Tx["Vout"]
+            const tx = this.getTx().Tx;
+            const injected = await TxHasher.TxHasher(JSON.stringify(tx));
+            const Tx = JSON.parse(injected);
+            this.Vin = Tx.Vin;
+            this.Vout = Tx.Vout;
             return this.getTx();
         } catch (ex) {
             throw new Error("Tx.getPreSignedTx\r\n" + String(ex));
@@ -381,19 +381,19 @@ class Tx {
     async getSignatures() {
         try {
             let vinSignatures = [];
-            let voutSignatures = []
-            let tx = this.getTx()
-            let vin = tx["Tx"]["Vin"]
-            let vout = tx["Tx"]["Vout"]
+            let voutSignatures = [];
+            const tx = this.getTx();
+            const vin = tx.Tx.Vin;
+            const vout = tx.Tx.Vout;
             for (let l = 0; l < vin.length; l++) {
-                let sign = vin[l]["Signature"]
-                vinSignatures.push(sign)
+                const sign = vin[l].Signature;
+                vinSignatures.push(sign);
             }
             for (let i = 0; i < vout.length; i++) {
-                if (!vout[i]["DataStore"]) {
+                if (!vout[i].DataStore) {
                     continue;
                 }
-                let sign = vout[i]["DataStore"]["Signature"];
+                let sign = vout[i].DataStore.Signature;
                 voutSignatures.push(sign)
             }
             return { "Vin": vinSignatures, "Vout": voutSignatures };
@@ -408,11 +408,11 @@ class Tx {
      */
     async _createTx() {
         try {
-            let tx = this.getTx()["Tx"]
-            delete tx["Fee"]
-            let injected = await TxHasher.TxHasher(JSON.stringify(tx))
-            let Tx = { "Tx": JSON.parse(injected) }
-            await this._signTx(Tx)
+            const tx = this.getTx().Tx;
+            delete tx.Fee;
+            const injected = await TxHasher.TxHasher(JSON.stringify(tx));
+            const Tx = { "Tx": JSON.parse(injected) };
+            await this._signTx(Tx);
         } catch (ex) {
             throw new Error("Tx.createTx\r\n" + String(ex));
         }
@@ -425,40 +425,40 @@ class Tx {
      */
     async _signTx(Tx) {
         try {
-            let tx = JSON.parse(JSON.stringify(Tx));
-            for (let i = 0; i < tx["Tx"]["Vin"].length; i++) {
-                let txIn = JSON.parse(JSON.stringify(tx["Tx"]["Vin"][i]))
-                let consumedHash = txIn["TXInLinker"]["TXInPreImage"]["ConsumedTxHash"];
-                let consumedIdx = txIn["TXInLinker"]["TXInPreImage"]["ConsumedTxIdx"] ? txIn["TXInLinker"]["TXInPreImage"]["ConsumedTxIdx"] : "0";
+            const tx = JSON.parse(JSON.stringify(Tx));
+            for (let i = 0; i < tx.Tx.Vin.length; i++) {
+                const txIn = JSON.parse(JSON.stringify(tx.Tx.Vin[i]))
+                const consumedHash = txIn.TXInLinker.TXInPreImage.ConsumedTxHash;
+                const consumedIdx = txIn.TXInLinker.TXInPreImage.ConsumedTxIdx ? txIn.TXInLinker.TXInPreImage.ConsumedTxIdx : "0";
                 let txInObj;
                 for (let j = 0; j < this.txInOwners.length; j++) {
-                    if (String(this.txInOwners[j]["txHash"]) === String(consumedHash) && String(this.txInOwners[j]["txOutIdx"]) == String(consumedIdx)) {
+                    if (String(this.txInOwners[j].txHash) === String(consumedHash) && String(this.txInOwners[j].txOutIdx) == String(consumedIdx)) {
                         txInObj = this.txInOwners[j];
                         break;
                     }
                 }
                 if (!txInObj) {
-                    throw "TxIn owner could not be found"
+                    throw "TxIn owner could not be found";
                 }
-                let ownerAccount = await this.Wallet.Account.getAccount(txInObj["address"])
-                let signed = await ownerAccount.signer.sign("0x" + txIn["Signature"]);
+                const ownerAccount = await this.Wallet.Account.getAccount(txInObj.address)
+                const signed = await ownerAccount.signer.sign("0x" + txIn.Signature);
                 let signature;
                 if (txInObj.isDataStore) {
-                    signature = await utils.prefixSVACurve(3, ownerAccount["curve"], signed);
+                    signature = await utils.prefixSVACurve(3, ownerAccount.curve, signed);
                 } else {
-                    signature = await utils.prefixSVACurve(1, ownerAccount["curve"], signed);
+                    signature = await utils.prefixSVACurve(1, ownerAccount.curve, signed);
                 }
-                txIn["Signature"] = signature;
+                txIn.Signature = signature;
                 this.Vin[i] = txIn;
             }
-            for (let i = 0; i < tx["Tx"]["Vout"].length; i++) {
-                let txOut = JSON.parse(JSON.stringify(tx["Tx"]["Vout"][i]))
-                if (txOut["DataStore"]) {
-                    let owner = await utils.extractOwner(txOut["DataStore"]["DSLinker"]["DSPreImage"]["Owner"])
-                    let ownerAccount = await this.Wallet.Account.getAccount(owner[2]);
-                    let signed = await ownerAccount.signer.sign("0x" + txOut["DataStore"]["Signature"]);
-                    let signature = await utils.prefixSVACurve(3, ownerAccount["curve"], signed);
-                    txOut["DataStore"]["Signature"] = signature;
+            for (let i = 0; i < tx.Tx.Vout.length; i++) {
+                const txOut = JSON.parse(JSON.stringify(tx.Tx.Vout[i]));
+                if (txOut.DataStore) {
+                    const owner = await utils.extractOwner(txOut.DataStore.DSLinker.DSPreImage.Owner)
+                    const ownerAccount = await this.Wallet.Account.getAccount(owner[2]);
+                    const signed = await ownerAccount.signer.sign("0x" + txOut.DataStore.Signature);
+                    const signature = await utils.prefixSVACurve(3, ownerAccount.curve, signed);
+                    txOut.DataStore.Signature = signature;
                 }
                 this.Vout[i] = txOut;
             }
@@ -480,53 +480,53 @@ class Tx {
      */
     async injectSignaturesAggregate(vinSignatures, voutSignatures) {
         try {
-            let Tx = this.getTx()
-            let multiSig = new MultiSig();
-            let tx = JSON.parse(JSON.stringify(Tx));
-            for (let i = 0; i < tx["Tx"]["Vin"].length; i++) {
-                let txIn = JSON.parse(JSON.stringify(tx["Tx"]["Vin"][i]))
-                let consumedHash = txIn["TXInLinker"]["TXInPreImage"]["ConsumedTxHash"];
-                let consumedIdx = txIn["TXInLinker"]["TXInPreImage"]["ConsumedTxIdx"] ? txIn["TXInLinker"]["TXInPreImage"]["ConsumedTxIdx"] : "0";
+            const Tx = this.getTx();
+            const multiSig = new MultiSig();
+            const tx = JSON.parse(JSON.stringify(Tx));
+            for (let i = 0; i < tx.Tx.Vin.length; i++) {
+                const txIn = JSON.parse(JSON.stringify(tx.Tx.Vin[i]))
+                const consumedHash = txIn.TXInLinker.TXInPreImage.ConsumedTxHash;
+                const consumedIdx = txIn.TXInLinker.TXInPreImage.ConsumedTxIdx ? txIn.TXInLinker.TXInPreImage.ConsumedTxIdx : "0";
                 let txInObj;
                 for (let j = 0; j < this.txInOwners.length; j++) {
-                    if (String(this.txInOwners[j]["txHash"]) === String(consumedHash) && String(this.txInOwners[j]["txOutIdx"]) == String(consumedIdx)) {
+                    if (String(this.txInOwners[j].txHash) === String(consumedHash) && String(this.txInOwners[j].txOutIdx) == String(consumedIdx)) {
                         txInObj = this.txInOwners[j];
                         break;
                     }
                 }
                 if (!txInObj) {
-                    throw "TxIn owner could not be found"
+                    throw "TxIn owner could not be found";
                 }
                 let idxSig = []
                 for (let j = 0; j < vinSignatures.length; j++) {
                     if (!vinSignatures[j] || !vinSignatures[j][i]) {
-                        throw "Missing signature in Vin"
+                        throw "Missing signature in Vin";
                     }
-                    idxSig.push(vinSignatures[j][i])
+                    idxSig.push(vinSignatures[j][i]);
                 }
-                let signed = await multiSig.aggregateSignatures(idxSig)
+                const signed = await multiSig.aggregateSignatures(idxSig);
                 let signature;
                 if (txInObj.isDataStore) {
                     signature = await utils.prefixSVACurve(3, 2, signed);
                 } else {
                     signature = await utils.prefixSVACurve(1, 2, signed);
                 }
-                txIn["Signature"] = signature;
+                txIn.Signature = signature;
                 this.Vin[i] = txIn;
             }
-            for (let i = 0; i < tx["Tx"]["Vout"].length; i++) {
-                let txOut = JSON.parse(JSON.stringify(tx["Tx"]["Vout"][i]))
-                if (txOut["DataStore"]) {
+            for (let i = 0; i < tx.Tx.Vout.length; i++) {
+                let txOut = JSON.parse(JSON.stringify(tx.Tx.Vout[i]));
+                if (txOut.DataStore) {
                     let idxSig = []
                     for (let j = 0; j < voutSignatures.length; j++) {
                         if (!voutSignatures[j] || !voutSignatures[j][i]) {
-                            throw "Missing signature in Vout"
+                            throw "Missing signature in Vout";
                         }
-                        idxSig.push(voutSignatures[j][i])
+                        idxSig.push(voutSignatures[j][i]);
                     }
-                    let signed = await multiSig.aggregateSignatures(idxSig)
-                    let signature = await utils.prefixSVACurve(3, 2, signed);
-                    txOut["DataStore"]["Signature"] = signature;
+                    const signed = await multiSig.aggregateSignatures(idxSig);
+                    const signature = await utils.prefixSVACurve(3, 2, signed);
+                    txOut.DataStore.Signature = signature;
                 }
                 this.Vout[i] = txOut;
             }
@@ -546,41 +546,41 @@ class Tx {
      */
     async injectSignatures(vinSignatures, voutSignatures) {
         try {
-            let Tx = this.getTx()
-            let tx = JSON.parse(JSON.stringify(Tx));
-            for (let i = 0; i < tx["Tx"]["Vin"].length; i++) {
-                let txIn = JSON.parse(JSON.stringify(tx["Tx"]["Vin"][i]))
-                let consumedHash = txIn["TXInLinker"]["TXInPreImage"]["ConsumedTxHash"];
-                let consumedIdx = txIn["TXInLinker"]["TXInPreImage"]["ConsumedTxIdx"] ? txIn["TXInLinker"]["TXInPreImage"]["ConsumedTxIdx"] : "0";
+            const Tx = this.getTx()
+            const tx = JSON.parse(JSON.stringify(Tx));
+            for (let i = 0; i < tx.Tx.Vin.length; i++) {
+                const txIn = JSON.parse(JSON.stringify(tx.Tx.Vin[i]));
+                const consumedHash = txIn.TXInLinker.TXInPreImage.ConsumedTxHash;
+                const consumedIdx = txIn.TXInLinker.TXInPreImage.ConsumedTxIdx ? txIn.TXInLinker.TXInPreImage.ConsumedTxIdx : "0";
                 let txInObj;
                 for (let j = 0; j < this.txInOwners.length; j++) {
-                    if (String(this.txInOwners[j]["txHash"]) === String(consumedHash) && String(this.txInOwners[j]["txOutIdx"]) == String(consumedIdx)) {
+                    if (String(this.txInOwners[j].txHash) === String(consumedHash) && String(this.txInOwners[j].txOutIdx) == String(consumedIdx)) {
                         txInObj = this.txInOwners[j];
                         break;
                     }
                 }
                 if (!txInObj) {
-                    throw "TxIn owner could not be found"
+                    throw "TxIn owner could not be found";
                 }
-                let ownerAccount = await this.Wallet.Account.getAccount(txInObj["address"])
-                let signed = vinSignatures[i];
+                const ownerAccount = await this.Wallet.Account.getAccount(txInObj.address)
+                const signed = vinSignatures[i];
                 let signature;
                 if (txInObj.isDataStore) {
-                    signature = await utils.prefixSVACurve(3, ownerAccount["curve"], signed);
+                    signature = await utils.prefixSVACurve(3, ownerAccount.curve, signed);
                 } else {
-                    signature = await utils.prefixSVACurve(1, ownerAccount["curve"], signed);
+                    signature = await utils.prefixSVACurve(1, ownerAccount.curve, signed);
                 }
-                txIn["Signature"] = signature;
+                txIn.Signature = signature;
                 this.Vin[i] = txIn;
             }
-            for (let i = 0; i < tx["Tx"]["Vout"].length; i++) {
-                let txOut = JSON.parse(JSON.stringify(tx["Tx"]["Vout"][i]))
-                if (txOut["DataStore"]) {
-                    let owner = await utils.extractOwner(txOut["DataStore"]["DSLinker"]["DSPreImage"]["Owner"])
-                    let ownerAccount = await this.Wallet.Account.getAccount(owner[2]);
-                    let signed = voutSignatures[i]
-                    let signature = await utils.prefixSVACurve(3, ownerAccount["curve"], signed);
-                    txOut["DataStore"]["Signature"] = signature;
+            for (let i = 0; i < tx.Tx.Vout.length; i++) {
+                const txOut = JSON.parse(JSON.stringify(tx.Tx.Vout[i]));
+                if (txOut.DataStore) {
+                    const owner = await utils.extractOwner(txOut.DataStore.DSLinker.DSPreImage.Owner);
+                    const ownerAccount = await this.Wallet.Account.getAccount(owner[2]);
+                    const signed = voutSignatures[i];
+                    const signature = await utils.prefixSVACurve(3, ownerAccount.curve, signed);
+                    txOut.DataStore.Signature = signature;
                 }
                 this.Vout[i] = txOut;
             }

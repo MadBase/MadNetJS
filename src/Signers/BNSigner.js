@@ -1,4 +1,4 @@
-const BNSignerWrapper = require('../GoWrappers/BNSignerWrapper.js')
+const BNSignerWrapper = require('../GoWrappers/BNSignerWrapper.js');
 const ethUtil = require('ethereumjs-util');
 /**
  * BNSigner
@@ -54,7 +54,7 @@ class BNSigner {
         try {
             let signed = [];
             for (let i = 0; i < msgs.length; i++) {
-                let sig = await this.sign(msgs[i])
+                const sig = await this.sign(msgs[i]);
                 signed.push(sig)
             }
             return signed;
@@ -72,7 +72,7 @@ class BNSigner {
      */
     async verify(msg, sig) {
         try {
-            const signature = await this.Wallet.Utils.BNSignerVerify(msg,sig);
+            const signature = await this.Wallet.Utils.BNSignerVerify(msg, sig);
             return signature;
         }
         catch (ex) {
@@ -90,7 +90,7 @@ class BNSigner {
             if (!this.privK) {
                 throw "Private key not set";
             }
-            let pubK = await BNSignerWrapper.GetPubK(String(this.privK));
+            const pubK = await BNSignerWrapper.GetPubK(String(this.privK));
             return pubK;
         }
         catch (ex) {
@@ -108,9 +108,9 @@ class BNSigner {
         try {
             sig = this.Wallet.Utils.isHex(sig);
             if (!sig) {
-                throw "Bad argument type"
+                throw "Bad argument type";
             }
-            let pubK = await BNSignerWrapper.PubFromSig(String(sig));
+            const pubK = await BNSignerWrapper.PubFromSig(String(sig));
             return pubK;
         }
         catch (ex) {
@@ -128,8 +128,8 @@ class BNSigner {
             if (!pubK) {
                 pubK = await this.getPubK();
             }
-            let pubHash = ethUtil.keccak256(Buffer.from(pubK, "hex").slice(1));
-            let address = pubHash.slice(12);
+            const pubHash = ethUtil.keccak256(Buffer.from(pubK, "hex").slice(1));
+            const address = pubHash.slice(12);
             return address.toString("hex");
         }
         catch (ex) {
