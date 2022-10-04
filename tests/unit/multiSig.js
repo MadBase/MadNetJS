@@ -5,10 +5,11 @@ chai.use(chaiAsPromised);
 const expect = chai.expect;
 const MadWalletJS = require('../../index.js');
 const MultiSig = require('../../src/Signers/MultiSig');
+const BNSigner = require('../../src/Signers/BNSigner');
 
 describe('Unit/MultiSig:', () => {
-    let privateKey, secondaryPrivateKey, msgHex, madWallet, multiSigBn, bnAccount;
-    before(async function() {
+    let privateKey, secondaryPrivateKey, msgHex, madWallet, multiSigBn, bnAccount, bnAccount2, signatures;
+    before(async function () {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
         secondaryPrivateKey = process.env.OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY;
         msgHex = Buffer.from('hello world', 'utf8').toString('hex').toLowerCase();
@@ -21,7 +22,18 @@ describe('Unit/MultiSig:', () => {
         await madWallet.Account.addAccount(secondaryPrivateKey, 2);
 
         bnAccount = madWallet.Account.accounts[0];
-        
+        bnAccount2 = madWallet.Account.accounts[1];
+
+        publicKeys = [await bnAccount.signer.getPubK(), await bnAccount2.signer.getPubK()];
+
+        let multiAccount = await madWallet.Account.addMultiSig(publicKeys);
+        let multiPubK = await multiAccount.signer.getPubK()
+
+        let signatureOne = await bnAccount.signer.multiSig.sign(msgHex, multiPubK);
+        let signatureTwo = await bnAccount2.signer.multiSig.sign(msgHex, multiPubK);
+
+        signatures = [ signatureOne, signatureTwo ];
+
     });
 
     describe('Public Key and Address', () => {
@@ -62,13 +74,7 @@ describe('Unit/MultiSig:', () => {
             await expect(multiSigBn.sign(null)).to.eventually.be.rejectedWith('Missing input');
         });
 
-        it('Fail: Reject Sign Multi when called with invalid rawMsgs', async () => {
-            await expect(
-                multiSigBn.signMulti(null)
-            ).to.eventually.be.rejectedWith("TypeError: Cannot read properties of null (reading 'length')");
-        });
-
-        it('Success: Sign one message', async () => {
+        it('Fail: Reject Sign Multi when called with invalid rawMsgs', async () => { 
             await multiSigBn.addPublicKeys(publicKeys)
             await expect(multiSigBn.sign('0000ffeebabe')).to.eventually.be.fulfilled;
         });
@@ -90,7 +96,7 @@ describe('Unit/MultiSig:', () => {
         it('Fail: Reject Aggregate Multi Signatures when called with invalid argument', async () => {
             await expect(
                 multiSigBn.aggregateSignaturesMulti(null)
-            ).to.eventually.be.rejectedWith("TypeError: Cannot read properties of null (reading 'length')");
+            ).to.eventually.be.rejectedWith("TypeError: Cannot read property 'length' of null");
         });
 
         it('Fail: Reject Verify Aggregate when called with invalid argument', async () => {
@@ -106,7 +112,7 @@ describe('Unit/MultiSig:', () => {
         });
 
         it('Fail: Aggregate Signatures should fail unless an array is provided ', async () => {
-            multiSigBn.aggregateSignatures({}).to.eventually.be.rejectedWith('Call using map[string]interface {} as type []interface {}');
+            await expect(multiSigBn.aggregateSignatures({})).to.eventually.be.rejectedWith('Call using map[string]interface {} as type []interface {}');
         });
 
         it('Success: Aggregate Signatures', async () => {
