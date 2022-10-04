@@ -33,9 +33,9 @@ class SecpSigner {
             if (!this.privK) {
                 throw "Private key not set";
             }
-            msg = Buffer.from(msg, "hex")
-            msg = ethUtil.keccak256(msg)
-            let privK = Buffer.from(this.privK, "hex")
+            msg = Buffer.from(msg, "hex");
+            msg = ethUtil.keccak256(msg);
+            const privK = Buffer.from(this.privK, "hex");
             let signature = ecdsaSign(msg, privK);
             // Add recid byte to end (v)
             signature = Buffer.from(signature.signature).toString('hex') + Buffer.from(String(signature.recid)).toString().padStart(2, "0");
@@ -55,8 +55,8 @@ class SecpSigner {
         try {
             let signed = [];
             for (let i = 0; i < msgs.length; i++) {
-                let sig = await this.sign(msgs[i])
-                signed.push(sig)
+                let sig = await this.sign(msgs[i]);
+                signed.push(sig);
             }
             return signed;
         }
@@ -81,22 +81,22 @@ class SecpSigner {
                 throw "Bad argument type";
             }
             // Get and parse recid from last byte of passed hexadecimal signature from this.sign() method 
-            let recidByteString = sig.slice(sig.length - 2);
-            let recid = parseInt(Buffer.from(recidByteString, 'hex').toString('hex'), 16);
+            const recidByteString = sig.slice(sig.length - 2);
+            const recid = parseInt(Buffer.from(recidByteString, 'hex').toString('hex'), 16);
             // Split off last byte (recidByte) from hexadecimal signature
             sig = sig.slice(0, sig.length - 2);
             // Get buffer represenation of msg, and hash as keccak256, just as sign() does
-            msg = ethUtil.keccak256(Buffer.from(msg, 'hex'))
+            msg = ethUtil.keccak256(Buffer.from(msg, 'hex'));
             // Get msg and sig as Uint8Arrays for ecdsaRecover
-            let uint8Msg = Uint8Array.from(msg);
-            let uint8Sig = Uint8Array.from(Buffer.from(sig, 'hex'));
+            const uint8Msg = Uint8Array.from(msg);
+            const uint8Sig = Uint8Array.from(Buffer.from(sig, 'hex'));
             // Request recovered pubkey with sig, recid, and msg -- Do not use compressed key
             let recoveredPubKey = ecdsaRecover(uint8Sig, recid, uint8Msg, false);
             // Strip out 04 from beginning that signifies non-compressed form and parse as hex
             recoveredPubKey = recoveredPubKey.slice(1); // Only 1 for 1st byte, as this is a uint8Array
             recoveredPubKey = Buffer.from(recoveredPubKey).toString('hex');
             // Fetch the publickey for the associated account to compare against
-            let accountPubKey = await this.getPubK();
+            const accountPubKey = await this.getPubK();
             // Verify associated public key === recovered ecdsa key
             if (accountPubKey !== recoveredPubKey) {
                 throw "Public Keys don't match";
@@ -118,7 +118,7 @@ class SecpSigner {
             if (!this.privK) {
                 throw "Private key not set";
             }
-            let pubKey = ethUtil.privateToPublic(Buffer.from(this.privK, "hex"));
+            const pubKey = ethUtil.privateToPublic(Buffer.from(this.privK, "hex"));
             return pubKey.toString("hex");
         }
         catch (ex) {
@@ -137,7 +137,7 @@ class SecpSigner {
             if (pubK.length === 32) {
                 return pubK.slice(12);
             }
-            let address = ethUtil.pubToAddress(pubK);
+            const address = ethUtil.pubToAddress(pubK);
             return address.toString("hex");
         }
         catch (ex) {

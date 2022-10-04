@@ -4,7 +4,7 @@ module.exports = {
             if (hex.startsWith("0x")) {
                 hex = hex.slice(2);
             }
-            if (hex.length % 64 != 0) {
+            if (hex.length % 64 !== 0) {
                 throw "Invalid length";
             }
             let uint256 = [];
