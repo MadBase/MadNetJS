@@ -96,7 +96,7 @@ describe('Unit/MultiSig:', () => {
         it('Fail: Reject Aggregate Multi Signatures when called with invalid argument', async () => {
             await expect(
                 multiSigBn.aggregateSignaturesMulti(null)
-            ).to.eventually.be.rejectedWith("TypeError: Cannot read property 'length' of null");
+            ).to.eventually.be.rejectedWith("TypeError: Cannot read properties of null (reading 'length')");
         });
 
         it('Fail: Reject Verify Aggregate when called with invalid argument', async () => {
