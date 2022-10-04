@@ -110,7 +110,7 @@ class Account {
             }
             let pubs = [];
             for (let i = 0; i < publicKeys.length; i++) {
-                let pCheck = this.Wallet.Utils.isHex(publicKeys[i]);
+                const pCheck = this.Wallet.Utils.isHex(publicKeys[i]);
                 pubs.push(pCheck);
             }
             const bnSigner = new BNSigner(this.Wallet);

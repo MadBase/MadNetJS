@@ -1,5 +1,5 @@
 const { default: Axios } = require('axios');
-const constant = require("./Constants.js");
+const constant = require("./Config/Constants.js");
 const { addTrailingSlash } = require("./Util");
 // Below import for intellisense and type support on jsdoc
 const Wallet = require('./Wallet.js'); //eslint-disable-line
@@ -33,7 +33,7 @@ class RPC {
     async setProvider(rpcServer) {
         try {
             if (!rpcServer) {
-                throw "RPC server not provided"
+                throw "RPC server not provided";
             }
             this.rpcServer = addTrailingSlash(rpcServer);
             const chainId = await this.getChainId();
@@ -250,7 +250,7 @@ class RPC {
                 let reqData = { "CurveSpec": curve, "Account": address, "Number": limit, "StartIndex": offset }
                 let dataStoreIDs = await this.request("iterate-name-space", reqData);
                 if (!dataStoreIDs.Results.length) {
-                    break
+                    break;
                 }
                 DataStoreUTXOResults = DataStoreUTXOResults.concat(dataStoreIDs.Results);
                 if (dataStoreIDs.Results.length <= limit && !getAll) {

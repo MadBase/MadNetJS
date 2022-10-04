@@ -1,5 +1,5 @@
 const Tx = require('./Transaction/Tx.js');
-const Constants = require('./Constants.js');
+const Constants = require('./Config/Constants.js');
 // Below import for intellisense and type support on jsdoc
 const Wallet = require('./Wallet.js'); //eslint-disable-line
 
@@ -264,7 +264,7 @@ class Transaction {
             else {
                 fee = this.Wallet.Utils.isBigInt(fee);
                 if (fee <= BigInt(0)) {
-                    throw "Invalid value"
+                    throw "Invalid value";
                 }
             }
             let account = await this.Wallet.Account.getAccount(payeerAddress);

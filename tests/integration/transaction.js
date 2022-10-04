@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 require('dotenv').config({ path: process.cwd() + '/.env' });
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
@@ -371,8 +372,6 @@ describe('Integration/Transaction:', function () {
         });
 
         it('Success: Send ValueStore with SECP address', async () => {
-            console.log(secpAccount.address)
-            console.log(bnAccount.address)
             await madWallet.Transaction.createTxFee(secpAccount.address, secpAccount.curve, false);
             await madWallet.Transaction.createValueStore(secpAccount.address, 9995, bnAccount.address, bnAccount.curve);
             await expect(madWallet.Transaction.sendTx()).to.eventually.be.fulfilled;

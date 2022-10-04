@@ -1,4 +1,5 @@
 const TxHasher = require('../GoWrappers/TxHasher.js');
+const BNSigner = require("../Signers/BNSigner.js");
 const MultiSig = require("../Signers/MultiSig.js")
 const utils = require('../Util/Tx.js');
 
@@ -481,7 +482,8 @@ class Tx {
     async injectSignaturesAggregate(vinSignatures, voutSignatures) {
         try {
             let Tx = this.getTx()
-            let multiSig = new MultiSig();
+            let bnSigner = new BNSigner(this.Wallet);
+            let multiSig = new MultiSig(this.Wallet, bnSigner);
             let tx = JSON.parse(JSON.stringify(Tx));
             for (let i = 0; i < tx["Tx"]["Vin"].length; i++) {
                 let txIn = JSON.parse(JSON.stringify(tx["Tx"]["Vin"][i]))

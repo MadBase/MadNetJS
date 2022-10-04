@@ -1,4 +1,4 @@
-const constant = require("../Constants.js");
+const constant = require("../Config/Constants.js");
 const validator = require("./Validator.js");
 
 /**
@@ -17,8 +17,8 @@ var self = module.exports = {
                 throw "Bad argument";
             }
             const ownerBuf = Buffer.from(owner, "hex");
-            if (ownerBuf.length != 22) {
-                throw 'Invalid owner';
+            if (ownerBuf.length !== 22) {
+                throw "Invalid owner";
             }
             const validation = ownerBuf.slice(0, 1).toString("hex");
             const curve = ownerBuf.slice(1, 2).toString("hex");
@@ -63,8 +63,7 @@ var self = module.exports = {
     calculateDeposit: async(data, duration) => {
         try {
             // dspi.go - BaseDepositEquation
-            data = validator.isHex(data);
-            const dataSize = BigInt(Buffer.from(data, "hex").length);
+            const dataSize = BigInt(Buffer.from(validator.isHex(data), "hex").length);
             if (dataSize > BigInt(constant.MaxDataStoreSize)) {
                 throw "Data size is too large";
             }
