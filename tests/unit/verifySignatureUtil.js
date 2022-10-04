@@ -4,8 +4,6 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 const MadWalletJS = require('../../index.js');
-const BNSigner = require('../../src/Signers/BNSigner.js');
-const SecpSigner = require('../../src/Signers/SecpSigner.js');
 const VerifySignature = require('../../src/Util/VerifySignature');
 
 describe('Unit/Util/VerifySignature:', () => {
@@ -14,8 +12,10 @@ describe('Unit/Util/VerifySignature:', () => {
     before(async function() {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
         madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
-        bnSigner = new BNSigner(madWallet, privateKey);
-        secpSigner = new SecpSigner(madWallet, privateKey);
+        const secpAccount = await madWallet.Account.addAccount(privateKey, 1);
+        const bnAccount = await madWallet.Account.addAccount(privateKey, 2)
+        bnSigner = bnAccount.signer;
+        secpSigner = secpAccount.signer;
         msgHex = Buffer.from('hello world', 'utf8').toString('hex').toLowerCase();
     });
     
