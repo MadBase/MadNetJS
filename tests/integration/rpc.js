@@ -113,6 +113,7 @@ describe('Integration/RPC:', function () {
         });
 
         it('Success: Return Fees with the correct keys', async () => {
+            /* eslint-disable no-prototype-builtins */
             expect(fees.hasOwnProperty('MinTxFee')).to.true;
             expect(fees.hasOwnProperty('ValueStoreFee')).to.true;
             expect(fees.hasOwnProperty('DataStoreFee')).to.true;

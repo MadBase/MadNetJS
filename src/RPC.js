@@ -1,4 +1,4 @@
-const { default: Axios } = require('axios');
+const Api = require("./Http/Api.js");
 const constant = require("./Config/Constants.js");
 const { addTrailingSlash } = require("./Util");
 // Below import for intellisense and type support on jsdoc
@@ -88,7 +88,7 @@ class RPC {
     async getChainId() {
         try {
             // Directly call API for chainID to avoid recursive loop from this.request()'s chainID dependency
-            const { data: { ChainID = null }} = await Axios.post(this.rpcServer + "get-chain-id", {}, {
+            const { data: { ChainID = null }} = await Api.post(this.rpcServer + "get-chain-id", {}, {
                 timeout: this.rpcTimeout
             });
             if (!ChainID) {
@@ -485,7 +485,7 @@ class RPC {
             let resp;
             while (true) {
                 try {
-                    resp = await Axios.post(this.rpcServer + route, data, {
+                    resp = await Api.post(this.rpcServer + route, data, {
                         timeout: this.rpcTimeout,
                         validateStatus: function (status) {
                             return status
