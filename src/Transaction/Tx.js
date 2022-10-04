@@ -325,7 +325,7 @@ class Tx {
                     const rawData = this.Vout[i].DataStore.DSLinker.DSPreImage.RawData;
                     const dataSize = BigInt(Buffer.from(rawData, "hex").length);
                     const dsEpochs = await utils.calculateNumEpochs(dataSize, BigInt("0x" + this.Vout[i].DataStore.DSLinker.DSPreImage.Deposit))
-                    thisTotal = await utils.calculateFee(BigInt("0x" + fees["DataStoreFee"]), BigInt(dsEpochs));
+                    thisTotal = await utils.calculateFee(BigInt("0x" + fees.DataStoreFee), BigInt(dsEpochs));
                     thisTotal = BigInt(thisTotal) + BigInt(BigInt("0x" + this.Vout[i].DataStore.DSLinker.DSPreImage.Deposit));
                     const owner = await utils.extractOwner(this.Vout[i].DataStore.DSLinker.DSPreImage.Owner);
                     const DS = await this.Wallet.Rpc.getDataStoreByIndex(owner[2], owner[1], this.Vout[i].DataStore.DSLinker.DSPreImage.Index);
@@ -453,7 +453,7 @@ class Tx {
             }
             for (let i = 0; i < tx.Tx.Vout.length; i++) {
                 const txOut = JSON.parse(JSON.stringify(tx.Tx.Vout[i]));
-                if (txOut["DataStore"]) {
+                if (txOut.DataStore) {
                     const owner = await utils.extractOwner(txOut.DataStore.DSLinker.DSPreImage.Owner)
                     const ownerAccount = await this.Wallet.Account.getAccount(owner[2]);
                     const signed = await ownerAccount.signer.sign("0x" + txOut.DataStore.Signature);
