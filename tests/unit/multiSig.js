@@ -9,38 +9,20 @@ const SecpSigner = require('../../src/Signers/SecpSigner.js');
 const BNSigner = require('../../src/Signers/BNSigner.js');
 
 describe('Unit/MultiSig:', () => {
-    let privateKey, secondaryPrivateKey, msgHex, madWallet, secpSigner;
+    let privateKey, secondaryPrivateKey, msgHex, madWallet;
     let bnSigner, multiSigBn, publicKeys, signatures;
-    let secpAccount, bnAccount;
-
-    before(async function() {
+    before(async function () {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
         secondaryPrivateKey = process.env.OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY;
         msgHex = Buffer.from('hello world', 'utf8').toString('hex').toLowerCase();
         madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
-        secpSigner = new SecpSigner(madWallet, privateKey);
+
         bnSigner = new BNSigner(madWallet, privateKey);
         multiSigBn = new MultiSig(madWallet, bnSigner);
 
         await madWallet.Account.addAccount(privateKey, 2);
         await madWallet.Account.addAccount(secondaryPrivateKey, 2);
 
-        secpAccount = madWallet.Account.accounts[0];
-        bnAccount = madWallet.Account.accounts[1];
-
-        let account = await madWallet.Account.getAccount(secpAccount.address);
-        let accountPK = await account.signer.getPubK();
-        let accountTwo = await madWallet.Account.getAccount(bnAccount.address);
-        let accountTwoPK = await accountTwo.signer.getPubK();
-
-        publicKeys = [ accountPK, accountTwoPK ];
-
-        let multiAccount = await madWallet.Account.addMultiSig(publicKeys);
-        let multiPubK = await multiAccount.signer.getPubK()
-        let signatureOne = await account.signer.multiSig.sign(msgHex, multiPubK);
-        let signatureTwo = await accountTwo.signer.multiSig.sign(msgHex, multiPubK);
-
-        signatures = [ signatureOne, signatureTwo ];
     });
 
     describe('Public Key and Address', () => {
@@ -125,9 +107,7 @@ describe('Unit/MultiSig:', () => {
         });
 
         it('Fail: Aggregate Signatures should fail unless an array is provided ', async () => {
-            await expect(
-                multiSigBn.aggregateSignatures({})
-            ).to.eventually.be.rejectedWith('Call using map[string]interface {} as type []interface {}');
+            multiSigBn.aggregateSignatures({}).to.eventually.be.rejectedWith('Call using map[string]interface {} as type []interface {}');
         });
 
         it('Success: Aggregate Signatures', async () => {
@@ -136,12 +116,6 @@ describe('Unit/MultiSig:', () => {
 
         it('Success: Aggregate Multi Signatures', async () => {
             await expect(multiSigBn.aggregateSignaturesMulti([signatures])).to.eventually.be.fulfilled;
-        });
-
-        it('Success: Verify Secp Signature', async () => {
-            const sig = await secpSigner.sign(msgHex);
-            const recoverdePubK = await secpSigner.verify(msgHex, sig);
-            expect(recoverdePubK).to.be.a('string');
         });
 
         it('Success: Verify Aggregate Signature', async () => {
@@ -167,4 +141,5 @@ describe('Unit/MultiSig:', () => {
         });
 
     });
+    
 });
