@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 require('dotenv').config({ path: process.cwd() + '/.env' });
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
@@ -71,7 +72,7 @@ describe('Integration/Transaction:', function () {
         it('Fail: Cannot consume UTXOs when argument accountUTXO is invalid', async () => {
             await expect(
                 madWallet.Transaction._spendUTXO(null)
-            ).to.eventually.be.rejectedWith('TypeError: Cannot read properties of null (reading \'ValueStores\')');
+            ).to.eventually.be.rejectedWith("TypeError: Cannot read properties of null (reading 'ValueStores')");
         });
     });
     
@@ -272,13 +273,13 @@ describe('Integration/Transaction:', function () {
         it('Fail: Reject _createValueTxIn with invalid arguments', async () => {
             await expect(
                 madWallet.Transaction._createValueTxIn('invalidaddress')
-            ).to.eventually.be.rejectedWith('TypeError: Cannot read properties of undefined (reading \'TxHash\')');
+            ).to.eventually.be.rejectedWith("TypeError: Cannot read properties of undefined (reading 'TxHash')");
         });
 
         it('Fail: Reject _createDataTxIn with invalid arguments', async () => {
             await expect(
                 madWallet.Transaction._createDataTxIn('invalidaddress')
-            ).to.eventually.be.rejectedWith('TypeError: Cannot read properties of undefined (reading \'DSLinker\')');
+            ).to.eventually.be.rejectedWith("TypeError: Cannot read properties of undefined (reading 'DSLinker')");
         });
     });
 

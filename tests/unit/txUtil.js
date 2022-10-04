@@ -32,7 +32,7 @@ describe('Unit/Util/Tx:', () => {
         it('Fail: Reject when called with invalid arguments', async () => {
             await expect(
                 Tx.remainingDeposit(null, null)
-            ).to.eventually.be.rejectedWith('Transaction.rewardDeposit: TypeError: Cannot read properties of null (reading \'DSLinker\')');
+            ).to.eventually.be.rejectedWith("Transaction.rewardDeposit: TypeError: Cannot read properties of null (reading 'DSLinker')");
         });
     });
     

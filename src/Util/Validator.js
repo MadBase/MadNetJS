@@ -16,7 +16,7 @@ var self = module.exports = {
             if (!validHex.test(str)) {
                 throw "Invalid hex character";
             }
-            if (str.length % 2 != 0) {
+            if (str.length % 2 !== 0) {
                 str = "0" + str;
             }
             return str.toLowerCase();
@@ -31,12 +31,12 @@ var self = module.exports = {
             if (!str) { 
                 throw "No input provided";
              }
-            if (str.length != 64 && str.length != 66) {
+            if (str.length !== 64 && str.length !== 66) {
                 throw "Invalid length";
             }
             str = self.isHex(str);
             if (!str ||
-                str.length != 64
+                str.length !== 64
             ) {
                 throw "Invalid length";
             }
@@ -72,8 +72,8 @@ var self = module.exports = {
     isCurve: (num) => {
         try {
             num = self.isNumber(num);
-            if (num != 1 &&
-                num != 2
+            if (num !== 1 &&
+                num !== 2
             ) {
                 throw "Invalid curve";
             }
@@ -90,11 +90,11 @@ var self = module.exports = {
                 throw "No input provided";
             }
             str = self.isHex(str);
-            if (str.length != 40 && str.length != 42) {
+            if (str.length !== 40 && str.length !== 42) {
                 throw "Invalid length";
             }
             str = self.isHex(str);
-            if (str.length != 40) {
+            if (str.length !== 40) {
                 throw "Invalid length";
             }
             return str.toLowerCase();
@@ -106,8 +106,7 @@ var self = module.exports = {
 
     isBigInt: (bn) => {
         try {
-            bn = BigInt(bn);
-            return bn;
+            return BigInt(bn);
         }
         catch(ex) {
             throw new Error("Validator.isBigInt\r\n" + String(ex));
@@ -121,7 +120,7 @@ var self = module.exports = {
                 throw "Not a number";
             }
             let h = BigInt(num).toString(16);
-            if (h.length % 2 != 0) {
+            if (h.length % 2 !== 0) {
                 h = "0" + h;
             }
             return h;
@@ -134,7 +133,7 @@ var self = module.exports = {
     hexToInt: (hex) => {
         try {
             hex = self.isHex(hex);
-            let bn = BigInt('0x' + hex).toString(10);
+            const bn = BigInt("0x" + hex).toString(10);
             return bn;
         }
         catch(ex) {

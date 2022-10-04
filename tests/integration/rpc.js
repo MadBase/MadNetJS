@@ -28,7 +28,7 @@ describe('Integration/RPC:', function () {
         
         const balance = await madWallet.Account.accounts[0].getAccountBalance();
 
-        if(balance === '00' ){
+        if(balance === '00') {
             console.log(`Balance is ${balance}`, '\nInsufficient funds, skipping tests.');
             this.skip();
         }
@@ -88,10 +88,10 @@ describe('Integration/RPC:', function () {
             ).to.eventually.be.rejectedWith('invalid value for uint32');
         });
 
-        it('Success: Get TX BlockHeihgt with valid argument', async () => {
+        it('Success: Get TX BlockHeight with valid argument', async () => {
             await expect(madWallet.Rpc.getTxBlockHeight(validTxHash)).to.eventually.be.fulfilled;
         });
-
+        
         it('Success: Get Block Number', async () => {
             await expect(madWallet.Rpc.getBlockNumber()).to.eventually.be.fulfilled;
         });
