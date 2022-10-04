@@ -5,13 +5,10 @@ chai.use(chaiAsPromised);
 const expect = chai.expect;
 const MadWalletJS = require('../../index.js');
 const MultiSig = require('../../src/Signers/MultiSig');
-const SecpSigner = require('../../src/Signers/SecpSigner.js');
-const BNSigner = require('../../src/Signers/BNSigner.js');
 
 describe('Unit/MultiSig:', () => {
-    let privateKey, secondaryPrivateKey, msgHex, madWallet;
-    let bnSigner, multiSigBn, publicKeys, signatures;
-    before(async function () {
+    let privateKey, secondaryPrivateKey, msgHex, madWallet, multiSigBn, bnAccount;
+    before(async function() {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
         secondaryPrivateKey = process.env.OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY;
         msgHex = Buffer.from('hello world', 'utf8').toString('hex').toLowerCase();
@@ -23,6 +20,8 @@ describe('Unit/MultiSig:', () => {
         await madWallet.Account.addAccount(privateKey, 2);
         await madWallet.Account.addAccount(secondaryPrivateKey, 2);
 
+        bnAccount = madWallet.Account.accounts[0];
+        
     });
 
     describe('Public Key and Address', () => {
@@ -132,14 +131,20 @@ describe('Unit/MultiSig:', () => {
         });
 
         it('Success: Verify BN Signature', async () => {
-            const signature = await bnSigner.sign(msgHex);
+            const accountBN = await madWallet.Account.getAccount(bnAccount.address);
+            const signature = await accountBN.signer.sign(msgHex);
             expect(signature).to.be.a('string');
         });
 
-        it('Fail: Fail if bnSigner in MultiSig constructor is not an instance of BnSigner', async () => {
-            expect(() => new MultiSig(madWallet, secpSigner)).to.throw(Error);
+        it('Success: Sign Multiple Messages', async () => {
+            const accountBN = await madWallet.Account.getAccount(bnAccount.address);
+            const signatures = await accountBN.signer.signMulti([msgHex, msgHex]);
+            expect(signatures).to.be.an('array');
         });
 
+        it('Fail: Fail if signer in MultiSig constructor is not an instance of BnSigner', async () => {
+            expect(() => new MultiSig(madWallet, secpSigner)).to.throw(Error);
+        });
     });
-    
+
 });
