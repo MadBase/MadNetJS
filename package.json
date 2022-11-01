@@ -26,6 +26,9 @@
         "secp256k1": "^4.0.3"
     },
     "devDependencies": {
+        "@commitlint/cli": "^17.2.0",
+        "@commitlint/config-conventional": "^17.2.0",
+        "@commitlint/format": "^17.0.0",
         "assert": "2.0.0",
         "chai": "4.2.0",
         "chai-as-promised": "7.1.1",
