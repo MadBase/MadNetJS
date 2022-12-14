@@ -1,4 +1,4 @@
-const Account = require("./Account.js");
+const Account = require("./Account.ts");
 const Transaction = require("./Transaction.js");
 const RPC = require("./RPC.js");
 const utils = require("./Util");
