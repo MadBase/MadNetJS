@@ -5,10 +5,31 @@ import SecpSigner from "./Signers/SecpSigner";
 // const Wallet = require('./Wallet.js'); //eslint-disable-line
 
 // TODO Move to Wallet.ts
-type Wallet = {
+type IWallet = {
     _initializeParams: () => {};
     Rpc: any;
     Utils: any;
+}
+
+type IUTXO = {
+    DataStores: Array<any>;
+    ValueStores: Array<any>;
+    ValueStoreIDs: Array<any>;
+    DataStoreIDs: Array<any>;
+    Value: string | number | bigint;
+}
+
+type IAccount= {
+    UTXO: IUTXO;
+    UTXODataStores?: string;
+    curve: number;
+    address: string;
+    signer: Object;
+    getAccountUTXOs: (minValue: number) => Promise<void>;
+    getAccountUTXOsByIds: (utxoIds: Array<string>) => Promise<void>;
+    getAccountValueStores: (minValue: number) => Promise<void>;
+    getAccountDataStores: (minValue: number) => Promise<void>;
+    getAccountBalance: () => Promise<void>;
 }
 
 /**
@@ -18,16 +39,16 @@ type Wallet = {
  * @property {Array} accounts - A list of associated account objects
  */
 class Account {
-    private Wallet: Wallet;
-    public accounts: Array<Object>;
+    private Wallet: IWallet;
+    public accounts: Array<IAccount>;
 
     /**
      * Creates an instance of Accounts.
      * @param {Wallet} Wallet - Circular wallet reference to use internally of Account class
      */
-    constructor(Wallet: Wallet) {
+    constructor(Wallet: IWallet) {
         this.Wallet = Wallet;
-        this.accounts = [];        
+        this.accounts = [];
     }
 
     /**
@@ -38,22 +59,22 @@ class Account {
      * @returns {Object} Account Object
      */
     async _buildAccountObject(curve: number, address: string, signer: string): Promise<Object> {
-        const utxo = { 
-            "DataStores": [], 
-            "ValueStores": [], 
-            "ValueStoreIDs": [], 
-            "DataStoreIDs": [], 
-            "Value": "" 
+        const utxo = {
+            "DataStores": [],
+            "ValueStores": [],
+            "ValueStoreIDs": [],
+            "DataStoreIDs": [],
+            "Value": ""
         };
 
-        const account = { 
-            "UTXO": utxo, 
-            "curve": curve, 
-            "address": address, 
+        const account = {
+            "UTXO": utxo,
+            "curve": curve,
+            "address": address,
             "signer": signer,
-            "getAccountUTXOs": async (minValue: number) => this._getAccountUTXOs(address, minValue), 
-            "getAccountUTXOsByIds": async (utxoIds: Array<string>) => this._getAccountUTXOsByIds(address, utxoIds), 
-            "getAccountValueStores": async (minValue: number) => this._getAccountValueStores(address, minValue), 
+            "getAccountUTXOs": async (minValue: number) => this._getAccountUTXOs(address, minValue),
+            "getAccountUTXOsByIds": async (utxoIds: Array<string>) => this._getAccountUTXOsByIds(address, utxoIds),
+            "getAccountValueStores": async (minValue: number) => this._getAccountValueStores(address, minValue),
             "getAccountDataStores": async (minValue: number) => {
                 const dataStoreUTXOs = await this.Wallet.Rpc.getDataStoreUTXOIDsAndIndices(address, curve, minValue, false);
                 return dataStoreUTXOs;
@@ -63,7 +84,7 @@ class Account {
                 return balance;
             }
         };
-        
+
         this.accounts.push(account);
         return account;
     }
@@ -76,7 +97,7 @@ class Account {
      * @throws Account already added
      * @returns {Object} Account Object
      */
-    async addAccount(privateKey, curve = 1) {
+    async addAccount(privateKey: string, curve: number = 1): Promise<Object> {
         try {
             privateKey = this.Wallet.Utils.isPrivateKey(privateKey);
             curve = this.Wallet.Utils.isCurve(curve);
@@ -113,7 +134,7 @@ class Account {
      * @throws Invalid public key array
      * @returns {Object} Account Object
      */
-    async addMultiSig(publicKeys) {
+    async addMultiSig(publicKeys: Array<string>): Promise<Object> {
         try {
             if (!publicKeys || !Array.isArray(publicKeys) || publicKeys.length <= 0) {
                 throw "Invalid public key array";
@@ -139,7 +160,7 @@ class Account {
      * Remove account by address
      * @param {hex} address
      */
-    async removeAccount(address) {
+    async removeAccount(address: string) {
         try {
             const acctIdx = await this._getAccountIndex(address);
             this.accounts.splice(acctIdx, 1);
@@ -155,13 +176,13 @@ class Account {
      * @throws Could not find account
      * @returns {Object} Account Object
      */
-    async getAccount(address) {
+    async getAccount(address: string): Promise<Object> {
         try {
             address = this.Wallet.Utils.isAddress(address);
             const account = this.accounts.find(a => a.address === address);
-            if(account) 
+            if(account)
                 return account;
-            else 
+            else
                 throw "Could not find account";
         }
         catch (ex) {
@@ -175,13 +196,13 @@ class Account {
      * @throws Could not find account index
      * @returns {number} Index for the provided address
      */
-    async _getAccountIndex(address) {
+    async _getAccountIndex(address: string): Promise<number> {
         try {
             address = this.Wallet.Utils.isAddress(address);
             const accountIndex = this.accounts.findIndex(a => a.address === address);
             if(accountIndex === -1){
                 throw "Could not find account index";
-            } 
+            }
             else {
                 return accountIndex;
             }
@@ -196,7 +217,7 @@ class Account {
      * @param {hex} address
      * @param {number} minValue
      */
-    async _getAccountUTXOs(address, minValue) {
+    async _getAccountUTXOs(address: string, minValue: number) {
         try {
             address = this.Wallet.Utils.isAddress(address);
             const accountIndex = await this._getAccountIndex(address);
@@ -221,9 +242,9 @@ class Account {
     /**
      * Get specific UTXOs for account
      * @param {hex} address
-     * @param {hex} utxoIds
+     * @param {Array<hex>} utxoIds
      */
-    async _getAccountUTXOsByIds(address, utxoIds) {
+    async _getAccountUTXOsByIds(address: string, utxoIds: string[]) {
         try {
             if (!Array.isArray(utxoIds)) {
                 utxoIds = [utxoIds];
@@ -254,7 +275,7 @@ class Account {
      * @param {hex} address
      * @param {number} minValue
      */
-    async _getAccountValueStores(address, minValue) {
+    async _getAccountValueStores(address: string, minValue: number) {
         try {
             address = this.Wallet.Utils.isAddress(address);
             const accountIndex = await this._getAccountIndex(address);
