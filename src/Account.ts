@@ -58,7 +58,7 @@ class Account {
      * @param {hex} signer
      * @returns {Object} Account Object
      */
-    async _buildAccountObject(curve: number, address: string, signer: string): Promise<Object> {
+    async _buildAccountObject(curve: number, address: string, signer: string): Promise<IAccount> {
         const utxo = {
             "DataStores": [],
             "ValueStores": [],
@@ -97,7 +97,7 @@ class Account {
      * @throws Account already added
      * @returns {Object} Account Object
      */
-    async addAccount(privateKey: string, curve: number = 1): Promise<Object> {
+    async addAccount(privateKey: string, curve: number = 1): Promise<IAccount> {
         try {
             privateKey = this.Wallet.Utils.isPrivateKey(privateKey);
             curve = this.Wallet.Utils.isCurve(curve);
@@ -134,7 +134,7 @@ class Account {
      * @throws Invalid public key array
      * @returns {Object} Account Object
      */
-    async addMultiSig(publicKeys: Array<string>): Promise<Object> {
+    async addMultiSig(publicKeys: Array<string>): Promise<IAccount> {
         try {
             if (!publicKeys || !Array.isArray(publicKeys) || publicKeys.length <= 0) {
                 throw "Invalid public key array";
@@ -176,7 +176,7 @@ class Account {
      * @throws Could not find account
      * @returns {Object} Account Object
      */
-    async getAccount(address: string): Promise<Object> {
+    async getAccount(address: string): Promise<IAccount> {
         try {
             address = this.Wallet.Utils.isAddress(address);
             const account = this.accounts.find(a => a.address === address);
