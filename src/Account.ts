@@ -1,15 +1,7 @@
 import MultiSig from "./Signers/MultiSig";
 import BNSigner from "./Signers/BNSigner";
 import SecpSigner from "./Signers/SecpSigner";
-// Below import for intellisense and type support on jsdoc
-// const Wallet = require('./Wallet.js'); //eslint-disable-line
-
-// TODO Move to Wallet.ts
-type IWallet = {
-    _initializeParams: () => {};
-    Rpc: any;
-    Utils: any;
-}
+import { IWallet } from './Wallet';
 
 type IUTXO = {
     DataStores: Array<any>;
@@ -292,4 +284,4 @@ class Account {
     }
 }
 
-module.exports = Account;
+export default Account;
