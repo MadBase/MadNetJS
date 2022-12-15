@@ -16,10 +16,10 @@ const utils = require("./Util");
 class Wallet {
     /**
      * Creates an instance of Wallet.
-     * @param {WalletParams} params
+     * @param {WalletParams} params 
      */
     constructor(...params) {
-        const { chainId, rpcServer, rpcTimeout } = this._initializeParams(params)
+        const { chainId, rpcServer, rpcTimeout } = this._initializeParams(params)        
         this.chainId = chainId ? utils.isNumber(chainId) : undefined;
         this.Account = new Account(this);
         this.Transaction = new Transaction(this);
@@ -56,8 +56,8 @@ class Wallet {
         }
 
         return {
-            chainId,
-            rpcServer,
+            chainId, 
+            rpcServer, 
             rpcTimeout
         }
     }
