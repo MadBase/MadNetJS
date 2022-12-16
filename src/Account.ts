@@ -3,6 +3,14 @@ import BNSigner from "./Signers/BNSigner";
 import SecpSigner from "./Signers/SecpSigner";
 import { WalletParams } from './Wallet';
 
+
+// TODO Move this to Multisig.js/BNSigner.js
+export type ISigner = {
+    multiSig: () => {};
+    getAddress: () => {};
+    addPublicKeys: () => {};
+}
+
 export type IUTXO = {
     DataStores: Array<any>;
     ValueStores: Array<any>;
@@ -16,12 +24,12 @@ export type IAccount= {
     UTXODataStores?: string;
     curve: number;
     address: string;
-    signer: Object;
+    signer: ISigner;
     getAccountUTXOs: (minValue: number) => Promise<void>;
     getAccountUTXOsByIds: (utxoIds: Array<string>) => Promise<void>;
     getAccountValueStores: (minValue: number) => Promise<void>;
     getAccountDataStores: (minValue: number) => Promise<void>;
-    getAccountBalance: () => Promise<void>;
+    getAccountBalance: () => Promise<bigint>;
 }
 
 /**
@@ -50,7 +58,7 @@ class Account {
      * @param {hex} signer
      * @returns {Object} Account Object
      */
-    async _buildAccountObject(curve: number, address: string, signer: string): Promise<IAccount> {
+    async _buildAccountObject(curve: number, address: string, signer: ISigner): Promise<IAccount> {
         const utxo = {
             "DataStores": [],
             "ValueStores": [],
