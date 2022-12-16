@@ -1,17 +1,9 @@
 import MultiSig from "./Signers/MultiSig";
 import BNSigner from "./Signers/BNSigner";
 import SecpSigner from "./Signers/SecpSigner";
-// Below import for intellisense and type support on jsdoc
-// const Wallet = require('./Wallet.js'); //eslint-disable-line
+import { WalletParams } from './Wallet';
 
-// TODO Move to Wallet.ts
-type IWallet = {
-    _initializeParams: () => {};
-    Rpc: any;
-    Utils: any;
-}
-
-type IUTXO = {
+export type IUTXO = {
     DataStores: Array<any>;
     ValueStores: Array<any>;
     ValueStoreIDs: Array<any>;
@@ -19,7 +11,7 @@ type IUTXO = {
     Value: string | number | bigint;
 }
 
-type IAccount= {
+export type IAccount= {
     UTXO: IUTXO;
     UTXODataStores?: string;
     curve: number;
@@ -39,14 +31,14 @@ type IAccount= {
  * @property {Array} accounts - A list of associated account objects
  */
 class Account {
-    private Wallet: IWallet;
+    private Wallet: WalletParams;
     public accounts: Array<IAccount>;
 
     /**
      * Creates an instance of Accounts.
      * @param {Wallet} Wallet - Circular wallet reference to use internally of Account class
      */
-    constructor(Wallet: IWallet) {
+    constructor(Wallet: WalletParams) {
         this.Wallet = Wallet;
         this.accounts = [];
     }
@@ -292,4 +284,4 @@ class Account {
     }
 }
 
-module.exports = Account;
+export default Account;
