@@ -28,7 +28,7 @@ export class SecpSigner {
      * @throws Private key not set
      * @returns {hex} Signature
      */
-    async sign(msg: string) {
+    async sign(msg: string): Promise<string> {
         try {
             if (!this.Wallet.Utils.isHex(msg)) throw "Bad argument type";
             if (!this.privK) throw "Private key not set";
@@ -52,7 +52,7 @@ export class SecpSigner {
      * @param {Array<hex>} msgs
      * @returns {Array<hex>} Signed messages
      */
-    async signMulti(msgs: string[]) {
+    async signMulti(msgs: string[]): Promise<string[]> {
         try {
             let signed: string[] = [];
 
@@ -75,7 +75,7 @@ export class SecpSigner {
      * @throws Public Keys don't match
      * @returns {hex} Recovered Public Key
      */
-    async verify(msg: string, sig: string) {
+    async verify(msg: string, sig: string): Promise<Uint8Array> {
         try {
             if (!this.Wallet.Utils.isHex(msg) || !this.Wallet.Utils.isHex(sig))
                 throw "Bad argument type";
@@ -132,7 +132,7 @@ export class SecpSigner {
      * @throws Private key not set
      * @returns {hex} Public Key
      */
-    async getPubK() {
+    async getPubK(): Promise<string> {
         try {
             if (!this.privK) throw "Private key not set";
 
@@ -150,7 +150,7 @@ export class SecpSigner {
      * Public key to Ethereum Address
      * @returns {hex} Address
      */
-    async getAddress() {
+    async getAddress(): Promise<Buffer | string> {
         try {
             const pubK = Buffer.from(await this.getPubK(), "hex");
 
