@@ -1,7 +1,19 @@
-const Account = require("./Account.js");
-const Transaction = require("./Transaction.js");
-const RPC = require("./RPC.js");
-const utils = require("./Util");
+import Account from "./Account.js";
+import Transaction from "./Transaction.js";
+import RPC from "./RPC.js";
+import utils from "./Util";
+
+//TODO replace with Account, Transaction, RPC, UtilityCollection, etc
+
+export type WalletParams = {
+    chainId: Number;
+    Account: any;
+    Transaction: any;
+    Rpc: any;
+    Utils: any;
+    rpcServer: any;
+    rpcTimeout: any;
+}
 
 export type IWallet = {
     _initializeParams: () => {};
@@ -21,11 +33,17 @@ export type IWallet = {
  * @property {UtilityCollection} Utils - Utility Collection
  */
 class Wallet {
+    private chainId: Number;
+    public Account: any;
+    private Transaction: any;
+    private Rpc: any;
+    private Utils: any;
+
     /**
      * Creates an instance of Wallet.
      * @param {WalletParams} params
      */
-    constructor(...params) {
+    constructor(...params: WalletParams[]) {
         const { chainId, rpcServer, rpcTimeout } = this._initializeParams(params)
         this.chainId = chainId ? utils.isNumber(chainId) : undefined;
         this.Account = new Account(this);
@@ -39,7 +57,7 @@ class Wallet {
      * @param {WalletParams} params - Accepts a chainId and rpcServer arguments for backwards compatibility, a shorthand instancing w/ RPC endpoint only or object Based configuration
      * @returns {Object<WalletParams>} Wallet parameters
      */
-    _initializeParams(params) {
+    _initializeParams(params: WalletParams[]) {
         let chainId, rpcServer, rpcTimeout;
 
         // Backwards compatibility catch

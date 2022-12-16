@@ -1,9 +1,17 @@
 import MultiSig from "./Signers/MultiSig";
 import BNSigner from "./Signers/BNSigner";
 import SecpSigner from "./Signers/SecpSigner";
-import { IWallet } from './Wallet';
+import { WalletParams } from './Wallet';
 
-type IUTXO = {
+
+// TODO Move this to Multisig.js/BNSigner.js
+export type ISigner = {
+    multiSig: () => {};
+    getAddress: () => {};
+    addPublicKeys: () => {};
+}
+
+export type IUTXO = {
     DataStores: Array<any>;
     ValueStores: Array<any>;
     ValueStoreIDs: Array<any>;
@@ -11,17 +19,17 @@ type IUTXO = {
     Value: string | number | bigint;
 }
 
-type IAccount= {
+export type IAccount= {
     UTXO: IUTXO;
     UTXODataStores?: string;
     curve: number;
     address: string;
-    signer: Object;
+    signer: ISigner;
     getAccountUTXOs: (minValue: number) => Promise<void>;
     getAccountUTXOsByIds: (utxoIds: Array<string>) => Promise<void>;
     getAccountValueStores: (minValue: number) => Promise<void>;
     getAccountDataStores: (minValue: number) => Promise<void>;
-    getAccountBalance: () => Promise<void>;
+    getAccountBalance: () => Promise<bigint>;
 }
 
 /**
@@ -31,14 +39,14 @@ type IAccount= {
  * @property {Array} accounts - A list of associated account objects
  */
 class Account {
-    private Wallet: IWallet;
+    private Wallet: WalletParams;
     public accounts: Array<IAccount>;
 
     /**
      * Creates an instance of Accounts.
      * @param {Wallet} Wallet - Circular wallet reference to use internally of Account class
      */
-    constructor(Wallet: IWallet) {
+    constructor(Wallet: WalletParams) {
         this.Wallet = Wallet;
         this.accounts = [];
     }
@@ -50,7 +58,7 @@ class Account {
      * @param {hex} signer
      * @returns {Object} Account Object
      */
-    async _buildAccountObject(curve: number, address: string, signer: string): Promise<IAccount> {
+    async _buildAccountObject(curve: number, address: string, signer: ISigner): Promise<IAccount> {
         const utxo = {
             "DataStores": [],
             "ValueStores": [],
