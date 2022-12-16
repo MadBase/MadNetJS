@@ -1,7 +1,27 @@
 import Api from "./Http/Api";
 import constant from "./Config/Constants";
 import { addTrailingSlash } from "./Util";
-import { IWallet } from './Wallet';
+import { WalletParams } from './Wallet';
+
+// TODO move to Transaction.ts
+export interface Utxo {
+    DataStore: Array<any>;
+    ValueStore: Array<any>;
+    ValueStoreIDs: Array<any>;
+    DataStoreIDs: Array<any>;
+    Value: string | number | bigint;
+}
+
+export interface RpcResponse {
+    BlockHeader: number;
+    BlockHeight: number;
+    Epoch: number;
+    MinTxFee: Object; // TODO TBD
+    UTXOs: Utxo[];
+    UTXOIDs: string[];
+    TotalValue: bigint | string;
+    PaginationToken: string;
+}
 
 /**
  * RPC request handler
@@ -11,7 +31,7 @@ import { IWallet } from './Wallet';
  * @property {String|Boolean} rpcTimeout - (Optional) - RPC Endpoint to use for RPC requests
  */
 class RPC {
-    private Wallet: IWallet;
+    private Wallet: WalletParams;
     public rpcServer: string;
     public rpcTimeout: number;
 
@@ -21,7 +41,7 @@ class RPC {
      * @param {String|Boolean} [rpcServer=false] - (Optional - Rpc endpoint to use for RPC requests)
      * @param {number} [rpcTimeout=false] - (Optional - Maximum time to wait for RPC requests)
      */
-    constructor(Wallet: IWallet, rpcServer: string, rpcTimeout: number = 0) {
+    constructor(Wallet: WalletParams, rpcServer: string, rpcTimeout: number = 0) {
         this.Wallet = Wallet;
         this.rpcServer = rpcServer ? addTrailingSlash(rpcServer) : false;
         this.rpcTimeout = rpcTimeout || constant.ReqTimeout;
@@ -470,7 +490,7 @@ class RPC {
      * @throws No route provided
      * @returns {Object} Response Data
      */
-    async request(route: string, data: Object): Promise<Object> {
+    async request(route?: string, data?: Object): Promise<RpcResponse> {
         try {
             if (!this.Wallet.chainId && this.rpcServer) {
                 await this.setProvider(this.rpcServer);
