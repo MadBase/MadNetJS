@@ -248,11 +248,11 @@ export class Transaction {
      * Create the transaction fee and account that will be paying it
      * @param {hex} payeerAddress
      * @param {number} payeerCurve
-     * @param {bigint} fee
+     * @param {number|bigint} fee
      * @throws Missing arugments
      * @throws Invalid value
      */
-    async createTxFee(payeerAddress: string, payeerCurve: Number, fee: bigint) {
+    async createTxFee(payeerAddress: string, payeerCurve: Number, fee: number | bigint) {
         try {
             if (!payeerAddress || !payeerCurve) {
                 throw "Missing arguments";
@@ -351,7 +351,7 @@ export class Transaction {
      * Create a DataStore
      * @param {hex} from
      * @param {(string|hex)} index
-     * @param {bigint} duration
+     * @param {number|bigint} duration
      * @param {(string|hex)} rawData
      * @param {number|any} [issuedAt=false]
      * @param {number} fee
@@ -364,7 +364,7 @@ export class Transaction {
      * @throws RPC server must be set to fetch fee
      * @returns {Object} Data Store
      */
-    async createDataStore(from: string, index: string, duration: BigInt, rawData: string, issuedAt: Number|any = 0, fee: Number) : Promise<any>{
+    async createDataStore(from: string, index: string, duration: number | bigint, rawData: string, issuedAt: Number|any = 0, fee: Number) : Promise<any>{
         try {
             if (!from || !index || !duration || !rawData) {
                 throw "Missing arguments";
@@ -442,7 +442,7 @@ export class Transaction {
                 owner,
                 fee
             );
-            const total:any = BigInt(deposit) + BigInt("0x" + fee);
+            const total = BigInt(deposit) + BigInt("0x" + fee);
             await this._addOutValue(total, account.address, { index: index, epoch: issuedAt });
             return dStore;
         } catch (ex) {
