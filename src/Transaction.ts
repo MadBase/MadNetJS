@@ -13,7 +13,7 @@ import Wallet from "./Wallet.js";
 export class Transaction {
 
     private Wallet: Wallet;
-    private Tx: Tx;
+    private Tx: any;
     private fees: any;
     private outValue: any[];
 
@@ -35,7 +35,7 @@ export class Transaction {
      * @param {RpcTxObject} Tx - The Tx Object from the RPC
      * @returns {PolledTxObject} Polled Transaction Object
      */
-    async PolledTxObject(txHash: Number, isMined: Boolean, Tx: Tx) : Promise<any> {
+    async PolledTxObject(txHash: string, isMined: Boolean, Tx: any) : Promise<any> {
         return {
             Tx: Tx,
             isMined: isMined,
@@ -45,10 +45,10 @@ export class Transaction {
 
     /**
      * Monitor pending transaction
-     * @param {Number} txHash - Transaction hash to return a Pending Object of
+     * @param {string} txHash - Transaction hash to return a Pending Object of
      * @returns {PendingTxObject} Pending transaction object
      */
-    async PendingTxObject(txHash: Number) : Promise<any> {
+    async PendingTxObject(txHash: string) : Promise<any> {
         return {
             txHash: txHash,
             /**
@@ -90,7 +90,7 @@ export class Transaction {
      * @throws No RPC to send transaction
      * @returns {hex} Transaction hash
      */
-    async sendTx(changeAddress: Number, changeAddressCurve: Number, UTXOIDs: any[] = []) : Promise<Number>{
+    async sendTx(changeAddress: string, changeAddressCurve: string, UTXOIDs: any[] = []) : Promise<string>{
         try {
             if ((this.Tx.getTx()).Tx.Fee === 0) {
                 throw "No Tx fee added";
@@ -123,7 +123,7 @@ export class Transaction {
      * @throws No RPC to send transaction
      * @returns {Promise<PendingTxObject>} Pending Transaction Object
      */
-    async sendWaitableTx(changeAddress: Number, changeAddressCurve: Number, UTXOIDs: any[] = []): Promise<any> {
+    async sendWaitableTx(changeAddress: string, changeAddressCurve: string, UTXOIDs: any[] = []): Promise<any> {
         try {
             if ((this.Tx.getTx()).Tx.Fee === 0) {
                 throw "No Tx fee added";
@@ -154,7 +154,7 @@ export class Transaction {
      * @throws No Vins for transaction
      * @returns {hex} Transaction hash
      */
-    async sendSignedTx(Tx: Tx) : Promise<Number>{
+    async sendSignedTx(Tx: any) : Promise<string>{
         try {
             if (Tx.Tx.Fee === 0) {
                 throw "No Tx fee added";
@@ -211,7 +211,7 @@ export class Transaction {
      * @throws No Vouts for fee estimation
      * @returns {Object} Fees from Tx.estimateFees()
      */
-    async getTxFeeEstimates(changeAddress: String, changeAddressCurve: Number, UTXOIDs: String[] = [], returnInsufficientOnGas: Boolean) : Promise<any>{
+    async getTxFeeEstimates(changeAddress: string, changeAddressCurve: string, UTXOIDs: String[] = [], returnInsufficientOnGas: Boolean) : Promise<any>{
         try {
             if ((this.Tx.getTx()).Fee === 0) {
                 throw "No Tx fee added to tx";
@@ -252,7 +252,7 @@ export class Transaction {
      * @throws Missing arugments
      * @throws Invalid value
      */
-    async createTxFee(payeerAddress: Number, payeerCurve: Number, fee: bigint | Number) {
+    async createTxFee(payeerAddress: string, payeerCurve: Number, fee: bigint) {
         try {
             if (!payeerAddress || !payeerCurve) {
                 throw "Missing arguments";
@@ -283,7 +283,7 @@ export class Transaction {
     /**
      * Create a ValueStore
      * @param {hex} from
-     * @param {bigint|string} value
+     * @param {number} value
      * @param {hex} to
      * @param {number} toCurve
      * @param {number} fee
@@ -294,7 +294,7 @@ export class Transaction {
      * @throws Cannot get curve
      * @returns {Object} Value Store
      */
-    async createValueStore(from: Number, value: BigInt | string, to: Number, toCurve: Number, fee?: Number) : Promise<any>{
+    async createValueStore(from: string, value: number, to: string, toCurve: Number, fee?: Number) : Promise<any>{
         try {
             if (!from || !to || !value || !toCurve) {
                 throw "Missing arugments";
@@ -350,9 +350,9 @@ export class Transaction {
     /**
      * Create a DataStore
      * @param {hex} from
-     * @param {(string|hex|any)} index
+     * @param {(string|hex)} index
      * @param {bigint} duration
-     * @param {(string|hex|any)} rawData
+     * @param {(string|hex)} rawData
      * @param {number|any} [issuedAt=false]
      * @param {number} fee
      * @throws Missing arguments
@@ -364,7 +364,7 @@ export class Transaction {
      * @throws RPC server must be set to fetch fee
      * @returns {Object} Data Store
      */
-    async createDataStore(from: String, index: String | Number | any, duration: BigInt, rawData: String | Number | any, issuedAt: Number|any = 0, fee: Number) : Promise<any>{
+    async createDataStore(from: string, index: string, duration: BigInt, rawData: string, issuedAt: Number|any = 0, fee: Number) : Promise<any>{
         try {
             if (!from || !index || !duration || !rawData) {
                 throw "Missing arguments";
@@ -471,11 +471,11 @@ export class Transaction {
 
     /**
      * Track TxOut running total
-     * @param {number|bigint} value
+     * @param {number} value
      * @param {Hex20} ownerAddress
      * @param {hex|any} [dsIndex=false]
      */
-    async _addOutValue(value: Number | bigint, ownerAddress: Number, dsIndex?: Number|any) {
+    async _addOutValue(value: Number, ownerAddress: string, dsIndex?: string|any) {
         try {
             const valueIndex = this.outValue.findIndex(a => a.address === ownerAddress);
 
@@ -505,7 +505,7 @@ export class Transaction {
      * @throws Insufficient funds
      * @returns {Object} Returns an array of funding errors if requested as {}.errors or null for successful pass without a throw
      */
-    async _createTxIns(changeAddress?: Number|String, changeAddressCurve?: Number, UTXOIDs?: any[], returnInsufficientOnGas?: Boolean) : Promise<any>{
+    async _createTxIns(changeAddress?: string, changeAddressCurve?: string, UTXOIDs?: any[], returnInsufficientOnGas?: Boolean) : Promise<any>{
 
         let insufficientFundErrors = [];
 
@@ -586,7 +586,7 @@ export class Transaction {
      * @param {hex} address
      * @param {Object} utxo
      */
-    async _createValueTxIn(address: Number, utxo: any) {
+    async _createValueTxIn(address: string, utxo: any) {
         try {
             this.Tx.TxIn(
                 utxo.TxHash,
@@ -608,7 +608,7 @@ export class Transaction {
      * @param {hex} address
      * @param {Object} utxo
      */
-    async _createDataTxIn(address: Number, utxo: any) {
+    async _createDataTxIn(address: string, utxo: any) {
         try {
             this.Tx.TxIn(
                 utxo.DSLinker.TxHash,
@@ -629,12 +629,12 @@ export class Transaction {
      * Consume UTXOs until required value is met
      * @param {Object} accountUTXO
      * @param {hex|any} account
-     * @param {numbe|any} currentValue
+     * @param {number|any} currentValue
      * @param {hex} [changeAddress=false]
      * @param {hex} [changeAddressCurve=false]
      * @throws Could not find highest value UTXO
      */
-    async _spendUTXO(accountUTXO: any, account: Number | any, currentValue: Number | any, changeAddress: Number | String, changeAddressCurve: Number) {
+    async _spendUTXO(accountUTXO: any, account: string | any, currentValue: Number | any, changeAddress: string, changeAddressCurve: string) {
         try {
             accountUTXO = accountUTXO.ValueStores;
             while (true) {
