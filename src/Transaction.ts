@@ -283,7 +283,7 @@ export class Transaction {
     /**
      * Create a ValueStore
      * @param {hex} from
-     * @param {number} value
+     * @param {number|bigint|string} value
      * @param {hex} to
      * @param {number} toCurve
      * @param {number} fee
@@ -294,7 +294,7 @@ export class Transaction {
      * @throws Cannot get curve
      * @returns {Object} Value Store
      */
-    async createValueStore(from: string, value: number, to: string, toCurve: Number, fee?: Number) : Promise<any>{
+    async createValueStore(from: string, value: number|bigint|string, to: string, toCurve: Number, fee?: Number) : Promise<any>{
         try {
             if (!from || !to || !value || !toCurve) {
                 throw "Missing arugments";
@@ -471,11 +471,11 @@ export class Transaction {
 
     /**
      * Track TxOut running total
-     * @param {number} value
+     * @param {number|bigint} value
      * @param {Hex20} ownerAddress
      * @param {hex|any} [dsIndex=false]
      */
-    async _addOutValue(value: Number, ownerAddress: string, dsIndex?: string|any) {
+    async _addOutValue(value: Number | bigint, ownerAddress: string, dsIndex?: string|any) {
         try {
             const valueIndex = this.outValue.findIndex(a => a.address === ownerAddress);
 
