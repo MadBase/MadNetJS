@@ -18,9 +18,14 @@ export interface RpcResponse {
     Epoch: number;
     MinTxFee: Object; // TODO TBD
     UTXOs: Utxo[];
+    UTXOID: Utxo[];
     UTXOIDs: string[];
     TotalValue: bigint | string;
     PaginationToken: string;
+    Results: Array<any>; // TODO TBD
+    Rawdata: string;
+    Tx: any; // TODO TBD
+    TxHash: string;
 }
 
 /**
@@ -247,7 +252,7 @@ class RPC {
      * @throws Invalid arguments
      * @returns {Array<DataStoreAndIndexObject>} Object[] containing UTXOID and Index {@link DataStoreAndIndexObject}
      */
-    async getDataStoreUTXOIDsAndIndices(address: string, curve: number, limit: number, offset: number): Promise<Array<Object>> {
+    async getDataStoreUTXOIDsAndIndices(address: string, curve: number, limit: number, offset: string | number): Promise<Array<Object>> {
         try {
             if (!address || !curve) {
                 throw "Invalid arguments";
@@ -297,7 +302,7 @@ class RPC {
      * @param {number} offset
      * @returns {Array<DataStoreAndIndexObject>} Array of Objects containing UTXOID and Index
      */
-    async getDataStoreUTXOIDs(address: string, curve: number, limit: number, offset: number): Promise<Array<Object>> {
+    async getDataStoreUTXOIDs(address: string, curve: number, limit: number, offset: string | number): Promise<Array<Object>> {
         try {
             const dsAndIndices = await this.getDataStoreUTXOIDsAndIndices(address, curve, limit, offset);
             let DataStoreUTXOIDs = [];
@@ -351,7 +356,7 @@ class RPC {
             const dsUTXOIDS = await this.getDataStoreUTXOIDs(address, curve, 1, index);
             if (dsUTXOIDS.length > 0) {
                 const [DS] = await this.getUTXOsByIds(dsUTXOIDS);
-                if (DS.length > 0) {
+                if (Object.keys(DS).length > 0) {
                     return DS[0];
                 }
             }
@@ -504,7 +509,7 @@ class RPC {
             if (!data) {
                 data = {};
             }
-            let attempts, timeout = false;
+            let attempts, timeout = 0;
             let resp;
             while (true) {
                 try {
