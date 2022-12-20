@@ -1,11 +1,13 @@
-require('dotenv').config({ path: process.cwd() + '/.env' });
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
+import * as dotenv from 'dotenv';
+import * as chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import MadWalletJS from '../../index';
+import MultiSig from '../../src/Signers/MultiSig';
+import BNSigner from '../../src/Signers/BNSigner';
+
+dotenv.config({ path: process.cwd() + '/.env' });
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const MadWalletJS = require('../../index.js');
-const MultiSig = require('../../src/Signers/MultiSig');
-const BNSigner = require('../../src/Signers/BNSigner');
 
 describe('Unit/MultiSig:', () => {
     let privateKey, secondaryPrivateKey, msgHex, madWallet, multiSigBn, bnAccount, bnAccount2, signatures;
@@ -74,7 +76,7 @@ describe('Unit/MultiSig:', () => {
             await expect(multiSigBn.sign(null)).to.eventually.be.rejectedWith('Missing input');
         });
 
-        it('Fail: Reject Sign Multi when called with invalid rawMsgs', async () => { 
+        it('Fail: Reject Sign Multi when called with invalid rawMsgs', async () => {
             await multiSigBn.addPublicKeys(publicKeys)
             await expect(multiSigBn.sign('0000ffeebabe')).to.eventually.be.fulfilled;
         });

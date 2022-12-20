@@ -1,13 +1,13 @@
-const { default: Axios } = require('axios');
-const Validator = require('../../src/Util/Validator');
+import Axios from 'axios';
+import Validator from '../../src/Util/Validator';
 
 /**
  * Basic utilities for Faucet requests.
  * @module Faucet
  */
-module.exports = {
+export default {
     /**
-     * Request funds for an address on Testnet only. This function does not provide funds on Mainnet. 
+     * Request funds for an address on Testnet only. This function does not provide funds on Mainnet.
      * @param {hex} address - Address to be funded
      * @param {Boolean} [ isBN = false ] isBN - BN address
      * @param {number} [ timeout = 5000 ] time to wait for a response
@@ -23,10 +23,10 @@ module.exports = {
                 address: validAddress,
                 curve: isBN ? 2 : 1
             },{
-                timeout 
+                timeout
             });
-            if (res.error) { 
-                throw new Error(res.error); 
+            if (res.error) {
+                throw new Error(res.error);
             }
             return res.data;
         }

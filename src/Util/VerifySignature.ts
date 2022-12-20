@@ -1,8 +1,8 @@
-const BNSignerWrapper = require('../GoWrappers/BNSignerWrapper.js');
-const ethUtil = require('ethereumjs-util');
-const validator = require('./Validator');
+import BNSignerWrapper from '../GoWrappers/BNSignerWrapper';
+import ethUtil from 'ethereumjs-util';
+import validator from './Validator';
 
-module.exports = {
+export default {
     BNSignerVerify: async (msg, sig) => {
         try {
             if (!msg || !sig) {

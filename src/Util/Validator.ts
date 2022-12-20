@@ -2,12 +2,12 @@
  * Basic utilities for input validation and mutation
  */
 const validHex = /^[0-9a-fA-F]+$/;
-var self = module.exports = {
+const self = {
     isHex: (str) => {
         try {
             if (!str ||
-                typeof str != "string"    
-            ) { 
+                typeof str != "string"
+            ) {
                 throw "No input provided";
              }
             if (str.indexOf("0x") === 0) {
@@ -28,7 +28,7 @@ var self = module.exports = {
 
     isPrivateKey: (str) => {
         try {
-            if (!str) { 
+            if (!str) {
                 throw "No input provided";
              }
             if (str.length !== 64 && str.length !== 66) {
@@ -50,7 +50,7 @@ var self = module.exports = {
 
     isNumber: (num) => {
         try {
-            if (!num) { 
+            if (!num) {
                 throw "No input provided";
              }
             if (typeof num === "bigint") {
@@ -86,7 +86,7 @@ var self = module.exports = {
 
     isAddress: (str) => {
         try {
-            if (!str) { 
+            if (!str) {
                 throw "No input provided";
             }
             str = self.isHex(str);
@@ -159,3 +159,5 @@ var self = module.exports = {
         }
     }
 }
+
+export default self;

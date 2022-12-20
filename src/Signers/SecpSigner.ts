@@ -1,5 +1,5 @@
-const ethUtil = require('ethereumjs-util');
-const { ecdsaSign, ecdsaRecover } = require('secp256k1');
+import ethUtil from 'ethereumjs-util';
+import { ecdsaSign, ecdsaRecover } from 'secp256k1';
 /**
  * SECP256k1 signer
  * @class
@@ -9,7 +9,7 @@ const { ecdsaSign, ecdsaRecover } = require('secp256k1');
 class SecpSigner {
     /**
      * Creates an instance of SecpSigner.
-     * @param {Object} Wallet - Circular wallet reference to use internally of Account class 
+     * @param {Object} Wallet - Circular wallet reference to use internally of Account class
      * @param {hex} privK - Private Key
      */
     constructor(Wallet, privK) {
@@ -22,7 +22,7 @@ class SecpSigner {
      * @param {hex} msg
      * @throws Bad argument type
      * @throws Private key not set
-     * @returns {hex} Signature 
+     * @returns {hex} Signature
      */
     async sign(msg) {
         try {
@@ -48,7 +48,7 @@ class SecpSigner {
 
     /**
      * Sign multiple messages
-     * @param {hex} msgs 
+     * @param {hex} msgs
      * @returns {Array<hex>} Signed messages
      */
     async signMulti(msgs) {
@@ -71,7 +71,7 @@ class SecpSigner {
      * @param {hex} sig
      * @throws Bad argument type
      * @throws Public Keys don't match
-     * @returns {hex} Recovered Public Key 
+     * @returns {hex} Recovered Public Key
      */
     async verify(msg, sig) {
         try {
@@ -80,7 +80,7 @@ class SecpSigner {
             if (!msg || !sig) {
                 throw "Bad argument type";
             }
-            // Get and parse recid from last byte of passed hexadecimal signature from this.sign() method 
+            // Get and parse recid from last byte of passed hexadecimal signature from this.sign() method
             const recidByteString = sig.slice(sig.length - 2);
             const recid = parseInt(Buffer.from(recidByteString, 'hex').toString('hex'), 16);
             // Split off last byte (recidByte) from hexadecimal signature
@@ -146,4 +146,4 @@ class SecpSigner {
     }
 
 }
-module.exports = SecpSigner;
+export default SecpSigner;

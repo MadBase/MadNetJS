@@ -1,9 +1,11 @@
-require('dotenv').config({ path: process.cwd() + '/.env' });
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
+import * as dotenv from 'dotenv';
+import * as chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import Validator from '../../src/Util/Validator';
+
+dotenv.config({ path: process.cwd() + '/.env' });
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const Validator = require('../../src/Util/Validator');
 
 describe('Unit/Util/Validator:', () => {
     let privateKey, address, validHex;
@@ -13,8 +15,8 @@ describe('Unit/Util/Validator:', () => {
         address = '91f174784ba0edd9df3051deb0a53fddca8a150e';
         validHex = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
     });
-    
-    describe('Private Key, Number and Address', () => {  
+
+    describe('Private Key, Number and Address', () => {
         it('Fail: isPrivateKey throws and error if Private Key length is invalid', () => {
             expect(() => Validator.isPrivateKey(privateKey.slice(0, -1))).to.throw('Invalid length');
         });
@@ -22,27 +24,27 @@ describe('Unit/Util/Validator:', () => {
         it('Fail: isNumber throws an error if Number is invalid', () => {
             expect(() => Validator.isNumber('not a number')).to.throw('Invalid number');
         });
-        
+
         it('Fail: isAddress throws an error if Address length is invalid', () => {
             expect(() => Validator.isAddress(address.slice(0, -2))).to.throw('Invalid length');
         });
     });
-    
-    describe('Hex', () => {  
+
+    describe('Hex', () => {
         it('Fail: hexToInt throws an error if Hex is invalid', () => {
             expect(() => Validator.hexToInt('notAHex')).to.throw('Invalid hex character');
         });
-        
+
         it('Fail: hexToTxt throws an error if Hex is invalid', () => {
             expect(() => Validator.hexToTxt(Number('notAHex'))).to.throw('The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received type number (NaN)');
         });
-        
+
         it('Fail: txtToHex throws an error if string is invalid', () => {
             expect(() => Validator.txtToHex(Number('notAHex'))).to.throw('The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received type number (NaN)');
         });
-        
+
         it('Success: Call hexToTxt with valid Hex', () => {
-            const validHexResult = Buffer.from(validHex, 'hex').toString('utf8'); 
+            const validHexResult = Buffer.from(validHex, 'hex').toString('utf8');
             expect(Validator.hexToTxt(validHex)).to.equal(validHexResult);
         });
     });

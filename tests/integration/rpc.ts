@@ -1,12 +1,14 @@
-require('dotenv').config({ path: process.cwd() + '/.env' });
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
+import * as dotenv from 'dotenv';
+import * as chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+
+dotenv.config({ path: process.cwd() + '/.env' });
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const MadWalletJS = require('../../index.js');
+import MadWalletJS from '../../index';
 
 describe('Integration/RPC:', function () {
-    let privateKey, secondaryPrivateKey, madWallet; 
+    let privateKey, secondaryPrivateKey, madWallet;
     let validTxHash, invalidTxHash, invalidTx, fees;
     let secpAccount, secpSecondaryAccount;
 
@@ -17,7 +19,7 @@ describe('Integration/RPC:', function () {
         if (process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY && process.env.RPC && process.env.CHAIN_ID) {
             privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
             secondaryPrivateKey = process.env.OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY;
-            madWallet = new MadWalletJS({ 
+            madWallet = new MadWalletJS({
                 rpcTimeout: 20000,
                 chainId: false,
                 rpcServer: process.env.RPC
@@ -25,25 +27,25 @@ describe('Integration/RPC:', function () {
         }
 
         await madWallet.Account.addAccount(privateKey, 1);
-        
+
         const balance = await madWallet.Account.accounts[0].getAccountBalance();
 
         if(balance === '00') {
             console.log(`Balance is ${balance}`, '\nInsufficient funds, skipping tests.');
             this.skip();
         }
-        
+
         await madWallet.Account.addAccount(secondaryPrivateKey, 1);
 
-        secpAccount = madWallet.Account.accounts[0]; 
+        secpAccount = madWallet.Account.accounts[0];
         secpSecondaryAccount = madWallet.Account.accounts[1];
-       
+
         // Create value store object for tx
         await madWallet.Transaction.createValueStore(secpAccount.address, 1000, secpSecondaryAccount.address, 1);
-        
+
         // Create tx fee
         await madWallet.Transaction.createTxFee(secpAccount.address, 1, false);
-        
+
         // Wait txHash to be mined
         async function waitForTx(txHash) {
             try {
@@ -63,8 +65,8 @@ describe('Integration/RPC:', function () {
         } catch (ex) {
             console.log('RPC Test before hook: ' + String(ex));
         }
-        
-        fees = await madWallet.Rpc.getFees(); 
+
+        fees = await madWallet.Rpc.getFees();
     });
 
     describe('Set Provider', () => {
@@ -91,17 +93,17 @@ describe('Integration/RPC:', function () {
         it('Success: Get TX BlockHeight with valid argument', async () => {
             await expect(madWallet.Rpc.getTxBlockHeight(validTxHash)).to.eventually.be.fulfilled;
         });
-        
+
         it('Success: Get Block Number', async () => {
             await expect(madWallet.Rpc.getBlockNumber()).to.eventually.be.fulfilled;
         });
-        
+
         it('Success: Get Block Header', async () => {
             const blockNumber = await madWallet.Rpc.getBlockNumber();
             await expect(madWallet.Rpc.getBlockHeader(blockNumber)).to.eventually.be.fulfilled;
         });
     });
-    
+
     describe('Chain ID, Epochs, Fees', () => {
         it('Success: Get Chain ID', async () => {
             const chainId = await madWallet.Rpc.getChainId();
@@ -123,7 +125,7 @@ describe('Integration/RPC:', function () {
             expect(Object.keys(fees).length).to.equal(4);
         });
     });
-    
+
     describe('UTXOs', () => {
         it('Fail: Cannot get UTXOs with invalid Ids', async () => {
             await expect(madWallet.Rpc.getUTXOsByIds(['utxoInvalidId'])).to.eventually.be.rejectedWith('invalid length');
@@ -132,7 +134,7 @@ describe('Integration/RPC:', function () {
         it('Fail: Cannot get UTXOs by Ids with missing argument', async () => {
             await expect(madWallet.Rpc.getUTXOsByIds()).to.eventually.be.rejectedWith('Invalid arguments');
         });
-        
+
         it('Fail: Cannot get Value Store UTXOs with missing arguments', async () => {
             await expect(madWallet.Rpc.getValueStoreUTXOIDs()).to.eventually.be.rejectedWith('Invalid arguments');
         });
@@ -157,7 +159,7 @@ describe('Integration/RPC:', function () {
             dataStoreUTXOIDs.forEach(dsUTXO => expect(dsUTXO).to.be.an('string'));
         });
     });
-    
+
     describe('Data', () => {
         it('Fail: Cannot get Raw Data if curve and index are missing', async () => {
             await expect(madWallet.Rpc.getData(secpAccount.address)).to.eventually.be.rejectedWith('No input provided');
@@ -192,7 +194,7 @@ describe('Integration/RPC:', function () {
         it('Fail: Cannot get pending transaction with a invalid txHash', async () => {
             await expect(madWallet.Rpc.getPendingTransaction(invalidTxHash)).to.eventually.be.rejectedWith('unknown transaction');
         });
-        
+
         it('Fail: Cannot send transaction with a invalid Tx object', async () => {
             await expect(madWallet.Rpc.sendTransaction(invalidTx)).to.eventually.be.rejectedWith('the object is invalid');
         });

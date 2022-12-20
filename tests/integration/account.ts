@@ -1,15 +1,17 @@
-require('dotenv').config({ path: process.cwd() + '/.env' });
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
+import * as dotenv from 'dotenv';
+import * as chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+
+dotenv.config({ path: process.cwd() + '/.env' });
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const MadWalletJS = require('../../index.js');
+import MadWalletJS from '../../index';
 
 describe('Integration/Account:', () => {
     let privateKey, madWallet, wrongAccountAddress;
     let secpAccount, bnAccount;
     let secpAccountSigned, bnAccountSigned;
-    
+
     before(async function() {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
         madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
@@ -24,7 +26,7 @@ describe('Integration/Account:', () => {
             console.log(`Balance is ${balance}`, '\nInsufficient funds, skipping tests.');
             this.skip();
         }
-        
+
         secpAccount = madWallet.Account.accounts[0];
         bnAccount = madWallet.Account.accounts[1];
     });
@@ -34,7 +36,7 @@ describe('Integration/Account:', () => {
 
         await madWalletSigned.Account.addAccount(privateKey, 1);
         await madWalletSigned.Account.addAccount(privateKey, 2);
-        
+
         secpAccountSigned = madWalletSigned.Account.accounts[0];
         bnAccountSigned = madWalletSigned.Account.accounts[1];
     });

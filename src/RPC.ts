@@ -18,7 +18,6 @@ export interface RpcResponse {
     Epoch: number;
     MinTxFee: Object; // TODO TBD
     UTXOs: Utxo[];
-    UTXOID: Utxo[];
     UTXOIDs: string[];
     TotalValue: bigint | string;
     PaginationToken: string;
@@ -220,20 +219,20 @@ class RPC {
             }
             const valueForOwner = { "CurveSpec": curve, "Account": address, "Minvalue": minValue, "PaginationToken": "" };
             let runningUtxos = [];
-            let runningTotal = BigInt("0");
+            let runningTotalBigInt = BigInt("0");
             while (true) {
                 const value = await this.request("get-value-for-owner", valueForOwner);
                 if (!value.UTXOIDs || value.UTXOIDs.length == 0 || !value["TotalValue"]) {
                     break;
                 }
                 runningUtxos = runningUtxos.concat(value.UTXOIDs);
-                runningTotal = BigInt(BigInt("0x" + value.TotalValue) + BigInt(runningTotal));
+                runningTotalBigInt = BigInt(BigInt("0x" + value.TotalValue) + BigInt(runningTotalBigInt));
                 if (!value.PaginationToken) {
                     break;
                 }
                 valueForOwner.PaginationToken = value.PaginationToken;
             }
-            runningTotal = runningTotal.toString(16);
+            let runningTotal = runningTotalBigInt.toString(16);
             if (runningTotal.length % 2) {
                 runningTotal = '0' + runningTotal;
             }

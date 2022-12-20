@@ -1,10 +1,12 @@
-require('dotenv').config({ path: process.cwd() + '/.env' });
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
+import * as dotenv from 'dotenv';
+import * as chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import MadWalletJS from '../../index';
+import Faucet from '../../src/Util/Faucet';
+
+dotenv.config({ path: process.cwd() + '/.env' });
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const MadWalletJS = require('../../index.js');
-const Faucet = require('../../src/Util/Faucet');
 const FAUCET_SERVER = process.env.FAUCET_API_URL;
 
 describe('Unit/Util/Faucet:', () => {
@@ -20,8 +22,8 @@ describe('Unit/Util/Faucet:', () => {
         secpAccount = madWallet.Account.accounts[0];
         bnAccount = madWallet.Account.accounts[1];
     });
-    
-    describe('Faucet', () => {  
+
+    describe('Faucet', () => {
         it('Success: Request testnet funds for a Secp address', async () => {
             const isBN = false;
             const funds = await Faucet.requestTestnetFunds(secpAccount.address, isBN, FAUCET_SERVER, 45000);

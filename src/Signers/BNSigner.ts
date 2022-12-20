@@ -1,5 +1,5 @@
-const BNSignerWrapper = require('../GoWrappers/BNSignerWrapper.js');
-const ethUtil = require('ethereumjs-util');
+import BNSignerWrapper from '../GoWrappers/BNSignerWrapper';
+import ethUtil from 'ethereumjs-util';
 /**
  * BNSigner
  * @class
@@ -47,7 +47,7 @@ class BNSigner {
 
     /**
     * Sign multiple messages
-    * @param {Array<hex>} msgs 
+    * @param {Array<hex>} msgs
     * @returns {Array<hex>} Signed messages
     */
     async signMulti(msgs) {
@@ -83,7 +83,7 @@ class BNSigner {
     /**
      * Get public key from the private key
      * @throws Private key not set
-     * @returns {hex} Public key 
+     * @returns {hex} Public key
      */
     async getPubK() {
         try {
@@ -120,8 +120,8 @@ class BNSigner {
 
     /**
     *  Public key to a BN address
-    * @param {hex} address 
-    * @returns {hex} Address 
+    * @param {hex} address
+    * @returns {hex} Address
     */
     async getAddress(pubK) {
         try {
@@ -138,4 +138,4 @@ class BNSigner {
     }
 
 }
-module.exports = BNSigner;
+export default BNSigner;

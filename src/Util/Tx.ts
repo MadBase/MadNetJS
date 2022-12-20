@@ -1,5 +1,5 @@
-const constant = require("../Config/Constants.js");
-const validator = require("./Validator.js");
+import constant from "../Config/Constants";
+import validator from "./Validator";
 
 /**
  * @typedef TxUtils - Collection of Tx Utilities
@@ -8,7 +8,7 @@ var self = module.exports = {
     /**
      * Extract SVA | Curve | PubHash
      * @param {hex} owner
-     * @return {Object} 
+     * @return {Object}
      */
     extractOwner: async(owner) => {
         try {
@@ -34,7 +34,7 @@ var self = module.exports = {
      * @param {number} validation
      * @param {number} curve
      * @param {hex} base
-     * @return {hex} owner 
+     * @return {hex} owner
      */
     prefixSVACurve: async(validation, curve, base) => {
         try {
@@ -111,8 +111,8 @@ var self = module.exports = {
 
     /**
      * Calculate number of epochs in DataStore
-     * @param {number} dataSize 
-     * @param {number} deposit 
+     * @param {number} dataSize
+     * @param {number} deposit
      * @return {number} epochs
      */
     calculateNumEpochs: async(dataSize, deposit) => {
@@ -133,8 +133,8 @@ var self = module.exports = {
 
     /**
      * Calculate the DataStore Fee
-     * @param {number} dsFee 
-     * @param {number} numEpochs 
+     * @param {number} dsFee
+     * @param {number} numEpochs
      * @returns {number} dsFee
      */
     calculateFee: async(dsFee, numEpochs) => {

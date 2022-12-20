@@ -1,7 +1,7 @@
-const validator = require('./Validator.js');
-const ethUtil = require('ethereumjs-util');
+import validator from './Validator';
+import ethUtil from 'ethereumjs-util';
 
-module.exports = {
+export default {
     hash: (msg) => {
         try {
             if(!msg) {

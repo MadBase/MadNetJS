@@ -1,5 +1,5 @@
-const BNSignerWrapper = require('../GoWrappers/BNSignerWrapper.js');
-const BNSigner = require("./BNSigner.js");
+import BNSignerWrapper from '../GoWrappers/BNSignerWrapper';
+import BNSigner from "./BNSigner";
 
 /**
  * MultiSig
@@ -11,7 +11,7 @@ const BNSigner = require("./BNSigner.js");
 class MultiSig {
     /**
      * Creates an instance of MultiSig.
-     * @param {Object} Wallet - Circular wallet reference to use internally of Account class 
+     * @param {Object} Wallet - Circular wallet reference to use internally of Account class
      * @param {Object} signer - Signer instance
      */
     constructor(Wallet, bnSigner) {
@@ -23,7 +23,7 @@ class MultiSig {
 
     /**
      * Add public keys
-     * @param {Array<hex>} publicKeys 
+     * @param {Array<hex>} publicKeys
      * @throws Need public keys
      * @returns {hex} Public Key
      */
@@ -157,8 +157,8 @@ class MultiSig {
 
     /**
      * Verify aggregate signature
-     * @param {hex} msg 
-     * @param {hex} sig 
+     * @param {hex} msg
+     * @param {hex} sig
      * @returns {hex} Verified Signature
      */
     async verifyAggregate(msg, sig) {
@@ -172,9 +172,9 @@ class MultiSig {
     }
 
     /**
-     * Verify a solo signed aggregated message 
-     * @param {hex} msg 
-     * @param {hex} sig 
+     * Verify a solo signed aggregated message
+     * @param {hex} msg
+     * @param {hex} sig
      * @returns {hex} Verified Signature
      */
     async verifyAggregateSingle(msg, groupPubKey, sig) {
@@ -187,4 +187,4 @@ class MultiSig {
         }
     }
 }
-module.exports = MultiSig;
+export default MultiSig;

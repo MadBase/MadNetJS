@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     hexToUint256Array: (hex) => {
         try {
             if (hex.startsWith("0x")) {

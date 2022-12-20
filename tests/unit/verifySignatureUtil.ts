@@ -1,10 +1,12 @@
-require('dotenv').config({ path: process.cwd() + '/.env' });
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
+import * as dotenv from 'dotenv';
+import * as chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import MadWalletJS from '../../index';
+import VerifySignature from '../../src/Util/VerifySignature';
+
+dotenv.config({ path: process.cwd() + '/.env' });
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const MadWalletJS = require('../../index.js');
-const VerifySignature = require('../../src/Util/VerifySignature');
 
 describe('Unit/Util/VerifySignature:', () => {
     let privateKey, msgHex, madWallet, bnSigner, secpSigner;
@@ -18,8 +20,8 @@ describe('Unit/Util/VerifySignature:', () => {
         secpSigner = secpAccount.signer;
         msgHex = Buffer.from('hello world', 'utf8').toString('hex').toLowerCase();
     });
-    
-    describe('BNSignerVerify', () => {  
+
+    describe('BNSignerVerify', () => {
         it('Success: Verify BNSigner sig', async () => {
             const sig = await bnSigner.sign(msgHex);
             const validateSig = await VerifySignature.BNSignerVerify(msgHex, sig);
@@ -40,7 +42,7 @@ describe('Unit/Util/VerifySignature:', () => {
         });
     });
 
-    describe('SecpSignerVerify', () => {  
+    describe('SecpSignerVerify', () => {
         it('Success: Verify SecpSignerVerify sig', async () => {
             const sig = await secpSigner.sign(msgHex);
             const pubKey = await secpSigner.getPubK();
@@ -71,7 +73,7 @@ describe('Unit/Util/VerifySignature:', () => {
         });
     });
 
-    describe('MultiSigVerify', () => {  
+    describe('MultiSigVerify', () => {
         it('Success: verify MultiSigVerifyAggregate sig', async () => {
             const sig = await bnSigner.sign(msgHex);
             const aSig = await VerifySignature.MultiSigVerifyAggregate(msgHex, sig);

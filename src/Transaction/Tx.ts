@@ -1,6 +1,6 @@
-const TxHasher = require('../GoWrappers/TxHasher.js');
-const MultiSig = require('../Signers/MultiSig.js');
-const utils = require('../Util/Tx.js');
+import TxHasher from '../GoWrappers/TxHasher';
+import MultiSig from '../Signers/MultiSig';
+import utils from '../Util/Tx';
 
 /**
  * Transaction object creation
@@ -58,7 +58,7 @@ class Tx {
 
     /**
      * Import a transaction preSigned
-     * @param {RpcTxObject} tx - The Tx Object from the RPC 
+     * @param {RpcTxObject} tx - The Tx Object from the RPC
      * @throws RPC server must be set to fetch Vin data
      */
     async importRawTransaction(tx) {
@@ -198,7 +198,7 @@ class Tx {
      * @param {number} txOutIdx
      * @param {hex} owner
      * @param {number} fee
-     * @returns {Object} Latest Vout pushed to Vout[] 
+     * @returns {Object} Latest Vout pushed to Vout[]
      */
     DataStore(index, issuedAt, deposit, rawData, txOutIdx, owner, fee) {
         this.Vout.push({
@@ -358,7 +358,7 @@ class Tx {
     }
 
     /**
-     * Hash the transaction and return it with the TxHash and signature (unsigned) fields filled 
+     * Hash the transaction and return it with the TxHash and signature (unsigned) fields filled
      * @returns {RpcTxObject} Transaction Object
      */
     async createRawTx() {
@@ -472,7 +472,7 @@ class Tx {
      * Aggreate the signatures from multiple signers and inject them into the transaction
      * [ [txidx_0_signature, txidx_1_signature] signer1 , txidx_0_signature, txidx_1_signature] signer2 ] vinSignatures
      * [ [txidx_0_signature, txidx_1_signature] signer1 , txidx_0_signature, txidx_1_signature] signer2 ] voutSignatures
-     * @param {Array<hex>} vinSignatures - Array<hex> 
+     * @param {Array<hex>} vinSignatures - Array<hex>
      * @param {Array<hex>} voutSignatures - Array<hex>
      * @throws TxIn owner could not be found
      * @throws Missing signature in Vin
@@ -539,9 +539,9 @@ class Tx {
     /**
      * Inject the signature fields with the signed messages
      * [ txidx_0_signature, txidx_1_signature] ] vinSignatures
-     * [ txidx_0_signature, txidx_1_signature] ] voutSignatures 
-     * @param {Array<hex>} vinSignatures 
-     * @param {Array<hex>} voutSignatures 
+     * [ txidx_0_signature, txidx_1_signature] ] voutSignatures
+     * @param {Array<hex>} vinSignatures
+     * @param {Array<hex>} voutSignatures
      * @throws TxIn owner could not be found
      */
     async injectSignatures(vinSignatures, voutSignatures) {
@@ -590,4 +590,4 @@ class Tx {
         }
     }
 }
-module.exports = Tx;
+export default Tx;
