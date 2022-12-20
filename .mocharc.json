@@ -1,0 +1,6 @@
+{
+  "require": "tests/hooks.ts",
+  "timeout": 240000,
+  "loader": "ts-node/esm",
+  "extension": "ts"
+}

@@ -6,7 +6,7 @@ import utils from "./Util";
 //TODO replace with Account, Transaction, RPC, UtilityCollection, etc
 
 export type WalletParams = {
-    chainId: Number;
+    chainId: Number | string;
     Account: any;
     Transaction: any;
     Rpc: any;
@@ -43,12 +43,12 @@ class Wallet {
      * Creates an instance of Wallet.
      * @param {WalletParams} params
      */
-    constructor(...params: WalletParams[]) {
+    constructor(...params: any | WalletParams[]) {
         const { chainId, rpcServer, rpcTimeout } = this._initializeParams(params)
         this.chainId = chainId ? utils.isNumber(chainId) : undefined;
-        this.Account = new Account(this);
+        this.Account = new Account(this as any);
         this.Transaction = new Transaction(this);
-        this.Rpc = new RPC(this, rpcServer, rpcTimeout);
+        this.Rpc = new RPC(this as any, rpcServer, rpcTimeout);
         this.Utils = utils;
     }
 
@@ -57,7 +57,7 @@ class Wallet {
      * @param {WalletParams} params - Accepts a chainId and rpcServer arguments for backwards compatibility, a shorthand instancing w/ RPC endpoint only or object Based configuration
      * @returns {Object<WalletParams>} Wallet parameters
      */
-    _initializeParams(params: WalletParams[]) {
+    _initializeParams(params: any | WalletParams[]) {
         let chainId, rpcServer, rpcTimeout;
 
         // Backwards compatibility catch
@@ -87,4 +87,4 @@ class Wallet {
         }
     }
 }
-module.exports = Wallet;
+export default Wallet;

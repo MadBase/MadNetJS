@@ -1,11 +1,11 @@
 import * as dotenv from 'dotenv';
 import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import MadWalletJS from '../../src/Wallet';
 
 dotenv.config({ path: process.cwd() + '/.env' });
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-import MadWalletJS from '../../index';
 
 describe('Integration/Account:', () => {
     let privateKey, madWallet, wrongAccountAddress;
@@ -22,7 +22,7 @@ describe('Integration/Account:', () => {
 
         const balance = await madWallet.Account.accounts[0].getAccountBalance();
 
-        if(balance === '00' ){
+        if(balance === '00') {
             console.log(`Balance is ${balance}`, '\nInsufficient funds, skipping tests.');
             this.skip();
         }

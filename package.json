@@ -6,7 +6,7 @@
     "types": "dist/esm/index.d.ts",
     "type": "module",
     "scripts": {
-        "test": "mocha --exclude=src/GoWrappers/** --recursive --require ts-node/register --extensions ts src 'tests/**/*.{ts,tsx}'",
+        "test": "mocha --experimental-specifier-resolution=node --recursive tests/**/*.ts",
         "test-unit": "mocha --recursive tests/unit",
         "test-integration": "mocha --recursive tests/integration",
         "test-single": "mocha",
@@ -42,6 +42,7 @@
         "@commitlint/config-conventional": "^17.3.0",
         "@commitlint/format": "^17.0.0",
         "@types/chai": "^4.3.4",
+        "@types/chai-as-promised": "^7.1.5",
         "@types/mocha": "^10.0.1",
         "assert": "2.0.0",
         "chai": "^4.3.7",

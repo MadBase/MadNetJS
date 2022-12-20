@@ -8,7 +8,7 @@ import chaiAsPromised from 'chai-as-promised';
 dotenv.config({ path: process.cwd() + '/.env' });
 chai.use(chaiAsPromised);
 
-exports.mochaHooks = {
+export default {
 	async beforeAll() {
 		try {
 			if(!process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY) {
