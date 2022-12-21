@@ -1,5 +1,5 @@
-const BNSignerWrapper = require('../GoWrappers/BNSignerWrapper.js');
-const BNSigner = require("./BNSigner.js");
+import BNSignerWrapper from "../GoWrappers/BNSignerWrapper";
+import BNSigner from "./BNSigner";
 
 /**
  * MultiSig
@@ -8,22 +8,30 @@ const BNSigner = require("./BNSigner.js");
  * @property {Object} bnSigner - Signer
  * @property {Array} publicKeys - Public Keys
  */
-class MultiSig {
+export default class MultiSig {
+    Wallet: any; // TODO: Wallet type
+    bnSigner: any; // TODO
+    publicKeys: any; // TODO
+    publicKey: string;
+
     /**
      * Creates an instance of MultiSig.
-     * @param {Object} Wallet - Circular wallet reference to use internally of Account class 
+     * @param {Object} Wallet - Circular wallet reference to use internally of Account class
      * @param {Object} signer - Signer instance
      */
-    constructor(Wallet, bnSigner) {
-        if(bnSigner && !(bnSigner instanceof BNSigner)) throw new Error("bnSigner param must be an instance of BnSigner");
-        this.Wallet = Wallet;
+    constructor(wallet: any /* TODO: Wallet type */, bnSigner: any) {
+        if (bnSigner && !(bnSigner instanceof BNSigner)) {
+            throw new Error("bnSigner param must be an instance of BnSigner");
+        }
+
+        this.Wallet = wallet;
         this.bnSigner = bnSigner;
         this.publicKeys = [];
     }
 
     /**
      * Add public keys
-     * @param {Array<hex>} publicKeys 
+     * @param {Array<hex>} publicKeys
      * @throws Need public keys
      * @returns {hex} Public Key
      */
@@ -36,8 +44,7 @@ class MultiSig {
             const pub = await BNSignerWrapper.AggregatePublicKeys(publicKeys);
             this.publicKey = pub;
             return pub;
-        }
-        catch (ex) {
+        } catch (ex) {
             throw new Error("BNAggregate.addPublicKeys\r\n" + String(ex));
         }
     }
@@ -52,10 +59,9 @@ class MultiSig {
             if (!this.publicKeys || parseInt(this.publicKeys.length) === 0) {
                 throw "Need public keys";
             }
-            let pub = await BNSignerWrapper.AggregatePublicKeys(this.publicKeys)
-            return pub;
-        }
-        catch (ex) {
+
+            return await BNSignerWrapper.AggregatePublicKeys(this.publicKeys);
+        } catch (ex) {
             throw new Error("BNAggregate.getPubK" + String(ex));
         }
     }
@@ -70,11 +76,11 @@ class MultiSig {
             if (!this.publicKeys || parseInt(this.publicKeys.length) === 0) {
                 throw "Need public keys";
             }
+
             const pubKey = await this.getPubK();
-            const pub = await this.bnSigner.getAddress(pubKey);
-            return pub;
-        }
-        catch (ex) {
+
+            return await this.bnSigner.getAddress(pubKey);
+        } catch (ex) {
             throw new Error("BNAggregate.getAddress" + String(ex));
         }
     }
@@ -85,19 +91,24 @@ class MultiSig {
      * @throws Missing input
      * @returns {hex} Signed message
      */
-    async sign(rawMsg, groupPubKey = false) {
+    async sign(rawMsg: string, groupPubKey?: string) {
         try {
-            if (!rawMsg) {
-                throw "Missing input";
-            }
+            if (!rawMsg) throw "Missing input";
+
             if (!groupPubKey) {
                 groupPubKey = await this.getPubK();
             }
-            const sig = await BNSignerWrapper.AggregateSign(rawMsg, groupPubKey, this.bnSigner.privK);
+
+            const sig = await BNSignerWrapper.AggregateSign(
+                rawMsg,
+                groupPubKey,
+                this.bnSigner.privK
+            );
+
             await this.verifyAggregateSingle(rawMsg, groupPubKey, sig);
+
             return sig;
-        }
-        catch (ex) {
+        } catch (ex) {
             throw new Error("BNAggregate.sign\r\n" + String(ex));
         }
     }
@@ -107,16 +118,17 @@ class MultiSig {
      * @param {hex} rawMsg
      * @returns {hex} Signed messages
      */
-    async signMulti(rawMsgs, groupPubKey = false) {
+    async signMulti(rawMsgs: string, groupPubKey?: string) {
         try {
             let signedMsgs = [];
+
             for (let i = 0; i < rawMsgs.length; i++) {
                 let sig = await this.sign(rawMsgs[i], groupPubKey);
                 signedMsgs.push(sig);
             }
+
             return signedMsgs;
-        }
-        catch (ex) {
+        } catch (ex) {
             throw new Error("BNAggregate.aggregateMulti\r\n" + String(ex));
         }
     }
@@ -126,12 +138,10 @@ class MultiSig {
      * @param {Array<hex>} signature
      * @returns {Array<hex>} Signature
      */
-    async aggregateSignatures(signatures) {
+    async aggregateSignatures(signatures: string[]) {
         try {
-            const sig = await BNSignerWrapper.AggregateSignatures(signatures);
-            return sig;
-        }
-        catch (ex) {
+            return await BNSignerWrapper.AggregateSignatures(signatures);
+        } catch (ex) {
             throw new Error("BNAggregate.signatures\r\n" + String(ex));
         }
     }
@@ -141,50 +151,55 @@ class MultiSig {
      * @param {Array<hex>} signatures Array<hex>
      * @returns {Array} Signatures
      */
-    async aggregateSignaturesMulti(signatures) {
+    async aggregateSignaturesMulti(signatures: string[]) {
         try {
             let signed = [];
+
             for (let i = 0; i < signatures.length; i++) {
+                // TODO: this usually accepts an array not an individual sig
                 let sig = await this.aggregateSignatures(signatures[i]);
                 signed.push(sig);
             }
+
             return signed;
-        }
-        catch (ex) {
+        } catch (ex) {
             throw new Error("BNAggregate.signaturesMulti\r\n" + String(ex));
         }
     }
 
     /**
      * Verify aggregate signature
-     * @param {hex} msg 
-     * @param {hex} sig 
+     * @param {hex} msg
+     * @param {hex} sig
      * @returns {hex} Verified Signature
      */
-    async verifyAggregate(msg, sig) {
+    async verifyAggregate(msg: string, sig: string) {
         try {
-            const signature = await this.Wallet.Utils.MultiSigVerifyAggregate(msg,sig);
-            return signature;
-        }
-        catch (ex) {
-            throw new Error("BNAggregate.verifyAggregateSingle\r\n" + String(ex));
+            return await this.Wallet.Utils.MultiSigVerifyAggregate(msg, sig);
+        } catch (ex) {
+            throw new Error(
+                "BNAggregate.verifyAggregateSingle\r\n" + String(ex)
+            );
         }
     }
 
     /**
-     * Verify a solo signed aggregated message 
-     * @param {hex} msg 
-     * @param {hex} sig 
+     * Verify a solo signed aggregated message
+     * @param {hex} msg
+     * @param {hex} sig
      * @returns {hex} Verified Signature
      */
-    async verifyAggregateSingle(msg, groupPubKey, sig) {
+    async verifyAggregateSingle(msg: string, groupPubKey: string, sig: string) {
         try {
-            const signature = await this.Wallet.Utils.MultiSigVerifyAggregateSingle(msg, groupPubKey, sig);
-            return signature;
-        }
-        catch (ex) {
-            throw new Error("BNAggregate.verifyAggregateSingle\r\n" + String(ex));
+            return await this.Wallet.Utils.MultiSigVerifyAggregateSingle(
+                msg,
+                groupPubKey,
+                sig
+            );
+        } catch (ex) {
+            throw new Error(
+                "BNAggregate.verifyAggregateSingle\r\n" + String(ex)
+            );
         }
     }
 }
-module.exports = MultiSig;
