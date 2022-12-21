@@ -9,17 +9,10 @@ export type WalletParams = {
     chainId: Number | string;
     Account: any;
     Transaction: any;
-    Rpc: any;
+    RPC: any;
     Utils: any;
     rpcServer: any;
     rpcTimeout: any;
-}
-
-export type IWallet = {
-    _initializeParams: () => {};
-    Rpc: any;
-    Utils: any;
-    chainId: number;
 }
 
 /**
