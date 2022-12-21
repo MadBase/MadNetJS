@@ -7,5 +7,5 @@
  *
  */
 
-import MadWalletJS from './src/Wallet';
-export default MadWalletJS;
+import { Wallet } from './src/Wallet';
+export default Wallet;

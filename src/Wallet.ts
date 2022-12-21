@@ -32,7 +32,7 @@ export type IWallet = {
  * @property {RPC} RPC - Main RPC Handler Instance
  * @property {UtilityCollection} Utils - Utility Collection
  */
-class Wallet {
+export class Wallet {
     private chainId: Number;
     public Account: any;
     private Transaction: any;
@@ -87,4 +87,3 @@ class Wallet {
         }
     }
 }
-export default Wallet;
