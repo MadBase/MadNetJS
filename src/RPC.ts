@@ -12,19 +12,23 @@ export interface Utxo {
     Value: string | number | bigint;
 }
 
+interface DsAndIndices {
+    Results?: Array<any>;
+    UTXOID?: Utxo;
+};
+
 export interface RpcResponse {
     BlockHeader: number;
     BlockHeight: number;
     Epoch: number;
-    MinTxFee: Object; // TODO TBD
+    MinTxFee: Object; // TODO Needs defined in Transaction.ts
     UTXOs: Utxo[];
-    UTXOID: Utxo[];
     UTXOIDs: string[];
     TotalValue: bigint | string;
     PaginationToken: string;
-    Results: Array<any>; // TODO TBD
+    Results: Array<any>; // TODO Needs defined in Transaction.ts
     Rawdata: string;
-    Tx: any; // TODO TBD
+    Tx: any; // TODO Needs defined in Transaction/Tx.ts
     TxHash: string;
 }
 
@@ -220,20 +224,22 @@ class RPC {
             }
             const valueForOwner = { "CurveSpec": curve, "Account": address, "Minvalue": minValue, "PaginationToken": "" };
             let runningUtxos = [];
-            let runningTotal = BigInt("0");
+            let runningTotalBigInt = BigInt("0");
             while (true) {
                 const value = await this.request("get-value-for-owner", valueForOwner);
                 if (!value.UTXOIDs || value.UTXOIDs.length == 0 || !value["TotalValue"]) {
                     break;
                 }
                 runningUtxos = runningUtxos.concat(value.UTXOIDs);
-                runningTotal = BigInt(BigInt("0x" + value.TotalValue) + BigInt(runningTotal));
+                runningTotalBigInt = BigInt(
+                    BigInt("0x" + value.TotalValue) + BigInt(runningTotalBigInt)
+                );
                 if (!value.PaginationToken) {
                     break;
                 }
                 valueForOwner.PaginationToken = value.PaginationToken;
             }
-            runningTotal = runningTotal.toString(16);
+            let runningTotal = runningTotalBigInt.toString(16);
             if (runningTotal.length % 2) {
                 runningTotal = '0' + runningTotal;
             }
@@ -304,7 +310,7 @@ class RPC {
      */
     async getDataStoreUTXOIDs(address: string, curve: number, limit: number, offset: string | number): Promise<Array<Object>> {
         try {
-            const dsAndIndices = await this.getDataStoreUTXOIDsAndIndices(address, curve, limit, offset);
+            const dsAndIndices: DsAndIndices[] = await this.getDataStoreUTXOIDsAndIndices(address, curve, limit, offset);
             let DataStoreUTXOIDs = [];
             // Filter out the datastore UTXOIDs, don't return indices that are in the results objects
             dsAndIndices.forEach(dsAndIdx => {
