@@ -5,21 +5,14 @@ import utils from "./Util";
 
 //TODO replace with Account, Transaction, RPC, UtilityCollection, etc
 
-export type WalletParams = {
+type WalletParams = {
     chainId: Number;
     Account: any;
     Transaction: any;
-    Rpc: any;
+    RPC: any;
     Utils: any;
     rpcServer: any;
     rpcTimeout: any;
-}
-
-export type IWallet = {
-    _initializeParams: () => {};
-    Rpc: any;
-    Utils: any;
-    chainId: number;
 }
 
 /**
