@@ -5,15 +5,15 @@ import { WalletParams } from './Wallet';
 
 // TODO move to Transaction.ts
 export interface Utxo {
-    DataStore: Array<any>;
-    ValueStore: Array<any>;
-    ValueStoreIDs: Array<any>;
-    DataStoreIDs: Array<any>;
+    DataStore: never;
+    ValueStore: never;
+    ValueStoreIDs: any[];
+    DataStoreIDs: any[];
     Value: string | number | bigint;
 }
 
 interface DsAndIndices {
-    Results?: Array<any>;
+    Results?: any[];
     UTXOID?: Utxo;
 };
 
@@ -23,10 +23,10 @@ export interface RpcResponse {
     Epoch: number;
     MinTxFee: Object; // TODO Needs defined in Transaction.ts
     UTXOs: Utxo[];
-    UTXOIDs: string[];
+    UTXOIDs: never[];
     TotalValue: bigint | string;
     PaginationToken: string;
-    Results: Array<any>; // TODO Needs defined in Transaction.ts
+    Results: any[]; // TODO Needs defined in Transaction.ts
     Rawdata: string;
     Tx: any; // TODO Needs defined in Transaction/Tx.ts
     TxHash: string;
