@@ -241,9 +241,9 @@ class Transaction {
 
     /**
      * Create the transaction fee and account that will be paying it
-     * @param {hex} payeerAddress
-     * @param {number} payeerCurve
-     * @param {number} fee
+     * @param {hex} payeerAddress 
+     * @param {number} payeerCurve 
+     * @param {number} fee 
      * @throws Missing arugments
      * @throws Invalid value
      */
@@ -388,16 +388,16 @@ class Transaction {
                     issuedAt++;
                 }
             }
-
+            
             rawData = (rawData.indexOf("0x") === 0) ? this.Wallet.Utils.isHex(rawData) : this.Wallet.Utils.txtToHex(rawData);
-
+            
             let deposit = await this.Wallet.Utils.calculateDeposit(rawData, duration);
             deposit = this.Wallet.Utils.isBigInt(deposit)
             const owner = await this.Wallet.Utils.prefixSVACurve(3, account.curve, account.address);
             const txIdx = this.Tx.Vout.length;
-
+            
             index = (index.indexOf("0x") === 0) ? this.Wallet.Utils.isHex(index) : index = this.Wallet.Utils.txtToHex(index);
-
+            
             if (index.length > 64) {
                 throw "Index too large";
             }
@@ -408,7 +408,7 @@ class Transaction {
             if (fee) {
                 fee = this.Wallet.Utils.numToHex(fee);
             }
-
+            
             if (this.Wallet.Rpc.rpcServer) {
                 if (!this.fees.DataStoreFee) {
                     await this._getFees();
@@ -467,7 +467,7 @@ class Transaction {
     /**
      * Track TxOut running total
      * @param {number} value
-     * @param {Hex20} ownerAddress
+     * @param {Hex20} ownerAddress 
      * @param {hex} [dsIndex=false]
      */
     async _addOutValue(value, ownerAddress, dsIndex) {
@@ -643,7 +643,7 @@ class Transaction {
                 if (!highestUnspent) {
                     throw "Could not find highest value UTXO";
                 }
-                highestUnspent.VSPreImage.Value = BigInt("0x" + highestUnspent.VSPreImage.Value);
+                highestUnspent.VSPreImage.Value = BigInt("0x" + highestUnspent.VSPreImage.Value);   
                 await this._createValueTxIn(account.address, highestUnspent);
                 for (let i = 0; i < accountUTXO.length; i++) {
                     if (accountUTXO[i].TxHash === highestUnspent.TxHash &&
