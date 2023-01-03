@@ -11,6 +11,7 @@ export interface Signer {
     addPublicKeys: () => {};
 }
 
+// TODO Move to Transaction
 export interface Utxo {
     DataStores: Array<any>;
     ValueStores: Array<any>;
@@ -28,8 +29,8 @@ export interface AccountObject {
     getAccountUTXOs: (minValue: number) => Promise<void>;
     getAccountUTXOsByIds: (utxoIds: Array<string>) => Promise<void>;
     getAccountValueStores: (minValue: number) => Promise<void>;
-    getAccountDataStores: (minValue: number) => Promise<void>;
-    getAccountBalance: () => Promise<bigint>;
+    getAccountDataStores: (minValue: number) => Promise<Utxo["DataStores"]>;
+    getAccountBalance: () => Promise<string>;
 }
 
 /**
@@ -38,7 +39,7 @@ export interface AccountObject {
  * @property {Wallet} Wallet - Circular Wallet reference
  * @property {Array} accounts - A list of associated account objects
  */
-class Account {
+export default class Account {
     private Wallet: WalletParams;
     public accounts: Array<AccountObject>;
 
@@ -291,5 +292,3 @@ class Account {
         }
     }
 }
-
-export default Account;
