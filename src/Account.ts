@@ -5,13 +5,14 @@ import { WalletParams } from './Wallet';
 
 
 // TODO Move this to Multisig.js/BNSigner.js
-export type ISigner = {
+export interface ISigner {
     multiSig: () => {};
     getAddress: () => {};
     addPublicKeys: () => {};
 }
 
-export type IUTXO = {
+// TODO Move to Transaction
+export interface IUTXO {
     DataStores: Array<any>;
     ValueStores: Array<any>;
     ValueStoreIDs: Array<any>;
@@ -19,7 +20,7 @@ export type IUTXO = {
     Value: string | number | bigint;
 }
 
-export type IAccount= {
+export interface AccountObject {
     UTXO: IUTXO;
     UTXODataStores?: string;
     curve: number;
@@ -40,7 +41,7 @@ export type IAccount= {
  */
 class Account {
     private Wallet: WalletParams;
-    public accounts: Array<IAccount>;
+    public accounts: Array<AccountObject>;
 
     /**
      * Creates an instance of Accounts.
@@ -58,7 +59,7 @@ class Account {
      * @param {hex} signer
      * @returns {Object} Account Object
      */
-    async _buildAccountObject(curve: number, address: string, signer: ISigner): Promise<IAccount> {
+    async _buildAccountObject(curve: number, address: string, signer: ISigner): Promise<AccountObject> {
         const utxo = {
             "DataStores": [],
             "ValueStores": [],
@@ -97,7 +98,7 @@ class Account {
      * @throws Account already added
      * @returns {Object} Account Object
      */
-    async addAccount(privateKey: string, curve: number = 1): Promise<IAccount> {
+    async addAccount(privateKey: string, curve: number = 1): Promise<AccountObject> {
         try {
             privateKey = this.Wallet.Utils.isPrivateKey(privateKey);
             curve = this.Wallet.Utils.isCurve(curve);
@@ -134,7 +135,7 @@ class Account {
      * @throws Invalid public key array
      * @returns {Object} Account Object
      */
-    async addMultiSig(publicKeys: Array<string>): Promise<IAccount> {
+    async addMultiSig(publicKeys: Array<string>): Promise<AccountObject> {
         try {
             if (!publicKeys || !Array.isArray(publicKeys) || publicKeys.length <= 0) {
                 throw "Invalid public key array";
@@ -176,7 +177,7 @@ class Account {
      * @throws Could not find account
      * @returns {Object} Account Object
      */
-    async getAccount(address: string): Promise<IAccount> {
+    async getAccount(address: string): Promise<AccountObject> {
         try {
             address = this.Wallet.Utils.isAddress(address);
             const account = this.accounts.find(a => a.address === address);
