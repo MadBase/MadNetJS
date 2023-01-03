@@ -1,5 +1,6 @@
-import BNSignerWrapper from '../GoWrappers/BNSignerWrapper';
-import ethUtil from 'ethereumjs-util';
+import BNSignerWrapper from "../GoWrappers/BNSignerWrapper.js";
+import ethUtil from "ethereumjs-util";
+
 /**
  * BNSigner
  * @class
@@ -7,16 +8,24 @@ import ethUtil from 'ethereumjs-util';
  * @property {Array} multiSig - MultiSig instance
  * @property {hex} privK - Public Key
  */
-class BNSigner {
+export default class BNSigner {
+    Wallet: any; // TODO: Wallet type
+    privK: string;
+    multiSig: any;
+
     /**
      * Creates an instance of BNSigner.
      * @param {Object} Wallet - Circular wallet reference to use internally of Account class
      * @param {Object} multiSig - (Parameter currently unused)
      * @param {hex} privK - Private Key
      */
-    constructor(Wallet, privK, multiSig) {
-        this.Wallet = Wallet;
-        this.multiSig = multiSig
+    constructor(
+        wallet: any /* TODO: Wallet type */,
+        privK: string,
+        multiSig: any
+    ) {
+        this.Wallet = wallet;
+        this.multiSig = multiSig;
         this.privK = privK ? this.Wallet.Utils.isHex(privK) : false;
     }
 
@@ -27,39 +36,37 @@ class BNSigner {
      * @throws Private key not set
      * @returns {hex} Signed message
      */
-    async sign(msg) {
+    async sign(msg: string) {
         try {
-            msg = this.Wallet.Utils.isHex(msg);
-            if (!msg) {
-                throw "Bad argument type";
-            }
-            if (!this.privK) {
-                throw "Private key not set";
-            }
-            let sig = await BNSignerWrapper.Sign(String(msg), String(this.privK));
+            if (!this.Wallet.Utils.isHex(msg)) throw "Bad argument type";
+            if (!this.privK) throw "Private key not set";
+
+            let sig = await BNSignerWrapper.Sign(msg, this.privK);
+
             await this.verify(msg, sig);
+
             return sig;
-        }
-        catch (ex) {
+        } catch (ex) {
             throw new Error("BNSigner.sign\r\n" + String(ex));
         }
     }
 
     /**
-    * Sign multiple messages
-    * @param {Array<hex>} msgs
-    * @returns {Array<hex>} Signed messages
-    */
-    async signMulti(msgs) {
+     * Sign multiple messages
+     * @param {Array<hex>} msgs
+     * @returns {Array<hex>} Signed messages
+     */
+    async signMulti(msgs: string[]) {
         try {
             let signed = [];
+
             for (let i = 0; i < msgs.length; i++) {
                 const sig = await this.sign(msgs[i]);
-                signed.push(sig)
+                signed.push(sig);
             }
+
             return signed;
-        }
-        catch (ex) {
+        } catch (ex) {
             throw new Error("BNSigner.signMulti\r\n" + String(ex));
         }
     }
@@ -70,12 +77,10 @@ class BNSigner {
      * @param {hex} sig
      * @returns {hex} Verified Signature
      */
-    async verify(msg, sig) {
+    async verify(msg: string, sig: string) {
         try {
-            const signature = await this.Wallet.Utils.BNSignerVerify(msg, sig);
-            return signature;
-        }
-        catch (ex) {
+            return await this.Wallet.Utils.BNSignerVerify(msg, sig);
+        } catch (ex) {
             throw new Error("BNSigner.verify\r\n" + String(ex));
         }
     }
@@ -87,13 +92,10 @@ class BNSigner {
      */
     async getPubK() {
         try {
-            if (!this.privK) {
-                throw "Private key not set";
-            }
-            const pubK = await BNSignerWrapper.GetPubK(String(this.privK));
-            return pubK;
-        }
-        catch (ex) {
+            if (!this.privK) throw "Private key not set";
+
+            return await BNSignerWrapper.GetPubK(this.privK);
+        } catch (ex) {
             throw new Error("BNSigner.getPubK\r\n" + String(ex));
         }
     }
@@ -104,38 +106,32 @@ class BNSigner {
      * @throws Bad argument type
      * @returns {hex} Public key
      */
-    async pubFromSig(sig) {
+    async pubFromSig(sig: string) {
         try {
-            sig = this.Wallet.Utils.isHex(sig);
-            if (!sig) {
-                throw "Bad argument type";
-            }
-            const pubK = await BNSignerWrapper.PubFromSig(String(sig));
-            return pubK;
-        }
-        catch (ex) {
+            if (!this.Wallet.Utils.isHex(sig)) throw "Bad argument type";
+
+            return await BNSignerWrapper.PubFromSig(sig);
+        } catch (ex) {
             throw new Error("BNSigner.pubFromSig\r\n" + String(ex));
         }
     }
 
     /**
-    *  Public key to a BN address
-    * @param {hex} address
-    * @returns {hex} Address
-    */
-    async getAddress(pubK) {
+     *  Public key to a BN address
+     * @param {hex} address
+     * @returns {hex} Address
+     */
+    async getAddress(pubK: string | undefined) {
         try {
-            if (!pubK) {
-                pubK = await this.getPubK();
-            }
-            const pubHash = ethUtil.keccak256(Buffer.from(pubK, "hex").slice(1));
-            const address = pubHash.slice(12);
-            return address.toString("hex");
-        }
-        catch (ex) {
+            pubK = pubK || (await this.getPubK());
+
+            const pubHash = ethUtil.keccak256(
+                Buffer.from(pubK, "hex").slice(1)
+            );
+
+            return pubHash.slice(12).toString("hex");
+        } catch (ex) {
             throw new Error("MultiSigner.bnPubToAddres\r\n" + String(ex));
         }
     }
-
 }
-export default BNSigner;

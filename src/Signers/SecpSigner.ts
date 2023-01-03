@@ -7,7 +7,7 @@ import { ecdsaSign, ecdsaRecover } from "secp256k1";
  * @property {Wallet} Wallet - Circular Wallet reference
  * @property {hex} privK - Private Key
  */
-export class SecpSigner {
+export default class SecpSigner {
     Wallet: any; // TODO: Wallet type
     privK: string;
 
