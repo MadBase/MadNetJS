@@ -5,14 +5,14 @@ import { WalletParams } from './Wallet';
 
 
 // TODO Move this to Multisig.js/BNSigner.js
-export interface ISigner {
+export interface Signer {
     multiSig: () => {};
     getAddress: () => {};
     addPublicKeys: () => {};
 }
 
 // TODO Move to Transaction
-export interface IUTXO {
+export interface Utxo {
     DataStores: Array<any>;
     ValueStores: Array<any>;
     ValueStoreIDs: Array<any>;
@@ -21,16 +21,16 @@ export interface IUTXO {
 }
 
 export interface AccountObject {
-    UTXO: IUTXO;
+    UTXO: Utxo;
     UTXODataStores?: string;
     curve: number;
     address: string;
-    signer: ISigner;
+    signer: Signer;
     getAccountUTXOs: (minValue: number) => Promise<void>;
     getAccountUTXOsByIds: (utxoIds: Array<string>) => Promise<void>;
     getAccountValueStores: (minValue: number) => Promise<void>;
-    getAccountDataStores: (minValue: number) => Promise<void>;
-    getAccountBalance: () => Promise<bigint>;
+    getAccountDataStores: (minValue: number) => Promise<Utxo["DataStores"]>;
+    getAccountBalance: () => Promise<string>;
 }
 
 /**
@@ -39,7 +39,7 @@ export interface AccountObject {
  * @property {Wallet} Wallet - Circular Wallet reference
  * @property {Array} accounts - A list of associated account objects
  */
-class Account {
+export default class Account {
     private Wallet: WalletParams;
     public accounts: Array<AccountObject>;
 
@@ -59,7 +59,7 @@ class Account {
      * @param {hex} signer
      * @returns {Object} Account Object
      */
-    async _buildAccountObject(curve: number, address: string, signer: ISigner): Promise<AccountObject> {
+    async _buildAccountObject(curve: number, address: string, signer: Signer): Promise<AccountObject> {
         const utxo = {
             "DataStores": [],
             "ValueStores": [],
@@ -292,5 +292,3 @@ class Account {
         }
     }
 }
-
-export default Account;
