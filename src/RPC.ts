@@ -1,6 +1,5 @@
 import Api from "./Http/Api";
 import * as constant from "./Config/Constants";
-import { addTrailingSlash } from "./Util";
 import { WalletParams } from './Wallet';
 
 // TODO move to Transaction.ts
@@ -52,7 +51,7 @@ class RPC {
      */
     constructor(Wallet: WalletParams, rpcServer: string, rpcTimeout: number = 0) {
         this.Wallet = Wallet;
-        this.rpcServer = rpcServer ? addTrailingSlash(rpcServer) : false;
+        this.rpcServer = rpcServer ? this.Wallet.Utils.addTrailingSlash(rpcServer) : false;
         this.rpcTimeout = rpcTimeout || constant.ReqTimeout;
     }
 
@@ -67,7 +66,7 @@ class RPC {
             if (!rpcServer) {
                 throw "RPC server not provided";
             }
-            this.rpcServer = addTrailingSlash(rpcServer);
+            this.rpcServer = this.Wallet.Utils.addTrailingSlash(rpcServer);
             const chainId = await this.getChainId();
             this.Wallet.chainId = chainId;
             return chainId;
@@ -120,8 +119,10 @@ class RPC {
     async getChainId(): Promise<number> {
         try {
             // Directly call API for chainID to avoid recursive loop from this.request()'s chainID dependency
-            const { data: { ChainID = null }} = await Api.post(this.rpcServer + "get-chain-id", {}, {
-                timeout: this.rpcTimeout
+            const { data: { ChainID = null }} = await Api.post({
+                url: this.rpcServer + "get-chain-id",
+                data: {},
+                config: { timeout: this.rpcTimeout }
             });
             if (!ChainID) {
                 throw "Chain id not found";
@@ -210,7 +211,7 @@ class RPC {
      * @throws Invalid arguments
      * @returns {Array} Array containing runningUTXOs and totalValue
      */
-    async getValueStoreUTXOIDs(address: string, curve: number, minValue: number | boolean = false): Promise<Array<Object>> {
+    async getValueStoreUTXOIDs(address: string, curve: number, minValue: string | number): Promise<Array<Object>> {
         try {
             if (!address || !curve) {
                 throw "Invalid arguments";
@@ -519,10 +520,14 @@ class RPC {
             let resp;
             while (true) {
                 try {
-                    resp = await Api.post(this.rpcServer + route, data, {
-                        timeout: this.rpcTimeout,
-                        validateStatus: function (status) {
-                            return status
+                    resp = await Api.post({
+                        url: this.rpcServer + route,
+                        data,
+                        config: {
+                            timeout: this.rpcTimeout,
+                            validateStatus: function (status) {
+                                return Boolean(status)
+                            }
                         }
                     });
                 } catch (ex) {

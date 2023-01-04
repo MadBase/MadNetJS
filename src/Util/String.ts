@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     addTrailingSlash: (string) => {
         try {
             return string.replace(/\/$|$/, '/');

@@ -26,11 +26,11 @@ export type WalletParams = {
  * @property {UtilityCollection} Utils - Utility Collection
  */
 export default class Wallet {
-    private chainId: Number;
+    public chainId: Number;
     public Account: any;
-    private Transaction: any;
-    private Rpc: any;
-    private Utils: any;
+    public Transaction: any;
+    public Rpc: any;
+    public Utils: any;
 
     /**
      * Creates an instance of Wallet.

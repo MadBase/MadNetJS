@@ -1,10 +1,10 @@
-import constant from "../Config/Constants";
+import * as constant from "../Config/Constants";
 import validator from "./Validator";
 
 /**
  * @typedef TxUtils - Collection of Tx Utilities
  */
-var self = module.exports = {
+var self = {
     /**
      * Extract SVA | Curve | PubHash
      * @param {hex} owner
@@ -146,3 +146,5 @@ var self = module.exports = {
         }
     }
 }
+
+export default self;
