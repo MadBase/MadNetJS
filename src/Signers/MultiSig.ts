@@ -1,5 +1,6 @@
-import BNSignerWrapper from "../GoWrappers/BNSignerWrapper";
+import * as BNSignerWrapper from "../GoWrappers/BNSignerWrapper";
 import BNSigner from "./BNSigner";
+import { WalletParams } from "../Wallet.js";
 
 /**
  * MultiSig
@@ -19,7 +20,7 @@ export default class MultiSig {
      * @param {Object} Wallet - Circular wallet reference to use internally of Account class
      * @param {Object} signer - Signer instance
      */
-    constructor(wallet: any /* TODO: Wallet type */, bnSigner: any) {
+    constructor(wallet?: WalletParams, bnSigner?: any) {
         if (bnSigner && !(bnSigner instanceof BNSigner)) {
             throw new Error("bnSigner param must be an instance of BnSigner");
         }
@@ -138,7 +139,7 @@ export default class MultiSig {
      * @param {Array<hex>} signature
      * @returns {Array<hex>} Signature
      */
-    async aggregateSignatures(signatures: string[]) {
+    async aggregateSignatures(signatures: any) {
         try {
             return await BNSignerWrapper.AggregateSignatures(signatures);
         } catch (ex) {

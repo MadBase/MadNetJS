@@ -19,7 +19,7 @@ export default {
                 throw "Arguments address and faucetServer cannot be empty";
             }
             const validAddress = Validator.isAddress(address);
-            const res = await Axios.post(faucetServer + "/faucet/", {
+            const res: any = await Axios.post(faucetServer + "/faucet/", {
                 address: validAddress,
                 curve: isBN ? 2 : 1
             },{

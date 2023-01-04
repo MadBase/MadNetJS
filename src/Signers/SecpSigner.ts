@@ -1,5 +1,6 @@
 import ethUtil from "ethereumjs-util";
-import { ecdsaSign, ecdsaRecover } from "secp256k1";
+import pkg from "secp256k1";
+const { ecdsaSign, ecdsaRecover } = pkg;
 
 /**
  * SECP256k1 signer

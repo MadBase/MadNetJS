@@ -1,4 +1,4 @@
-import BNSignerWrapper from '../GoWrappers/BNSignerWrapper';
+import * as BNSignerWrapper from '../GoWrappers/BNSignerWrapper';
 import ethUtil from 'ethereumjs-util';
 import validator from './Validator';
 
@@ -27,7 +27,7 @@ export default {
             sig = validator.isHex(sig);
             msg = ethUtil.toBuffer("0x" + String(msg));
             const msgHash = ethUtil.keccak256(msg);
-            const signature = ethUtil.toBuffer("0x" + String(sig));
+            const signature = ethUtil.toBuffer("0x" + String(sig)).toString();
             const sigParams = ethUtil.fromRpcSig(signature);
             const publicKeyRecovered = ethUtil.ecrecover(msgHash, sigParams.v, sigParams.r, sigParams.s).toString("hex");
             if (publicKeyRecovered !== pubKey) {
