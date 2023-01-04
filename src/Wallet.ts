@@ -9,7 +9,7 @@ export type WalletParams = {
     chainId: Number | string;
     Account: any;
     Transaction: any;
-    RPC: any;
+    Rpc: any;
     Utils: any;
     rpcServer: any;
     rpcTimeout: any;
@@ -25,7 +25,7 @@ export type WalletParams = {
  * @property {RPC} RPC - Main RPC Handler Instance
  * @property {UtilityCollection} Utils - Utility Collection
  */
-export class Wallet {
+export default class Wallet {
     private chainId: Number;
     public Account: any;
     private Transaction: any;
@@ -51,7 +51,9 @@ export class Wallet {
      * @returns {Object<WalletParams>} Wallet parameters
      */
     _initializeParams(params: any | WalletParams[]) {
-        let chainId, rpcServer, rpcTimeout;
+        let chainId: WalletParams["chainId"] = 0;
+        let rpcServer: WalletParams["rpcServer"],
+            rpcTimeout: WalletParams["rpcTimeout"];
 
         // Backwards compatibility catch
         if (params.length === 2) {

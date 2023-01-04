@@ -6,9 +6,9 @@ import { WalletParams } from './Wallet';
 
 // TODO Move this to Multisig.js/BNSigner.js
 export interface Signer {
-    multiSig: () => {};
-    getAddress: () => {};
-    addPublicKeys: () => {};
+    multiSig?: () => {};
+    getAddress?: () => {};
+    addPublicKeys?: (publicKeys: any) => Promise<any>;
 }
 
 // TODO Move to Transaction

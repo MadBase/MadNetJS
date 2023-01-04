@@ -71,7 +71,7 @@ export default class MultiSig {
      * @throws Need public keys
      * @returns {hex} Address
      */
-    async getAddress() {
+    async getAddress(multiSig?: any) {
         try {
             if (!this.publicKeys || parseInt(this.publicKeys.length) === 0) {
                 throw "Need public keys";

@@ -1,5 +1,5 @@
 import Api from "./Http/Api";
-import constant from "./Config/Constants";
+import * as constant from "./Config/Constants";
 import { addTrailingSlash } from "./Util";
 import { WalletParams } from './Wallet';
 
