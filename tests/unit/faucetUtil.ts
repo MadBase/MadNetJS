@@ -33,8 +33,13 @@ describe('Unit/Util/Faucet:', () => {
         it('Fail: Cannnot request funds with a invalid Secp address', async () => {
             const isBN = false;
             await expect(
-                Faucet.requestTestnetFunds('wrongaddressformat', isBN, 45000)
-            ).to.eventually.be.rejectedWith('Invalid hex character');
+                Faucet.requestTestnetFunds(
+                    "wrongaddressformat",
+                    isBN,
+                    FAUCET_SERVER,
+                    45000
+                )
+            ).to.eventually.be.rejectedWith("Invalid hex character");
         });
 
         it('Success: Request testnet funds for a BN address', async () => {

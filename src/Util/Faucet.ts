@@ -13,7 +13,7 @@ export default {
      * @param {number} [ timeout = 5000 ] time to wait for a response
      * @returns {object}
      */
-    requestTestnetFunds: async (address, isBN = false, faucetServer, timeout = 5000) => {
+    requestTestnetFunds: async (address?: string, isBN: boolean = false, faucetServer?: string, timeout: any = 5000) => {
         try {
             if (!address || !faucetServer) {
                 throw "Arguments address and faucetServer cannot be empty";

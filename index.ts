@@ -7,5 +7,5 @@
  *
  */
 
-import { Wallet } from './src/Wallet';
+import Wallet from './src/Wallet';
 export default Wallet;

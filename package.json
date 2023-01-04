@@ -7,9 +7,9 @@
     "type": "module",
     "scripts": {
         "test": "mocha --experimental-specifier-resolution=node --recursive tests/**/*.ts",
-        "test-unit": "mocha --recursive tests/unit",
+        "test-unit": "mocha --experimental-specifier-resolution=node --recursive tests/unit/*.ts",
         "test-integration": "mocha --recursive tests/integration",
-        "test-single": "mocha",
+        "test-single": "mocha --experimental-specifier-resolution=node",
         "test-coverage": "nyc --exclude=src/GoWrappers/** --exclude=**/tests/** --reporter=cobertura --reporter=text npm run test",
         "test-unit-coverage": "nyc --exclude=src/GoWrappers/** --exclude=**/tests/** npm run test-unit",
         "test-integration-coverage": "nyc --exclude=src/GoWrappers/** --exclude=**/tests/** npm run test-integration",
