@@ -2,15 +2,7 @@ import Api from "./Http/Api";
 import * as constant from "./Config/Constants";
 import { addTrailingSlash } from "./Util";
 import { WalletParams } from './Wallet';
-
-// TODO move to Transaction.ts
-export interface Utxo {
-    DataStore: Array<any>;
-    ValueStore: Array<any>;
-    ValueStoreIDs: Array<any>;
-    DataStoreIDs: Array<any>;
-    Value: string | number | bigint;
-}
+import { Utxo } from "./types/Types";
 
 interface DsAndIndices {
     Results?: Array<any>;
