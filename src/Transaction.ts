@@ -181,7 +181,7 @@ export class Transaction {
      * @throws No Vouts for transaction
      * @returns {RpcTxObject} Transaction object
      */
-    async createRawTransaction() : Promise<any>{
+    async createRawTransaction() : Promise<any>{ //TODO: change response to Tx type
         try {
             if ((this.Tx.getTx()).Fee === 0) {
                 throw "No Tx fee added";
@@ -362,7 +362,7 @@ export class Transaction {
      * @throws Index too large
      * @throws Invalid fee
      * @throws RPC server must be set to fetch fee
-     * @returns {Object} Data Store
+     * @returns {Object} Data Store //TODO change this to Data Store type
      */
     async createDataStore(from: string, index: string, duration: number | bigint, rawData: string, issuedAt: Number|any = 0, fee: Number) : Promise<any>{
         try {
