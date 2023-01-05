@@ -21,8 +21,8 @@ export default class BNSigner {
      */
     constructor(
         wallet: any /* TODO: Wallet type */,
-        privK: string,
-        multiSig: any
+        privK?: string,
+        multiSig?: any
     ) {
         this.Wallet = wallet;
         this.multiSig = multiSig;
