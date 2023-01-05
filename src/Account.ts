@@ -26,9 +26,9 @@ export interface AccountObject {
     curve: number;
     address: string;
     signer: Signer;
-    getAccountUTXOs: (minValue: number) => Promise<void>;
-    getAccountUTXOsByIds: (utxoIds: Array<string>) => Promise<void>;
-    getAccountValueStores: (minValue: number) => Promise<void>;
+    getAccountUTXOs: (minValue: number) => Promise<Object>;
+    getAccountUTXOsByIds: (utxoIds: Array<string>) => Promise<Object>;
+    getAccountValueStores: (minValue: number) => Promise<Object[]>;
     getAccountDataStores: (minValue: number) => Promise<Utxo["DataStores"]>;
     getAccountBalance: () => Promise<string>;
 }
@@ -217,6 +217,7 @@ export default class Account {
      * Get UTXOs for account
      * @param {hex} address
      * @param {number} minValue
+     * @returns {Object}
      */
     async _getAccountUTXOs(address: string, minValue: number) {
         try {
@@ -234,6 +235,7 @@ export default class Account {
             const [DS, VS] = await this.Wallet.Rpc.getUTXOsByIds(UTXOIDs);
             this.accounts[accountIndex].UTXO.DataStores = DS;
             this.accounts[accountIndex].UTXO.ValueStores = VS;
+            return this.accounts[accountIndex].UTXO;
         }
         catch (ex) {
             throw new Error("Account._getAccountUTXOs\r\n" + String(ex));
@@ -244,6 +246,7 @@ export default class Account {
      * Get specific UTXOs for account
      * @param {hex} address
      * @param {Array<hex>} utxoIds
+     * @returns {Object}
      */
     async _getAccountUTXOsByIds(address: string, utxoIds: string[]) {
         try {
@@ -265,6 +268,7 @@ export default class Account {
                 totalValue += BigInt("0x" + this.accounts[accountIndex].UTXO.ValueStores[i].VSPreImage.Value);
             }
             this.accounts[accountIndex].UTXO.Value = totalValue;
+            return this.accounts[accountIndex].UTXO;
         }
         catch (ex) {
             throw new Error("Account._getAccountUTXOsByIds\r\n" + String(ex));
@@ -275,6 +279,7 @@ export default class Account {
      * Get Value Stores for account
      * @param {hex} address
      * @param {number} minValue
+     * @returns {Array<Object>}
      */
     async _getAccountValueStores(address: string, minValue: number) {
         try {
@@ -286,6 +291,7 @@ export default class Account {
             this.accounts[accountIndex].UTXO.Value = BigInt("0x" + TotalValue);
             const [,VS] = await this.Wallet.Rpc.getUTXOsByIds(valueUTXOIDs);
             this.accounts[accountIndex].UTXO.ValueStores = VS;
+            return this.accounts[accountIndex].UTXO.ValueStores;
         }
         catch (ex) {
             throw new Error("Account._getAccountValueStores\r\n" + String(ex));
