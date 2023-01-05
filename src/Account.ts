@@ -29,7 +29,7 @@ export interface AccountObject {
     getAccountUTXOs: (minValue: number) => Promise<Utxo>;
     getAccountUTXOsByIds: (utxoIds: Array<string>) => Promise<Utxo>;
     getAccountValueStores: (minValue: number) => Promise<Utxo["ValueStores"][]>;
-    getAccountDataStores: (minValue: number) => Promise<Utxo["DataStores"]>;
+    getAccountDataStores: (minValue: number) => Promise<Utxo["DataStores"][]>;
     getAccountBalance: () => Promise<string>;
 }
 
