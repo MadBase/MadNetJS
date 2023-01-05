@@ -1,5 +1,5 @@
 import Api from "./Http/Api";
-import constant from "./Config/Constants";
+import * as constant from "./Config/Constants";
 import { addTrailingSlash } from "./Util";
 import { WalletParams } from './Wallet';
 
@@ -39,7 +39,7 @@ export interface RpcResponse {
  * @property {String|Boolean} rpcServer - (Optional) - RPC Endpoint to use for RPC requests
  * @property {String|Boolean} rpcTimeout - (Optional) - RPC Endpoint to use for RPC requests
  */
-class RPC {
+export default class RPC {
     private Wallet: WalletParams;
     public rpcServer: string;
     public rpcTimeout: number;
@@ -210,7 +210,7 @@ class RPC {
      * @throws Invalid arguments
      * @returns {Array} Array containing runningUTXOs and totalValue
      */
-    async getValueStoreUTXOIDs(address: string, curve: number, minValue: number | boolean = false): Promise<Array<Object>> {
+    async getValueStoreUTXOIDs(address: string, curve: number, minValue: number | boolean | string = false): Promise<Object[]> {
         try {
             if (!address || !curve) {
                 throw "Invalid arguments";
@@ -258,7 +258,7 @@ class RPC {
      * @throws Invalid arguments
      * @returns {Array<DataStoreAndIndexObject>} Object[] containing UTXOID and Index {@link DataStoreAndIndexObject}
      */
-    async getDataStoreUTXOIDsAndIndices(address: string, curve: number, limit: number, offset: string | number): Promise<Array<Object>> {
+    async getDataStoreUTXOIDsAndIndices(address: string, curve: number, limit: number, offset: string | number): Promise<Object[]> {
         try {
             if (!address || !curve) {
                 throw "Invalid arguments";
@@ -308,7 +308,7 @@ class RPC {
      * @param {number} offset
      * @returns {Array<DataStoreAndIndexObject>} Array of Objects containing UTXOID and Index
      */
-    async getDataStoreUTXOIDs(address: string, curve: number, limit: number, offset: string | number): Promise<Array<Object>> {
+    async getDataStoreUTXOIDs(address: string, curve: number, limit: number, offset: string | number): Promise<Object[]> {
         try {
             const dsAndIndices: DsAndIndices[] = await this.getDataStoreUTXOIDsAndIndices(address, curve, limit, offset);
             let DataStoreUTXOIDs = [];
@@ -549,7 +549,7 @@ class RPC {
      * @param {string} latestErr
      * @returns {Array<number>} Array containing attempts and timeout
      */
-    async backOffRetry(attempts: number, timeout: number, latestErr: string): Promise<Array<number>> {
+    async backOffRetry(attempts: number, timeout: number, latestErr: string): Promise<number[]> {
         try {
             if (attempts >= 5) {
                 throw new Error("RPC.backOffRetry\r\nRPC request attempt limit reached\r\nLatest error: " + latestErr);
@@ -580,5 +580,3 @@ class RPC {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 }
-
-export default RPC;
