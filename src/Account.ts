@@ -26,9 +26,9 @@ export interface AccountObject {
     curve: number;
     address: string;
     signer: Signer;
-    getAccountUTXOs: (minValue: number) => Promise<Object>;
-    getAccountUTXOsByIds: (utxoIds: Array<string>) => Promise<Object>;
-    getAccountValueStores: (minValue: number) => Promise<Object[]>;
+    getAccountUTXOs: (minValue: number) => Promise<Utxo>;
+    getAccountUTXOsByIds: (utxoIds: Array<string>) => Promise<Utxo>;
+    getAccountValueStores: (minValue: number) => Promise<Utxo["ValueStores"][]>;
     getAccountDataStores: (minValue: number) => Promise<Utxo["DataStores"]>;
     getAccountBalance: () => Promise<string>;
 }
