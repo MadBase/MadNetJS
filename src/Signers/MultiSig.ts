@@ -19,7 +19,7 @@ export default class MultiSig {
      * @param {Object} Wallet - Circular wallet reference to use internally of Account class
      * @param {Object} signer - Signer instance
      */
-    constructor(wallet: any /* TODO: Wallet type */, bnSigner: any) {
+    constructor(wallet?: any /* TODO: Wallet type */, bnSigner?: any) {
         if (bnSigner && !(bnSigner instanceof BNSigner)) {
             throw new Error("bnSigner param must be an instance of BnSigner");
         }
