@@ -7,5 +7,5 @@
  * 
  */
 
-import MadWalletJS from './src/Wallet';
-export default MadWalletJS;
+import AlicenetWalletJS from './src/Wallet';
+export default AlicenetWalletJS;
