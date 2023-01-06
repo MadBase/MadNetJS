@@ -1,30 +1,30 @@
 import Tx from "./Transaction/Tx.js";
 import Constants from "./Config/Constants.js";
-import Wallet from "./Wallet.js";
+import { DataStore, RpcFee, Utxo, ValueStore, WalletType } from "./types/Types";
 
 /**
  * Transaction handler
  * @class
  * @property {Wallet} Wallet - Circular Wallet reference
- * @property {Tx} Tx - The tranasaction object to be sent
+ * @property {Tx} Tx - The transaction object to be sent
  * @property {RpcFee} fees - Fees Object - Contains associated transaction fees
  * @property {Array} outValue - Collection of out values
  */
 export class Transaction {
 
-    private Wallet: Wallet;
-    private Tx: any;
-    private fees: any;
+    private Wallet: WalletType;
+    private Tx: Tx;
+    private fees: RpcFee;
     private outValue: any[];
 
     /**
      * Creates an instance of Transaction.
      * @param {Wallet} Wallet - Circular wallet reference to use internally of Transaction class
      */
-    constructor(Wallet: Wallet) {
+    constructor(Wallet: WalletType) {
         this.Wallet = Wallet;
         this.Tx = new Tx(Wallet);
-        this.fees = false;
+        this.fees = undefined;
         this.outValue = [];
     }
 
@@ -35,7 +35,7 @@ export class Transaction {
      * @param {RpcTxObject} Tx - The Tx Object from the RPC
      * @returns {PolledTxObject} Polled Transaction Object
      */
-    async PolledTxObject(txHash: string, isMined: Boolean, Tx: any) : Promise<any> {
+    async PolledTxObject(txHash: string, isMined: Boolean, Tx: Tx) : Promise<Tx> {
         return {
             Tx: Tx,
             isMined: isMined,
@@ -48,7 +48,7 @@ export class Transaction {
      * @param {string} txHash - Transaction hash to return a Pending Object of
      * @returns {PendingTxObject} Pending transaction object
      */
-    async PendingTxObject(txHash: string) : Promise<any> {
+    async PendingTxObject(txHash: string) : Promise<Tx> {
         return {
             txHash: txHash,
             /**
@@ -123,7 +123,7 @@ export class Transaction {
      * @throws No RPC to send transaction
      * @returns {Promise<PendingTxObject>} Pending Transaction Object
      */
-    async sendWaitableTx(changeAddress: string, changeAddressCurve: string, UTXOIDs: any[] = []): Promise<any> {
+    async sendWaitableTx(changeAddress: string, changeAddressCurve: string, UTXOIDs: any[] = []): Promise<Tx> {
         try {
             if ((this.Tx.getTx()).Tx.Fee === 0) {
                 throw "No Tx fee added";
@@ -154,7 +154,7 @@ export class Transaction {
      * @throws No Vins for transaction
      * @returns {hex} Transaction hash
      */
-    async sendSignedTx(Tx: any) : Promise<string>{
+    async sendSignedTx(Tx: Tx) : Promise<string>{
         try {
             if (Tx.Tx.Fee === 0) {
                 throw "No Tx fee added";
@@ -181,7 +181,7 @@ export class Transaction {
      * @throws No Vouts for transaction
      * @returns {RpcTxObject} Transaction object
      */
-    async createRawTransaction() : Promise<any>{ //TODO: change response to Tx type
+    async createRawTransaction() : Promise<Tx>{
         try {
             if ((this.Tx.getTx()).Fee === 0) {
                 throw "No Tx fee added";
@@ -211,7 +211,7 @@ export class Transaction {
      * @throws No Vouts for fee estimation
      * @returns {Object} Fees from Tx.estimateFees()
      */
-    async getTxFeeEstimates(changeAddress: string, changeAddressCurve: string, UTXOIDs: String[] = [], returnInsufficientOnGas: Boolean) : Promise<any>{
+    async getTxFeeEstimates(changeAddress: string, changeAddressCurve: string, UTXOIDs: String[] = [], returnInsufficientOnGas: Boolean) : Promise<RpcFee>{
         try {
             if ((this.Tx.getTx()).Fee === 0) {
                 throw "No Tx fee added to tx";
@@ -294,7 +294,7 @@ export class Transaction {
      * @throws Cannot get curve
      * @returns {Object} Value Store
      */
-    async createValueStore(from: string, value: number|bigint|string, to: string, toCurve: Number, fee?: Number) : Promise<any>{
+    async createValueStore(from: string, value: number|bigint|string, to: string, toCurve: Number, fee?: string) : Promise<ValueStore>{
         try {
             if (!from || !to || !value || !toCurve) {
                 throw "Missing arugments";
@@ -362,9 +362,9 @@ export class Transaction {
      * @throws Index too large
      * @throws Invalid fee
      * @throws RPC server must be set to fetch fee
-     * @returns {Object} Data Store //TODO change this to Data Store type
+     * @returns {Object} Data Store
      */
-    async createDataStore(from: string, index: string, duration: number | bigint, rawData: string, issuedAt: Number|any = 0, fee: Number) : Promise<any>{
+    async createDataStore(from: string, index: string, duration: number | bigint, rawData: string, issuedAt: Number|any = 0, fee: Number) : Promise<DataStore>{
         try {
             if (!from || !index || !duration || !rawData) {
                 throw "Missing arguments";
@@ -584,9 +584,9 @@ export class Transaction {
     /**
      * Create a single TxIn consuming a ValueStore
      * @param {hex} address
-     * @param {Object} utxo
+     * @param {Utxo} utxo
      */
-    async _createValueTxIn(address: string, utxo: any) {
+    async _createValueTxIn(address: string, utxo: Utxo) {
         try {
             this.Tx.TxIn(
                 utxo.TxHash,
@@ -606,9 +606,9 @@ export class Transaction {
     /**
      * Create a single TxIn consuming a DataStore
      * @param {hex} address
-     * @param {Object} utxo
+     * @param {Utxo} utxo
      */
-    async _createDataTxIn(address: string, utxo: any) {
+    async _createDataTxIn(address: string, utxo: Utxo) {
         try {
             this.Tx.TxIn(
                 utxo.DSLinker.TxHash,
