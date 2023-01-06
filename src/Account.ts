@@ -7,9 +7,9 @@ import { Utxo } from "./types/Types";
 
 // TODO Multisig.js or BNSigner.js
 export interface Signer {
-    multiSig: () => {};
+    multiSig?: () => {};
     getAddress: () => {};
-    addPublicKeys: () => {};
+    addPublicKeys: (publicKeys: any) => Promise<any>;
 }
 
 export interface AccountObject {
