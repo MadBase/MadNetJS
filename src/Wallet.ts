@@ -4,12 +4,11 @@ import RPC from "./RPC.js";
 import utils from "./Util";
 
 //TODO replace with Account, Transaction, RPC, UtilityCollection, etc
-
-type WalletParams = {
+export type WalletParams = {
     chainId: Number;
     Account: any;
     Transaction: any;
-    RPC: any;
+    Rpc: any;
     Utils: any;
     rpcServer: any;
     rpcTimeout: any;
