@@ -131,7 +131,9 @@ describe('Integration/Transaction/Tx:', () => {
                 Owner: 5,
                 Fee: 6
             };
-            expect(madWallet.Transaction.Tx.ASPreImage(1, 2, 3, 4, 5, 6)).to.deep.eql(preImageResult);
+            expect(
+                madWallet.Transaction.Tx.ASPreImage(1, 2, 3, 4, 5, 6)
+            ).to.deep.equal(preImageResult);
         });
 
         it('Fail: Reject _signTx when Tx is invalid', async () => {
@@ -154,7 +156,7 @@ describe('Integration/Transaction/Tx:', () => {
         it('Success: Import a finalized transaction', async () => {
             const tx = madWallet.Transaction.Tx.getTx();
             await expect(madWallet.Transaction.Tx.importTransaction(tx)).to.eventually.be.fulfilled;
-            expect( madWallet.Transaction.Tx.getTx() ).to.deep.eql(tx);
+            expect( madWallet.Transaction.Tx.getTx() ).to.deep.equal(tx);
         });
 
         it('Fail: Reject Import Transaction when Tx is invalid', async () => {
@@ -167,7 +169,7 @@ describe('Integration/Transaction/Tx:', () => {
         it('Success: Import a transaction preSigned', async () => {
             const tx = madWallet.Transaction.Tx.getTx();
             await expect(madWallet.Transaction.Tx.importRawTransaction(tx)).to.eventually.be.fulfilled;
-            expect( madWallet.Transaction.Tx.getTx() ).to.deep.eql(tx);
+            expect( madWallet.Transaction.Tx.getTx() ).to.deep.equal(tx);
         });
 
         it('Fail: Reject Import Raw Transaction when Tx is invalid', async () => {

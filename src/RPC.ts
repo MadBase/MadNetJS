@@ -1,5 +1,6 @@
 import Api from "./Http/Api";
 import * as constant from "./Config/Constants";
+import StringUtil from "../src/Util/String";
 import { WalletParams } from './Wallet';
 
 // TODO move to Transaction.ts
@@ -51,7 +52,9 @@ class RPC {
      */
     constructor(Wallet: WalletParams, rpcServer: string, rpcTimeout: number = 0) {
         this.Wallet = Wallet;
-        this.rpcServer = rpcServer ? this.Wallet.Utils.addTrailingSlash(rpcServer) : false;
+        this.rpcServer = rpcServer
+            ? StringUtil.addTrailingSlash(rpcServer)
+            : false;
         this.rpcTimeout = rpcTimeout || constant.ReqTimeout;
     }
 
@@ -66,7 +69,7 @@ class RPC {
             if (!rpcServer) {
                 throw "RPC server not provided";
             }
-            this.rpcServer = this.Wallet.Utils.addTrailingSlash(rpcServer);
+            this.rpcServer = StringUtil.addTrailingSlash(rpcServer);
             const chainId = await this.getChainId();
             this.Wallet.chainId = chainId;
             return chainId;

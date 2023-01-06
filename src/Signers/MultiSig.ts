@@ -1,6 +1,6 @@
 import * as BNSignerWrapper from "../GoWrappers/BNSignerWrapper";
 import BNSigner from "./BNSigner";
-import { WalletParams } from "../Wallet.js";
+import { WalletParams } from "../Wallet";
 
 /**
  * MultiSig

@@ -1,6 +1,6 @@
-import Tx from "./Transaction/Tx.js";
-import * as Constants from "./Config/Constants.js";
-import Wallet from "./Wallet.js";
+import Tx from "./Transaction/Tx";
+import * as Constants from "./Config/Constants";
+import Wallet from "./Wallet";
 
 /**
  * Transaction handler

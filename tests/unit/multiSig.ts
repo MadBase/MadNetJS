@@ -11,6 +11,7 @@ const expect = chai.expect;
 
 describe('Unit/MultiSig:', () => {
     let privateKey, secondaryPrivateKey, msgHex, madWallet, multiSigBn, bnAccount, bnAccount2, signatures;
+    let bnSigner, secpSigner, publicKeys;
     before(async function () {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
         secondaryPrivateKey = process.env.OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY;

@@ -30,7 +30,7 @@ describe('Unit/Util/VerifySignature:', () => {
 
         it('Fail: Cannot verify BNSigner sig with empty arguments', async () => {
             await expect(
-                VerifySignature.BNSignerVerify()
+                VerifySignature.BNSignerVerify(false, false)
             ).to.eventually.be.rejectedWith('Arguments cannot be empty');
         });
 
@@ -52,7 +52,7 @@ describe('Unit/Util/VerifySignature:', () => {
 
         it('Fail: Cannot verify SecpSignerVerify sig with empty arguments', async () => {
             await expect(
-                VerifySignature.SecpSignerVerify()
+                VerifySignature.SecpSignerVerify(false, false, false)
             ).to.eventually.be.rejectedWith('Arguments cannot be empty');
         });
 

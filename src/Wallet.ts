@@ -1,6 +1,6 @@
-import Account from "./Account.js";
-import Transaction from "./Transaction.js";
-import RPC from "./RPC.js";
+import Account from "./Account";
+import Transaction from "./Transaction";
+import RPC from "./RPC";
 import utils from "./Util";
 
 //TODO replace with Account, Transaction, RPC, UtilityCollection, etc
