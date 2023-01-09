@@ -28,7 +28,7 @@ export interface Utxo {
     valueStoreIDs: Array<string>;
     dataStoreIDs: Array<string>;
     value: string | number | bigint;
-    vSPreImage?: VSPreImage;
+    vsPreImage?: VsPreImage;
     txHash?: string;
     dSLinker?: any;
 }
@@ -40,17 +40,17 @@ export interface Vout {
     valueStore?: ValueStore;
 }
 
-export interface VSPreImage {
+export interface VsPreImage {
     chainID: string;
     value: string | number;
-    tXOutIdx: string | number;
+    txOutIdx: string | number;
     owner: string;
     fee: string | number;
 }
 
-export interface DSPreImage {
+export interface DsPreImage {
     chainID: string;
-    tXOutIdx: string | number;
+    txOutIdx: string | number;
     owner: string;
     fee: string | number;
     index: string;
@@ -60,9 +60,9 @@ export interface DSPreImage {
     value?: string;
 }
 
-export interface ASPreImage {
+export interface AsPreImage {
     chainID: string;
-    tXOutIdx: string | number;
+    txOutIdx: string | number;
     issuedAt: string | number;
     owner: string;
     fee: string | number;
@@ -90,7 +90,7 @@ export interface TxInLinker {
 
 export interface DSLinker {
     txHash: string;
-    dSPreImage: DSPreImage;
+    dsPreImage: DsPreImage;
 }
 
 export interface FeeEstimates {
