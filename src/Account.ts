@@ -12,8 +12,8 @@ export interface Signer {
 }
 
 export interface AccountObject {
-    UTXO: Utxo;
-    UTXODataStores?: string;
+    utxo: Utxo;
+    utxoDataStores?: string;
     curve: number;
     address: string;
     signer: Signer;
@@ -56,15 +56,15 @@ export default class Account {
         signer: Signer
     ): Promise<AccountObject> {
         const utxo: Utxo = {
-            DataStores: [],
-            ValueStores: [],
-            ValueStoreIDs: [],
-            DataStoreIDs: [],
-            Value: "",
+            dataStores: [],
+            valueStores: [],
+            valueStoreIDs: [],
+            dataStoreIDs: [],
+            value: "",
         };
 
         const account: AccountObject = {
-            UTXO: utxo,
+            utxo: utxo,
             curve: curve,
             address: address,
             signer: signer,
@@ -247,12 +247,12 @@ export default class Account {
 
             const accountIndex = await this._getAccountIndex(address);
 
-            this.accounts[accountIndex].UTXO = {
-                DataStores: [],
-                ValueStores: [],
-                ValueStoreIDs: [],
-                DataStoreIDs: [],
-                Value: "",
+            this.accounts[accountIndex].utxo = {
+                dataStores: [],
+                valueStores: [],
+                valueStoreIDs: [],
+                dataStoreIDs: [],
+                value: "",
             };
 
             let UTXOIDs = [];
@@ -264,8 +264,8 @@ export default class Account {
                     minValue
                 );
 
-            this.accounts[accountIndex].UTXO.ValueStoreIDs = valueUTXOIDs;
-            this.accounts[accountIndex].UTXO.Value = BigInt("0x" + TotalValue);
+            this.accounts[accountIndex].utxo.valueStoreIDs = valueUTXOIDs;
+            this.accounts[accountIndex].utxo.value = BigInt("0x" + TotalValue);
 
             UTXOIDs = UTXOIDs.concat(valueUTXOIDs);
 
@@ -276,16 +276,16 @@ export default class Account {
                 false
             );
 
-            this.accounts[accountIndex].UTXO.DataStoreIDs = dataUTXOIDs;
+            this.accounts[accountIndex].utxo.dataStoreIDs = dataUTXOIDs;
 
             UTXOIDs = UTXOIDs.concat(dataUTXOIDs);
 
             const [DS, VS] = await this.Wallet.Rpc.getUTXOsByIds(UTXOIDs);
 
-            this.accounts[accountIndex].UTXO.DataStores = DS;
-            this.accounts[accountIndex].UTXO.ValueStores = VS;
+            this.accounts[accountIndex].utxo.dataStores = DS;
+            this.accounts[accountIndex].utxo.valueStores = VS;
 
-            return this.accounts[accountIndex].UTXO;
+            return this.accounts[accountIndex].utxo;
         } catch (ex) {
             throw new Error("Account._getAccountUTXOs\r\n" + String(ex));
         }
@@ -310,42 +310,43 @@ export default class Account {
 
             const accountIndex = await this._getAccountIndex(address);
 
-            this.accounts[accountIndex].UTXO = {
-                DataStores: [],
-                ValueStores: [],
-                ValueStoreIDs: [],
-                DataStoreIDs: [],
-                Value: "",
+            this.accounts[accountIndex].utxo = {
+                dataStores: [],
+                valueStores: [],
+                valueStoreIDs: [],
+                dataStoreIDs: [],
+                value: "",
             };
 
             const [DS, VS] = await this.Wallet.Rpc.getUTXOsByIds(utxoIds);
 
             if (DS.length > 0) {
-                this.accounts[accountIndex].UTXODataStores = DS;
+                this.accounts[accountIndex].utxoDataStores = DS;
             }
 
             if (VS.length > 0) {
-                this.accounts[accountIndex].UTXO.ValueStores = VS;
+                this.accounts[accountIndex].utxo.valueStores = VS;
             }
 
             let totalValue = BigInt(0);
 
             for (
                 let i = 0;
-                i < this.accounts[accountIndex].UTXO.ValueStores.length;
+                i < this.accounts[accountIndex].utxo.valueStores.length;
                 i++
             ) {
-                // TODO: VSPreImage is optional and not defined here
+                // TODO: vsPreImage type is currently empty. We'll need to test out
+                // what is expected here
                 totalValue += BigInt(
                     "0x" +
-                        this.accounts[accountIndex].UTXO.ValueStores[i]
-                            .VSPreImage.Value
+                        this.accounts[accountIndex].utxo.valueStores[i]
+                            .vsPreImage.Value
                 );
             }
 
-            this.accounts[accountIndex].UTXO.Value = totalValue;
+            this.accounts[accountIndex].utxo.value = totalValue;
 
-            return this.accounts[accountIndex].UTXO;
+            return this.accounts[accountIndex].utxo;
         } catch (ex) {
             throw new Error("Account._getAccountUTXOsByIds\r\n" + String(ex));
         }
@@ -360,18 +361,18 @@ export default class Account {
     async _getAccountValueStores(
         address: string,
         minValue: number
-    ): Promise<Utxo["ValueStores"]> {
+    ): Promise<ValueStore[]> {
         try {
             address = this.Wallet.Utils.isAddress(address);
 
             const accountIndex = await this._getAccountIndex(address);
 
-            this.accounts[accountIndex].UTXO = {
-                DataStores: [],
-                ValueStores: [],
-                ValueStoreIDs: [],
-                DataStoreIDs: [],
-                Value: "",
+            this.accounts[accountIndex].utxo = {
+                dataStores: [],
+                valueStores: [],
+                valueStoreIDs: [],
+                dataStoreIDs: [],
+                value: "",
             };
 
             const [valueUTXOIDs, TotalValue] =
@@ -381,14 +382,14 @@ export default class Account {
                     minValue
                 );
 
-            this.accounts[accountIndex].UTXO.ValueStoreIDs = valueUTXOIDs;
-            this.accounts[accountIndex].UTXO.Value = BigInt("0x" + TotalValue);
+            this.accounts[accountIndex].utxo.valueStoreIDs = valueUTXOIDs;
+            this.accounts[accountIndex].utxo.value = BigInt("0x" + TotalValue);
 
             const [, VS] = await this.Wallet.Rpc.getUTXOsByIds(valueUTXOIDs);
 
-            this.accounts[accountIndex].UTXO.ValueStores = VS;
+            this.accounts[accountIndex].utxo.valueStores = VS;
 
-            return this.accounts[accountIndex].UTXO.ValueStores;
+            return this.accounts[accountIndex].utxo.valueStores;
         } catch (ex) {
             throw new Error("Account._getAccountValueStores\r\n" + String(ex));
         }
