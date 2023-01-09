@@ -2,8 +2,7 @@ import MultiSig from "./Signers/MultiSig";
 import BNSigner from "./Signers/BNSigner";
 import SecpSigner from "./Signers/SecpSigner";
 import { WalletParams } from "./Wallet";
-import { Utxo } from "./types/Types";
-
+import { DataStore, Utxo, ValueStore } from "./types/Types";
 
 // TODO Multisig.js or BNSigner.js
 export interface Signer {
@@ -20,8 +19,8 @@ export interface AccountObject {
     signer: Signer;
     getAccountUTXOs: (minValue: number) => Promise<Utxo>;
     getAccountUTXOsByIds: (utxoIds: Array<string>) => Promise<Utxo>;
-    getAccountValueStores: (minValue: number) => Promise<Utxo["ValueStores"]>;
-    getAccountDataStores: (minValue: number) => Promise<Utxo["DataStores"]>;
+    getAccountValueStores: (minValue: number) => Promise<ValueStore[]>;
+    getAccountDataStores: (minValue: number) => Promise<DataStore[]>;
     getAccountBalance: () => Promise<string>;
 }
 
@@ -56,7 +55,7 @@ export default class Account {
         address: string,
         signer: Signer
     ): Promise<AccountObject> {
-        const utxo = {
+        const utxo: Utxo = {
             DataStores: [],
             ValueStores: [],
             ValueStoreIDs: [],
@@ -64,7 +63,7 @@ export default class Account {
             Value: "",
         };
 
-        const account = {
+        const account: AccountObject = {
             UTXO: utxo,
             curve: curve,
             address: address,
@@ -85,6 +84,7 @@ export default class Account {
                     );
                 return dataStoreUTXOs;
             },
+
             getAccountBalance: async () => {
                 const [, balance] = await this.Wallet.Rpc.getValueStoreUTXOIDs(
                     address,
@@ -120,21 +120,24 @@ export default class Account {
             }
 
             let signer;
+
             if (curve === 1) {
                 signer = new SecpSigner(this.Wallet, privateKey);
             } else {
                 signer = new BNSigner(this.Wallet, privateKey);
                 signer.multiSig = new MultiSig(this.Wallet, signer);
             }
+
             const address = await signer.getAddress();
 
             const existingAccount = this.accounts.find(
                 (a) => a.address === address
             );
-            if (existingAccount) {
-                throw "Account already added";
-            }
+
+            if (existingAccount) throw "Account already added";
+
             const account = this._buildAccountObject(curve, address, signer);
+
             return account;
         } catch (ex) {
             throw new Error("Account.addAccount\r\n" + String(ex));
@@ -156,16 +159,21 @@ export default class Account {
             ) {
                 throw "Invalid public key array";
             }
+
             let pubs = [];
+
             for (let i = 0; i < publicKeys.length; i++) {
                 const pCheck = this.Wallet.Utils.isHex(publicKeys[i]);
                 pubs.push(pCheck);
             }
+
             const bnSigner = new BNSigner(this.Wallet);
             const signer = new MultiSig(this.Wallet, bnSigner);
             const multiPub = await signer.addPublicKeys(publicKeys);
+            // TODO: Expects no params, why is it being passed multiPub?
             const multiAddr = await signer.getAddress(multiPub);
             const account = this._buildAccountObject(2, multiAddr, signer);
+
             return account;
         } catch (ex) {
             throw new Error("Account.addMultiSig\r\n" + String(ex));
@@ -194,9 +202,12 @@ export default class Account {
     async getAccount(address: string): Promise<AccountObject> {
         try {
             address = this.Wallet.Utils.isAddress(address);
+
             const account = this.accounts.find((a) => a.address === address);
-            if (account) return account;
-            else throw "Could not find account";
+
+            if (!account) throw "Could not find account";
+
+            return account;
         } catch (ex) {
             throw new Error("Account.getAccount\r\n" + String(ex));
         }
@@ -211,14 +222,14 @@ export default class Account {
     async _getAccountIndex(address: string): Promise<number> {
         try {
             address = this.Wallet.Utils.isAddress(address);
+
             const accountIndex = this.accounts.findIndex(
                 (a) => a.address === address
             );
-            if (accountIndex === -1) {
-                throw "Could not find account index";
-            } else {
-                return accountIndex;
-            }
+
+            if (accountIndex === -1) throw "Could not find account index";
+
+            return accountIndex;
         } catch (ex) {
             throw new Error("Account._getAccountIndex\r\n" + String(ex));
         }
@@ -233,7 +244,9 @@ export default class Account {
     async _getAccountUTXOs(address: string, minValue: number): Promise<Utxo> {
         try {
             address = this.Wallet.Utils.isAddress(address);
+
             const accountIndex = await this._getAccountIndex(address);
+
             this.accounts[accountIndex].UTXO = {
                 DataStores: [],
                 ValueStores: [],
@@ -241,27 +254,37 @@ export default class Account {
                 DataStoreIDs: [],
                 Value: "",
             };
+
             let UTXOIDs = [];
+
             const [valueUTXOIDs, TotalValue] =
                 await this.Wallet.Rpc.getValueStoreUTXOIDs(
                     address,
                     this.accounts[accountIndex].curve,
                     minValue
                 );
+
             this.accounts[accountIndex].UTXO.ValueStoreIDs = valueUTXOIDs;
             this.accounts[accountIndex].UTXO.Value = BigInt("0x" + TotalValue);
+
             UTXOIDs = UTXOIDs.concat(valueUTXOIDs);
+
             const dataUTXOIDs = await this.Wallet.Rpc.getDataStoreUTXOIDs(
                 address,
                 this.accounts[accountIndex].curve,
                 false,
                 false
             );
+
             this.accounts[accountIndex].UTXO.DataStoreIDs = dataUTXOIDs;
+
             UTXOIDs = UTXOIDs.concat(dataUTXOIDs);
+
             const [DS, VS] = await this.Wallet.Rpc.getUTXOsByIds(UTXOIDs);
+
             this.accounts[accountIndex].UTXO.DataStores = DS;
             this.accounts[accountIndex].UTXO.ValueStores = VS;
+
             return this.accounts[accountIndex].UTXO;
         } catch (ex) {
             throw new Error("Account._getAccountUTXOs\r\n" + String(ex));
@@ -282,8 +305,11 @@ export default class Account {
             if (!Array.isArray(utxoIds)) {
                 utxoIds = [utxoIds];
             }
+
             address = this.Wallet.Utils.isAddress(address);
+
             const accountIndex = await this._getAccountIndex(address);
+
             this.accounts[accountIndex].UTXO = {
                 DataStores: [],
                 ValueStores: [],
@@ -291,26 +317,34 @@ export default class Account {
                 DataStoreIDs: [],
                 Value: "",
             };
+
             const [DS, VS] = await this.Wallet.Rpc.getUTXOsByIds(utxoIds);
+
             if (DS.length > 0) {
                 this.accounts[accountIndex].UTXODataStores = DS;
             }
+
             if (VS.length > 0) {
                 this.accounts[accountIndex].UTXO.ValueStores = VS;
             }
+
             let totalValue = BigInt(0);
+
             for (
                 let i = 0;
                 i < this.accounts[accountIndex].UTXO.ValueStores.length;
                 i++
             ) {
+                // TODO: VSPreImage is optional and not defined here
                 totalValue += BigInt(
                     "0x" +
                         this.accounts[accountIndex].UTXO.ValueStores[i]
                             .VSPreImage.Value
                 );
             }
+
             this.accounts[accountIndex].UTXO.Value = totalValue;
+
             return this.accounts[accountIndex].UTXO;
         } catch (ex) {
             throw new Error("Account._getAccountUTXOsByIds\r\n" + String(ex));
@@ -329,7 +363,9 @@ export default class Account {
     ): Promise<Utxo["ValueStores"]> {
         try {
             address = this.Wallet.Utils.isAddress(address);
+
             const accountIndex = await this._getAccountIndex(address);
+
             this.accounts[accountIndex].UTXO = {
                 DataStores: [],
                 ValueStores: [],
@@ -337,16 +373,21 @@ export default class Account {
                 DataStoreIDs: [],
                 Value: "",
             };
+
             const [valueUTXOIDs, TotalValue] =
                 await this.Wallet.Rpc.getValueStoreUTXOIDs(
                     address,
                     this.accounts[accountIndex]["curve"],
                     minValue
                 );
+
             this.accounts[accountIndex].UTXO.ValueStoreIDs = valueUTXOIDs;
             this.accounts[accountIndex].UTXO.Value = BigInt("0x" + TotalValue);
+
             const [, VS] = await this.Wallet.Rpc.getUTXOsByIds(valueUTXOIDs);
+
             this.accounts[accountIndex].UTXO.ValueStores = VS;
+
             return this.accounts[accountIndex].UTXO.ValueStores;
         } catch (ex) {
             throw new Error("Account._getAccountValueStores\r\n" + String(ex));

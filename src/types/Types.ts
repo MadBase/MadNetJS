@@ -11,8 +11,7 @@ export interface RpcFee {
     DataStoreFee: string;
 }
 
-export interface ValueStore {
-}
+export interface ValueStore {}
 
 export interface DataStore {
     DSLinker: any;
@@ -24,18 +23,18 @@ export interface RpcTxObject {
 }
 
 export interface Utxo {
-    DataStore: Array<DataStore>;
-    ValueStore: Array<ValueStore>;
+    DataStores: Array<DataStore>;
+    ValueStores: Array<ValueStore>;
     ValueStoreIDs: Array<string>;
     DataStoreIDs: Array<string>;
     Value: string | number | bigint;
-    VSPreImage: VSPreImage;
-    TxHash:string;
-    DSLinker: any;
+    // TODO: Are these optional?
+    VSPreImage?: VSPreImage;
+    TxHash?: string;
+    DSLinker?: any;
 }
 
-export interface Vin {
-}
+export interface Vin {}
 
 export interface Vout {
     DataStore?: DataStore;
@@ -87,12 +86,12 @@ export interface TxInPreImage {
 
 export interface TxInLinker {
     TxHash: string;
-    TXInPreImage: TxInPreImage
+    TXInPreImage: TxInPreImage;
 }
 
 export interface DSLinker {
     TxHash: string;
-    DSPreImage: DSPreImage
+    DSPreImage: DSPreImage;
 }
 
 export interface FeeEstimates {
