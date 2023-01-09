@@ -1,42 +1,43 @@
+import { AccountCurve } from "../types/Types";
+
 const constant = require("../Config/Constants.js");
 const validator = require("./Validator.js");
+
+/** @type  */
+export type SvaCurvePubhashTuple = [number, number, string][]
 
 /**
  * @typedef TxUtils - Collection of Tx Utilities
  */
 var self = module.exports = {
-    /**
-     * Extract SVA | Curve | PubHash
-     * @param {hex} owner
-     * @return {Object} 
-     */
-    extractOwner: async(owner) => {
+    /** Extract SVA | Curve | PubHash from a given DSPreImage.Owner "owner"
+     * @param owner - The owner string
+    */
+    extractOwner: async(owner: string): Promise<SvaCurvePubhashTuple> => {
         try {
             owner = validator.isHex(owner);
             if (!owner) {
                 throw "Bad argument";
             }
-            const ownerBuf = Buffer.from(owner, "hex");
+            const ownerBuf: Buffer = Buffer.from(owner, "hex");
             if (ownerBuf.length !== 22) {
                 throw "Invalid owner";
             }
-            const validation = ownerBuf.slice(0, 1).toString("hex");
-            const curve = ownerBuf.slice(1, 2).toString("hex");
-            const pubHash = ownerBuf.slice(2, 22).toString("hex");
+            const validation: string = ownerBuf.slice(0, 1).toString("hex");
+            const curve: string = ownerBuf.slice(1, 2).toString("hex");
+            const pubHash: string = ownerBuf.slice(2, 22).toString("hex");
             return [validator.isNumber(validation), validator.isNumber(curve), validator.isHex(pubHash)];
         } catch (ex) {
             throw "Transaction.extractOwner: " + String(ex);
         }
     },
 
-    /**
-     * Create owner string
-     * @param {number} validation
-     * @param {number} curve
-     * @param {hex} base
-     * @return {hex} owner 
-     */
-    prefixSVACurve: async(validation, curve, base) => {
+    /** Create owner string prefix for an SVACurve
+     * @param validation - ""
+     * @param {AccountCurve} curve - The account curve
+     *
+    */
+    prefixSVACurve: async(validation: string, curve: AccountCurve, base: string) => {
         try {
             validation = validator.numToHex(validation);
             curve = validator.numToHex(curve);
@@ -111,8 +112,8 @@ var self = module.exports = {
 
     /**
      * Calculate number of epochs in DataStore
-     * @param {number} dataSize 
-     * @param {number} deposit 
+     * @param {number} dataSize
+     * @param {number} deposit
      * @return {number} epochs
      */
     calculateNumEpochs: async(dataSize, deposit) => {
@@ -133,8 +134,8 @@ var self = module.exports = {
 
     /**
      * Calculate the DataStore Fee
-     * @param {number} dsFee 
-     * @param {number} numEpochs 
+     * @param {number} dsFee
+     * @param {number} numEpochs
      * @returns {number} dsFee
      */
     calculateFee: async(dsFee, numEpochs) => {

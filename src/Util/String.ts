@@ -1,5 +1,10 @@
 module.exports = {
-    addTrailingSlash: (string) => {
+    /**
+     * Adds a trailing slash to a given string
+     * @param string
+     * @returns { string }
+     */
+    addTrailingSlash: (string: string): string => {
         try {
             return string.replace(/\/$|$/, '/');
         }

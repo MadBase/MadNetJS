@@ -1,14 +1,21 @@
+import { Keccak256Hash } from "../types/Types";
+
 const validator = require('./Validator.js');
 const ethUtil = require('ethereumjs-util');
 
 module.exports = {
-    hash: (msg) => {
+    /**
+     * Returns a keccak256 hash string of the given msg
+     * @param msg - Msg to get the keccask256 hash from
+     * @returns {Keccak256Hash}
+     */
+    hash: (msg: string): Keccak256Hash => {
         try {
             if(!msg) {
                 throw "Argument msg cannot be empty.";
             }
-            const msgBuffer = Buffer.from(validator.isHex(msg), "hex");
-            const msgHash = ethUtil.keccak256(msgBuffer);
+            const msgBuffer: Buffer = Buffer.from(validator.isHex(msg), "hex");
+            const msgHash: Buffer = ethUtil.keccak256(msgBuffer);
             return msgHash.toString("hex");
         }
         catch (ex) {
