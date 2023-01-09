@@ -1,5 +1,5 @@
 import * as BNSignerWrapper from "../GoWrappers/BNSignerWrapper";
-import ethUtil from "ethereumjs-util";
+import { keccak256 } from "ethereumjs-util";
 
 /**
  * BNSigner
@@ -125,7 +125,7 @@ export default class BNSigner {
         try {
             pubK = pubK || (await this.getPubK());
 
-            const pubHash = ethUtil.keccak256(
+            const pubHash = keccak256(
                 Buffer.from(pubK, "hex").slice(1)
             );
 

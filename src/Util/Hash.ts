@@ -1,5 +1,6 @@
 import validator from './Validator';
-import ethUtil from 'ethereumjs-util';
+import { keccak256 } from "ethereumjs-util";
+
 
 export default {
     hash: (msg) => {
@@ -8,7 +9,7 @@ export default {
                 throw "Argument msg cannot be empty.";
             }
             const msgBuffer = Buffer.from(validator.isHex(msg), "hex");
-            const msgHash = ethUtil.keccak256(msgBuffer);
+            const msgHash = keccak256(msgBuffer);
             return msgHash.toString("hex");
         }
         catch (ex) {
