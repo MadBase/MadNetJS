@@ -1,75 +1,73 @@
 export interface WalletType {
-    Rpc: any;
-    Utils: any;
-    Account: any;
+    rpc: any;
+    utils: any;
+    account: any;
     chainId: any;
 }
 
 export interface RpcFee {
-    MinTxFee: string;
-    ValueStoreFee: string;
-    DataStoreFee: string;
+    minTxFee: string;
+    valueStoreFee: string;
+    dataStoreFee: string;
 }
 
-export interface ValueStore {
-}
+export interface ValueStore {}
 
 export interface DataStore {
-    DSLinker: any;
-    Signature: string;
+    dSLinker: any;
+    signature: string;
 }
 
 export interface RpcTxObject {
-    Tx: any;
+    tx: any;
 }
 
 export interface Utxo {
-    DataStore: Array<DataStore>;
-    ValueStore: Array<ValueStore>;
-    ValueStoreIDs: Array<string>;
-    DataStoreIDs: Array<string>;
-    Value: string | number | bigint;
-    VSPreImage: VSPreImage;
-    TxHash:string;
-    DSLinker: any;
+    dataStores: Array<DataStore>;
+    valueStores: Array<ValueStore>;
+    valueStoreIDs: Array<string>;
+    dataStoreIDs: Array<string>;
+    value: string | number | bigint;
+    vSPreImage?: VSPreImage;
+    txHash?: string;
+    dSLinker?: any;
 }
 
-export interface Vin {
-}
+export interface Vin {}
 
 export interface Vout {
-    DataStore?: DataStore;
-    ValueStore?: ValueStore;
+    dataStore?: DataStore;
+    valueStore?: ValueStore;
 }
 
 export interface VSPreImage {
-    ChainID: string;
-    Value: string | number;
-    TXOutIdx: string | number;
-    Owner: string;
-    Fee: string | number;
+    chainID: string;
+    value: string | number;
+    tXOutIdx: string | number;
+    owner: string;
+    fee: string | number;
 }
 
 export interface DSPreImage {
-    ChainID: string;
-    TXOutIdx: string | number;
-    Owner: string;
-    Fee: string | number;
-    Index: string;
-    IssuedAt: string | number;
-    Deposit: string | number;
-    RawData: string;
-    Value?: string;
+    chainID: string;
+    tXOutIdx: string | number;
+    owner: string;
+    fee: string | number;
+    index: string;
+    issuedAt: string | number;
+    deposit: string | number;
+    rawData: string;
+    value?: string;
 }
 
 export interface ASPreImage {
-    ChainID: string;
-    TXOutIdx: string | number;
-    IssuedAt: string | number;
-    Owner: string;
-    Fee: string | number;
-    Exp?: string | number;
-    Value?: string | number;
+    chainID: string;
+    tXOutIdx: string | number;
+    issuedAt: string | number;
+    owner: string;
+    fee: string | number;
+    exp?: string | number;
+    value?: string | number;
 }
 
 export interface TxInOwner {
@@ -80,19 +78,19 @@ export interface TxInOwner {
 }
 
 export interface TxInPreImage {
-    ChainID: string;
-    ConsumedTxIdx: string;
-    ConsumedTxHash: string;
+    chainID: string;
+    consumedTxIdx: string;
+    consumedTxHash: string;
 }
 
 export interface TxInLinker {
-    TxHash: string;
-    TXInPreImage: TxInPreImage
+    txHash: string;
+    tXInPreImage: TxInPreImage;
 }
 
 export interface DSLinker {
-    TxHash: string;
-    DSPreImage: DSPreImage
+    txHash: string;
+    dSPreImage: DSPreImage;
 }
 
 export interface FeeEstimates {
@@ -102,6 +100,6 @@ export interface FeeEstimates {
 }
 
 export interface Signature {
-    Vin: Vin[];
-    Vout: Vout[];
+    vin: Vin[];
+    vout: Vout[];
 }
