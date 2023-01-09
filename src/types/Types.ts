@@ -23,17 +23,6 @@ export interface RpcTxObject {
 }
 
 export interface Utxo {
-<<<<<<< HEAD
-    DataStores: Array<DataStore>;
-    ValueStores: Array<ValueStore>;
-    ValueStoreIDs: Array<string>;
-    DataStoreIDs: Array<string>;
-    Value: string | number | bigint;
-    // TODO: Are these optional?
-    VSPreImage?: VSPreImage;
-    TxHash?: string;
-    DSLinker?: any;
-=======
     dataStores: Array<DataStore>;
     valueStores: Array<ValueStore>;
     valueStoreIDs: Array<string>;
@@ -42,7 +31,6 @@ export interface Utxo {
     vSPreImage?: VSPreImage;
     txHash?: string;
     dSLinker?: any;
->>>>>>> begin-ts-conversion
 }
 
 export interface Vin {}
