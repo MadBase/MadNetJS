@@ -1,4 +1,4 @@
-import { AccountCurve } from "../types/Types";
+import { AccountCurve, DataStore, HexData } from "../types/Types";
 
 const constant = require("../Config/Constants.js");
 const validator = require("./Validator.js");
@@ -33,9 +33,9 @@ var self = module.exports = {
     },
 
     /** Create owner string prefix for an SVACurve
-     * @param validation - ""
-     * @param {AccountCurve} curve - The account curve
-     *
+     * @param validation - "" @Troy -- What is this exactly?
+     * @param curve - The account curve 1 || 2
+     * @param base - "" @Troy what is this exactly?
     */
     prefixSVACurve: async(validation: string, curve: AccountCurve, base: string) => {
         try {
@@ -57,11 +57,11 @@ var self = module.exports = {
 
     /**
      * Calculate DataStore deposit cost
-     * @param {hex} data
-     * @param {number} duration
-     * @return {number} deposit
+     * @param {HexData} data - The data to be stored as a DataStore
+     * @param {number} duration - How long the DataStore is to be stored
+     * @return {number} The deposit cost
      */
-    calculateDeposit: async(data, duration) => {
+    calculateDeposit: async(data:HexData, duration: number) => {
         try {
             // dspi.go - BaseDepositEquation
             const dataSize = BigInt(Buffer.from(validator.isHex(data), "hex").length);
@@ -80,7 +80,7 @@ var self = module.exports = {
      * @param {Object} DataStore
      * @return {number} deposit
      */
-    remainingDeposit: async(DataStore, thisEpoch) => {
+    remainingDeposit: async(DataStore:DataStore, thisEpoch: number) => {
         try {
             // dspi.go - RemainingValue
             const DSPreImage = DataStore.DSLinker.DSPreImage;
@@ -116,7 +116,7 @@ var self = module.exports = {
      * @param {number} deposit
      * @return {number} epochs
      */
-    calculateNumEpochs: async(dataSize, deposit) => {
+    calculateNumEpochs: async(dataSize: number, deposit: number) => {
         try {
             if (BigInt(dataSize) > BigInt(constant.MaxDataStoreSize)) {
                 throw "Data size is too large";
@@ -138,7 +138,7 @@ var self = module.exports = {
      * @param {number} numEpochs
      * @returns {number} dsFee
      */
-    calculateFee: async(dsFee, numEpochs) => {
+    calculateFee: async(dsFee: number, numEpochs: number) => {
         try {
             return BigInt(BigInt(dsFee) * BigInt(BigInt(numEpochs) + BigInt(2))).toString(10);
         }
