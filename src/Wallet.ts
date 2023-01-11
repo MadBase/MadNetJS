@@ -2,17 +2,7 @@ import Account from "./Account";
 import Transaction from "./Transaction";
 import RPC from "./RPC";
 import utils from "./Util";
-
-//TODO replace with Account, Transaction, RPC, UtilityCollection, etc
-export type WalletParams = {
-    chainId: Number;
-    Account: any;
-    Transaction: any;
-    Rpc: any;
-    Utils: any;
-    rpcServer: any;
-    rpcTimeout: any;
-}
+import { WalletType } from "./types/Types";
 
 /**
  * Wallet handler
@@ -26,33 +16,34 @@ export type WalletParams = {
  */
 export default class Wallet {
     public chainId: Number;
-    public Account: any;
-    public Transaction: any;
-    public Rpc: any;
-    public Utils: any;
+    public account: any;
+    public transaction: any;
+    public rpc: any;
+    public utils: any;
 
     /**
      * Creates an instance of Wallet.
-     * @param {WalletParams} params
+     * @param {WalletType} params
      */
-    constructor(...params: any | WalletParams[]) {
-        const { chainId, rpcServer, rpcTimeout } = this._initializeParams(params)
+    constructor(...params: any | WalletType[]) {
+        const { chainId, rpcServer, rpcTimeout } =
+            this._initializeParams(params);
         this.chainId = chainId ? utils.isNumber(chainId) : undefined;
-        this.Account = new Account(this as any);
-        this.Transaction = new Transaction(this);
-        this.Rpc = new RPC(this as any, rpcServer, rpcTimeout);
-        this.Utils = utils;
+        this.account = new Account(this);
+        this.transaction = new Transaction(this);
+        this.rpc = new RPC(this, rpcServer, rpcTimeout);
+        this.utils = utils;
     }
 
     /**
      * Initializes Wallet parameters.
      * @param {WalletParams} params - Accepts a chainId and rpcServer arguments for backwards compatibility, a shorthand instancing w/ RPC endpoint only or object Based configuration
-     * @returns {Object<WalletParams>} Wallet parameters
+     * @returns {Object<WalletType>} Wallet parameters
      */
-    _initializeParams(params: any | WalletParams[]) {
-        let chainId: WalletParams["chainId"] = 0;
-        let rpcServer: WalletParams["rpcServer"],
-            rpcTimeout: WalletParams["rpcTimeout"];
+    _initializeParams(params: any | WalletType[]) {
+        let chainId: Number = 0;
+        let rpcServer: string = "";
+        let rpcTimeout: number = 0;
 
         // Backwards compatibility catch
         if (params.length === 2) {
@@ -71,13 +62,15 @@ export default class Wallet {
         }
 
         if (!rpcServer) {
-            console.warn('The RPC requests will not work properly if an endpoint is not provided.');
+            console.warn(
+                "The RPC requests will not work properly if an endpoint is not provided."
+            );
         }
 
         return {
             chainId,
             rpcServer,
-            rpcTimeout
-        }
+            rpcTimeout,
+        };
     }
 }

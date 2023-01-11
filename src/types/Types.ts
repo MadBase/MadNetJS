@@ -2,6 +2,7 @@ export interface WalletType {
     rpc: any;
     utils: any;
     account: any;
+    transaction: any;
     chainId: any;
 }
 
