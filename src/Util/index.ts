@@ -1,3 +1,5 @@
+import { UtilityCollection } from "../types/Types";
+
 const Eth = require('./Eth');
 const Generic = require('./Generic');
 const Hash = require('./Hash');
@@ -8,7 +10,7 @@ const VerifySignature = require('./VerifySignature');
 const Faucet = require('./Faucet');
 
 /**
- * @typedef UtilityCollection - Collection of all utility functions
+ * @type { UtilityCollection }
  */
 module.exports = {
     ...Eth,
