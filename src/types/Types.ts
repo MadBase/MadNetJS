@@ -14,12 +14,8 @@ export interface RpcFee {
 export interface ValueStore {}
 
 export interface DataStore {
-    dSLinker: any;
+    dsLinker: any;
     signature: string;
-}
-
-export interface RpcTxObject {
-    tx: any;
 }
 
 export interface Utxo {
@@ -30,7 +26,7 @@ export interface Utxo {
     value: string | number | bigint;
     vsPreImage?: VsPreImage;
     txHash?: string;
-    dSLinker?: any;
+    dsLinker?: any;
 }
 
 export interface Vin {}
@@ -72,7 +68,7 @@ export interface AsPreImage {
 
 export interface TxInOwner {
     address: string;
-    txOutIdx: string;
+    txOutIdx: string | number;
     txHash: string;
     isDataStore: boolean;
 }
@@ -85,7 +81,7 @@ export interface TxInPreImage {
 
 export interface TxInLinker {
     txHash: string;
-    tXInPreImage: TxInPreImage;
+    txInPreImage: TxInPreImage;
 }
 
 export interface DSLinker {
