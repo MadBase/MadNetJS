@@ -1,42 +1,43 @@
-import * as constant from "../Config/Constants";
-import validator from "./Validator";
+import { AccountCurve, DataStore, HexData } from "../types/Types";
+
+const constant = require("../Config/Constants.js");
+const validator = require("./Validator.js");
+
+/** @type  */
+export type SvaCurvePubhashTuple = [number, number, string][]
 
 /**
  * @typedef TxUtils - Collection of Tx Utilities
  */
-var self = {
-    /**
-     * Extract SVA | Curve | PubHash
-     * @param {hex} owner
-     * @return {Object}
-     */
-    extractOwner: async(owner) => {
+var self = module.exports = {
+    /** Extract SVA | Curve | PubHash from a given DSPreImage.Owner "owner"
+     * @param owner - The owner string
+    */
+    extractOwner: async(owner: string): Promise<SvaCurvePubhashTuple> => {
         try {
             owner = validator.isHex(owner);
             if (!owner) {
                 throw "Bad argument";
             }
-            const ownerBuf = Buffer.from(owner, "hex");
+            const ownerBuf: Buffer = Buffer.from(owner, "hex");
             if (ownerBuf.length !== 22) {
                 throw "Invalid owner";
             }
-            const validation = ownerBuf.slice(0, 1).toString("hex");
-            const curve = ownerBuf.slice(1, 2).toString("hex");
-            const pubHash = ownerBuf.slice(2, 22).toString("hex");
+            const validation: string = ownerBuf.slice(0, 1).toString("hex");
+            const curve: string = ownerBuf.slice(1, 2).toString("hex");
+            const pubHash: string = ownerBuf.slice(2, 22).toString("hex");
             return [validator.isNumber(validation), validator.isNumber(curve), validator.isHex(pubHash)];
         } catch (ex) {
             throw "Transaction.extractOwner: " + String(ex);
         }
     },
 
-    /**
-     * Create owner string
-     * @param {number} validation
-     * @param {number} curve
-     * @param {hex} base
-     * @return {hex} owner
-     */
-    prefixSVACurve: async(validation, curve, base) => {
+    /** Create owner string prefix for an SVACurve
+     * @param validation - "" @Troy -- What is this exactly?
+     * @param curve - The account curve 1 || 2
+     * @param base - "" @Troy what is this exactly?
+    */
+    prefixSVACurve: async(validation: string, curve: AccountCurve, base: string) => {
         try {
             validation = validator.numToHex(validation);
             curve = validator.numToHex(curve);
@@ -56,11 +57,11 @@ var self = {
 
     /**
      * Calculate DataStore deposit cost
-     * @param {hex} data
-     * @param {number} duration
-     * @return {number} deposit
+     * @param {HexData} data - The data to be stored as a DataStore
+     * @param {number} duration - How long the DataStore is to be stored
+     * @return {number} The deposit cost
      */
-    calculateDeposit: async(data, duration) => {
+    calculateDeposit: async(data:HexData, duration: number) => {
         try {
             // dspi.go - BaseDepositEquation
             const dataSize = BigInt(Buffer.from(validator.isHex(data), "hex").length);
@@ -79,7 +80,7 @@ var self = {
      * @param {Object} DataStore
      * @return {number} deposit
      */
-    remainingDeposit: async(DataStore, thisEpoch) => {
+    remainingDeposit: async(DataStore:DataStore, thisEpoch: number) => {
         try {
             // dspi.go - RemainingValue
             const DSPreImage = DataStore.DSLinker.DSPreImage;
@@ -115,7 +116,7 @@ var self = {
      * @param {number} deposit
      * @return {number} epochs
      */
-    calculateNumEpochs: async(dataSize, deposit) => {
+    calculateNumEpochs: async(dataSize: number, deposit: number) => {
         try {
             if (BigInt(dataSize) > BigInt(constant.MaxDataStoreSize)) {
                 throw "Data size is too large";
@@ -137,7 +138,7 @@ var self = {
      * @param {number} numEpochs
      * @returns {number} dsFee
      */
-    calculateFee: async(dsFee, numEpochs) => {
+    calculateFee: async(dsFee: number, numEpochs: number) => {
         try {
             return BigInt(BigInt(dsFee) * BigInt(BigInt(numEpochs) + BigInt(2))).toString(10);
         }
@@ -146,5 +147,3 @@ var self = {
         }
     }
 }
-
-export default self;

@@ -1,9 +1,17 @@
-import * as BNSignerWrapper from '../GoWrappers/BNSignerWrapper';
-import { keccak256, toBuffer, fromRpcSig, ecrecover } from "ethereumjs-util";
-import validator from './Validator';
+import { HexData, PublicKey } from "../types/Types";
 
-export default {
-    BNSignerVerify: async (msg, sig) => {
+const BNSignerWrapper = require('../GoWrappers/BNSignerWrapper.js');
+const ethUtil = require('ethereumjs-util');
+const validator = require('./Validator');
+
+module.exports = {
+    /**
+     * Verify a msg was signed with a BN Elliptic Curve -- This Will fail if message was signed with a secp256k1 or other EC
+     * @param {HexData} msg - The message to verify that was signed by sig
+     * @param {HexData} sig - The signature to verify the msg
+     * @returns
+     */
+    BNSignerVerify: async (msg: HexData, sig: HexData) => {
         try {
             if (!msg || !sig) {
                 throw "Arguments cannot be empty";
@@ -18,7 +26,14 @@ export default {
         }
     },
 
-    SecpSignerVerify: async (msg, sig, pubKey) => {
+    /**
+     * Verify a msg was signed with a secp256k1 Elliptic Curve -- This Will fail if message was signed with a BN or other EC
+     * @param {HexData} msg - The message to verify that was signed by sig
+     * @param {HexData} sig - The signature to verify the msg
+     * @param {HexData} pubKey - Public key of the private key used to sign msg
+     * @returns {HexData} - Verified Signature
+     */
+    SecpSignerVerify: async (msg:HexData, sig:HexData, pubKey:PublicKey) => {
         try {
             if (!msg || !sig || !pubKey) {
                 throw "Arguments cannot be empty";
@@ -39,6 +54,12 @@ export default {
         }
     },
 
+    /**
+     * Verify that an aggregated group signatured (sig) signed a message (msg)
+     * @param {HexData} msg
+     * @param {HexData} sig
+     * @returns {HexData} verified signature
+     */
     MultiSigVerifyAggregate: async (msg, sig) => {
         try {
             return module.exports.BNSignerVerify(msg, sig);
@@ -48,7 +69,15 @@ export default {
         }
     },
 
-    MultiSigVerifyAggregateSingle: async (msg, groupPubKey, sig) => {
+    /**
+     * Verify that a message (msg) was signed by an aggregate signing groups member X by using X's
+     * solo signature (sig) and the group public key (groupPubKey)
+     * @param {HexData} msg - The msg to verify
+     * @param {HexData} groupPubKey - The public group key
+     * @param {HexData} sig - The signature of msg by group member X
+     * @returns
+     */
+    MultiSigVerifyAggregateSingle: async (msg: HexData, groupPubKey: HexData, sig: HexData) => {
         try {
             sig = validator.isHex(sig);
             const verifiedSignature = await BNSignerWrapper.AggregateVerifySingle(msg, groupPubKey, sig);

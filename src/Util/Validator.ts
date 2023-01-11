@@ -1,9 +1,16 @@
+import { HexData, PrivateKeyString, PublicAddress } from "../types/Types";
+
 /**
  * Basic utilities for input validation and mutation
  */
 const validHex = /^[0-9a-fA-F]+$/;
-const self = {
-    isHex: (str) => {
+var self = module.exports = {
+    /**
+     * Verifies that a passed string is valid hexadecimal and formats it to lowercase
+     * @param str
+     * @returns { string }
+     */
+    isHex: (str: string): string => {
         try {
             if (!str ||
                 typeof str != "string"
@@ -25,8 +32,12 @@ const self = {
             throw new Error("Validator.isHex\r\n" + String(ex));
         }
     },
-
-    isPrivateKey: (str) => {
+    /**
+     * Verifies that a passed string is a privateKey by validating and returning the passed key
+     * @param str - AN expected private key string to validate
+     * @returns { string }
+     */
+    isPrivateKey: (str: PrivateKeyString): PrivateKeyString => {
         try {
             if (!str) {
                 throw "No input provided";
@@ -47,29 +58,41 @@ const self = {
         }
 
     },
-
-    isNumber: (num) => {
+    /**
+     * Verifies that a passed number is a number and formats it as a Number or BigInt string
+     * @param num - The number to validate
+     * @returns {string|Number}
+     */
+    isNumber: (num: string|bigint|number|boolean): string|number => {
         try {
-            if (!num) {
-                throw "No input provided";
-             }
+            if (!num || typeof num === "boolean") {
+                throw "No input or boolean provided";
+            }
             if (typeof num === "bigint") {
                 num = num.toString();
                 return num;
             }
-            if (!parseInt(num) ||
+            if (typeof num === "string") {
+                if (!parseInt(num) ||
                 !Number.isInteger(parseInt(num))
-            ) {
-                throw "Invalid number";
+                ) {
+                    throw "Invalid number";
+                }
+                return parseInt(num);
             }
-            return parseInt(num);
+            if (typeof num === 'number') {
+                return num;
+            }
         }
         catch (ex) {
             throw new Error("Validator.isNumber\r\n" + String(ex));
         }
     },
-
-    isCurve: (num) => {
+    /**
+     * Determine if a passed number represents a valid curve and returns it -- Expects a number
+     * @param num
+     * */
+    isCurve: (num: number|string) => {
         try {
             num = self.isNumber(num);
             if (num !== 1 &&
@@ -83,8 +106,12 @@ const self = {
             throw new Error("Validator.isCurve\r\n" + String(ex));
         }
     },
-
-    isAddress: (str) => {
+    /**
+     * Takes in an expected address and validates & formats it accordingly
+     * @param str - The expected address to verify
+     * @returns {PublicAddress}
+     */
+    isAddress: (str: string): PublicAddress => {
         try {
             if (!str) {
                 throw "No input provided";
@@ -103,8 +130,12 @@ const self = {
             throw new Error("Validator.isAddress\r\n" + String(ex));
         }
     },
-
-    isBigInt: (bn) => {
+    /**
+     * Takes an expected BigInt and validated * formats it
+     * @param bn - The expcted BigInt
+     * @returns {BigInt}
+     */
+    isBigInt: (bn): BigInt => {
         try {
             return BigInt(bn);
         }
@@ -112,8 +143,12 @@ const self = {
             throw new Error("Validator.isBigInt\r\n" + String(ex));
         }
     },
-
-    numToHex: (num) => {
+    /**
+     * Takes a number and converts it to hexadecimal format
+     * @param num - The number to convert to a hexadecimal string
+     * @returns Hex
+     */
+    numToHex: (num: string|number|bigint|boolean): HexData => {
         try {
             let decimal = self.isNumber(num);
             if (!decimal) {
@@ -129,8 +164,11 @@ const self = {
             throw new Error("Validator.numToHex\r\n" + String(ex));
         }
     },
-
-    hexToInt: (hex) => {
+    /** Takes in hexadecimal data and returns an integer string representation
+     * @param hex - The hex to convert to an integer
+     * @returns {string}
+    */
+    hexToInt: (hex: string): string => {
         try {
             hex = self.isHex(hex);
             const bn = BigInt("0x" + hex).toString(10);
@@ -140,8 +178,12 @@ const self = {
             throw new Error("Validator.hexToInt\r\n" + String(ex));
         }
     },
-
-    hexToTxt: (hex) => {
+    /**
+     * Takes a hexadecimal blob and converts it to a text string
+     * @param hex - The hex to convert to a text string
+     * @returns {string}
+     */
+    hexToTxt: (hex:HexData):string => {
         try {
             return Buffer.from(hex, "hex").toString("utf8");
         }
@@ -149,8 +191,12 @@ const self = {
             throw new Error("Validator.hexToTxt\r\n" + String(ex));
         }
     },
-
-    txtToHex: (str) => {
+    /**
+     * Takes a text string and converts it to a valid hexidecimal string
+     * @param str - The string to convert to HexData
+     * @returns {HexData}
+     */
+    txtToHex: (str: string):HexData => {
         try {
             return Buffer.from(str, "utf8").toString("hex").toLowerCase();
         }
@@ -159,5 +205,3 @@ const self = {
         }
     }
 }
-
-export default self;

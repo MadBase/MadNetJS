@@ -4,9 +4,8 @@ import RPC from "./RPC";
 import utils from "./Util";
 
 //TODO replace with Account, Transaction, RPC, UtilityCollection, etc
-
 export type WalletParams = {
-    chainId: Number | string;
+    chainId: Number;
     Account: any;
     Transaction: any;
     Rpc: any;
