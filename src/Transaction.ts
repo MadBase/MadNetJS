@@ -21,7 +21,7 @@ export interface PendingTxObject {
  * @property {RpcFee} fees - Fees Object - Contains associated transaction fees
  * @property {Array} outValue - Collection of out values
  */
-export class Transaction {
+export default class Transaction {
     private wallet: WalletType;
     private transaction: Tx;
     private fees: RpcFee;
