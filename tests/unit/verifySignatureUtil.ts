@@ -14,8 +14,8 @@ describe('Unit/Util/VerifySignature:', () => {
     before(async function() {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
         madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
-        const secpAccount = await madWallet.Account.addAccount(privateKey, 1);
-        const bnAccount = await madWallet.Account.addAccount(privateKey, 2)
+        const secpAccount = await madWallet.account.addAccount(privateKey, 1);
+        const bnAccount = await madWallet.account.addAccount(privateKey, 2)
         bnSigner = bnAccount.signer;
         secpSigner = secpAccount.signer;
         msgHex = Buffer.from('hello world', 'utf8').toString('hex').toLowerCase();

@@ -26,19 +26,19 @@ describe('Integration/RPC:', function () {
             });
         }
 
-        await madWallet.Account.addAccount(privateKey, 1);
+        await madWallet.account.addAccount(privateKey, 1);
 
-        const balance = await madWallet.Account.accounts[0].getAccountBalance();
+        const balance = await madWallet.account.accounts[0].getAccountBalance();
 
         if(balance === '00') {
             console.log(`Balance is ${balance}`, '\nInsufficient funds, skipping tests.');
             this.skip();
         }
 
-        await madWallet.Account.addAccount(secondaryPrivateKey, 1);
+        await madWallet.account.addAccount(secondaryPrivateKey, 1);
 
-        secpAccount = madWallet.Account.accounts[0];
-        secpSecondaryAccount = madWallet.Account.accounts[1];
+        secpAccount = madWallet.account.accounts[0];
+        secpSecondaryAccount = madWallet.account.accounts[1];
 
         // Create value store object for tx
         await madWallet.Transaction.createValueStore(secpAccount.address, 1000, secpSecondaryAccount.address, 1);

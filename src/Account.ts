@@ -339,7 +339,7 @@ export default class Account {
                 totalValue += BigInt(
                     "0x" +
                         this.accounts[accountIndex].utxo.valueStores[i]
-                            .vsPreImage.Value
+                            .vsPreImage.value
                 );
             }
 

@@ -21,15 +21,15 @@ describe('Unit/MultiSig:', () => {
         bnSigner = new BNSigner(madWallet, privateKey);
         multiSigBn = new MultiSig(madWallet, bnSigner);
 
-        await madWallet.Account.addAccount(privateKey, 2);
-        await madWallet.Account.addAccount(secondaryPrivateKey, 2);
+        await madWallet.account.addAccount(privateKey, 2);
+        await madWallet.account.addAccount(secondaryPrivateKey, 2);
 
-        bnAccount = madWallet.Account.accounts[0];
-        bnAccount2 = madWallet.Account.accounts[1];
+        bnAccount = madWallet.account.accounts[0];
+        bnAccount2 = madWallet.account.accounts[1];
 
         publicKeys = [await bnAccount.signer.getPubK(), await bnAccount2.signer.getPubK()];
 
-        let multiAccount = await madWallet.Account.addMultiSig(publicKeys);
+        let multiAccount = await madWallet.account.addMultiSig(publicKeys);
         let multiPubK = await multiAccount.signer.getPubK()
 
         let signatureOne = await bnAccount.signer.multiSig.sign(msgHex, multiPubK);
@@ -140,13 +140,13 @@ describe('Unit/MultiSig:', () => {
         });
 
         it('Success: Verify BN Signature', async () => {
-            const accountBN = await madWallet.Account.getAccount(bnAccount.address);
+            const accountBN = await madWallet.account.getAccount(bnAccount.address);
             const signature = await accountBN.signer.sign(msgHex);
             expect(signature).to.be.a('string');
         });
 
         it('Success: Sign Multiple Messages', async () => {
-            const accountBN = await madWallet.Account.getAccount(bnAccount.address);
+            const accountBN = await madWallet.account.getAccount(bnAccount.address);
             const signatures = await accountBN.signer.signMulti([msgHex, msgHex]);
             expect(signatures).to.be.an('array');
         });

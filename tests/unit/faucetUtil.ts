@@ -16,11 +16,11 @@ describe('Unit/Util/Faucet:', () => {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
         madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
 
-        await madWallet.Account.addAccount(privateKey, 1);
-        await madWallet.Account.addAccount(privateKey, 2);
+        await madWallet.account.addAccount(privateKey, 1);
+        await madWallet.account.addAccount(privateKey, 2);
 
-        secpAccount = madWallet.Account.accounts[0];
-        bnAccount = madWallet.Account.accounts[1];
+        secpAccount = madWallet.account.accounts[0];
+        bnAccount = madWallet.account.accounts[1];
     });
 
     describe('Faucet', () => {

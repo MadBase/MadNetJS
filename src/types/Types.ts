@@ -12,7 +12,9 @@ export interface RpcFee {
     dataStoreFee: string;
 }
 
-export interface ValueStore {}
+export interface ValueStore {
+    vsPreImage: VsPreImage;
+}
 
 export interface DataStore {
     dsLinker: any;
