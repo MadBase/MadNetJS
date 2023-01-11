@@ -96,6 +96,7 @@ export interface FeeEstimates {
     baseFees: string;
     totalFees: string;
     costByVoutIdx: any[];
+    errors: any;
 }
 
 export interface Signature {

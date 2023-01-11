@@ -1,6 +1,6 @@
 import TxHasher from "../GoWrappers/TxHasher.js";
 import MultiSig from "../Signers/MultiSig.js";
-import utils from "../Util/Tx.js";
+import * as utils from "../Util/Tx.js";
 import {
     AsPreImage,
     DSLinker,

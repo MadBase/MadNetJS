@@ -1,6 +1,13 @@
 import Tx, { RpcTxObject } from "./Transaction/Tx";
 import * as Constants from "./Config/Constants";
-import { DataStore, RpcFee, Utxo, ValueStore, WalletType } from "./types/Types";
+import {
+    DataStore,
+    RpcFee,
+    FeeEstimates,
+    Utxo,
+    ValueStore,
+    WalletType,
+} from "./types/Types";
 
 export interface PolledTxObject {
     tx: Tx;
@@ -163,7 +170,7 @@ export default class Transaction {
         changeAddress: string,
         changeAddressCurve: string,
         UTXOIDs: any[] = []
-    ): Promise<Tx> {
+    ): Promise<PendingTxObject> {
         try {
             if (this.transaction.fee === "0") throw "No Tx fee added";
             if (this.transaction.vout.length <= 0) {
@@ -259,7 +266,7 @@ export default class Transaction {
         changeAddressCurve: string,
         UTXOIDs: String[] = [],
         returnInsufficientOnGas: Boolean
-    ): Promise<RpcFee> {
+    ): Promise<FeeEstimates> {
         try {
             if (this.transaction.fee === "0") throw "No Tx fee added to tx";
             if (this.transaction.vout.length <= 0) {
