@@ -1,8 +1,8 @@
 import * as dotenv from 'dotenv';
 import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import Hash from '../../src/Util/Hash';
 
+const Hash = require('../../src/Util/Hash');
 dotenv.config({ path: process.cwd() + '/.env' });
 chai.use(chaiAsPromised);
 const expect = chai.expect;

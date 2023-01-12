@@ -14,6 +14,7 @@ export interface RpcFee {
 
 export interface ValueStore {
     vsPreImage: VsPreImage;
+    txHash?: string;
 }
 
 export interface DataStore {
@@ -24,6 +25,8 @@ export interface DataStore {
 export interface Utxo {
     dataStores: Array<DataStore>;
     valueStores: Array<ValueStore>;
+    dataStore?: DataStore;
+    valueStore?: ValueStore;
     valueStoreIDs: Array<string>;
     dataStoreIDs: Array<string>;
     value: string | number | bigint;
@@ -32,7 +35,12 @@ export interface Utxo {
     dsLinker?: any;
 }
 
-export interface Vin {}
+export interface Vin {
+    txInLinker: any;
+    vsPreImage?: any;
+    dsLinker?: any;
+    signature?: string;
+}
 
 export interface Vout {
     dataStore?: DataStore;
@@ -96,7 +104,7 @@ export interface FeeEstimates {
     baseFees: string;
     totalFees: string;
     costByVoutIdx: any[];
-    errors: any;
+    errors?: any;
 }
 
 export interface Signature {
@@ -132,13 +140,13 @@ export interface UtilityCollection {
 /////////////
 
 /**  Curve for an AliceNetAccount: 1 (secp256k1) OR 2 (bn) */
-export type AccountCurve = string;
+export type AccountCurve = string | number;
 
 /** A 256bit keccask 256 hash string */
 export type Keccak256Hash = string;
 
 /** Length ambiguous hexadecimal data */
-export type HexData = string;
+export type HexData = Buffer | string;
 
 /** A 256bit private key represented as a string */
 export type PrivateKeyString = string;

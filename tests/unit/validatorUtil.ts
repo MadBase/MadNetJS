@@ -1,10 +1,10 @@
 import * as dotenv from 'dotenv';
 import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import Validator from '../../src/Util/Validator';
 
 dotenv.config({ path: process.cwd() + '/.env' });
 chai.use(chaiAsPromised);
+const Validator = require('../../src/Util/Validator');
 const expect = chai.expect;
 
 describe('Unit/Util/Validator:', () => {

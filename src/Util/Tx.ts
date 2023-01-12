@@ -1,7 +1,7 @@
 import { AccountCurve, DataStore, HexData } from "../types/Types";
 
-const constant = require("../Config/Constants.js");
-const validator = require("./Validator.js");
+const constant = require("../Config/Constants");
+const validator = require("./Validator");
 
 /** @type  */
 export type SvaCurvePubhashTuple = [number, number, string][]
@@ -37,7 +37,7 @@ var self = module.exports = {
      * @param curve - The account curve 1 || 2
      * @param base - "" @Troy what is this exactly?
     */
-    prefixSVACurve: async(validation: string, curve: AccountCurve, base: string) => {
+    prefixSVACurve: async(validation: string | number, curve: AccountCurve, base: string) => {
         try {
             validation = validator.numToHex(validation);
             curve = validator.numToHex(curve);
@@ -45,8 +45,8 @@ var self = module.exports = {
             if (!validation || !curve || !base) {
                 throw "Bad argument type";
             }
-            const v = Buffer.from(validation, "hex");
-            const c = Buffer.from(curve, "hex");
+            const v = Buffer.from(validation.toString(), "hex");
+            const c = Buffer.from(curve.toString(), "hex");
             const p = Buffer.from(base, "hex");
             const prefixed = Buffer.concat([v, c, p]);
             return prefixed.toString("hex");
@@ -61,7 +61,7 @@ var self = module.exports = {
      * @param {number} duration - How long the DataStore is to be stored
      * @return {number} The deposit cost
      */
-    calculateDeposit: async(data:HexData, duration: number) => {
+    calculateDeposit: async(data:HexData, duration: bigint) => {
         try {
             // dspi.go - BaseDepositEquation
             const dataSize = BigInt(Buffer.from(validator.isHex(data), "hex").length);
@@ -83,7 +83,7 @@ var self = module.exports = {
     remainingDeposit: async(DataStore:DataStore, thisEpoch: number) => {
         try {
             // dspi.go - RemainingValue
-            const DSPreImage = DataStore.DSLinker.DSPreImage;
+            const DSPreImage = DataStore.dsLinker.DSPreImage;
             const issuedAt = DSPreImage.IssuedAt;
             const deposit = BigInt("0x" + DSPreImage.Deposit);
             const rawData = DSPreImage.RawData;
@@ -116,7 +116,7 @@ var self = module.exports = {
      * @param {number} deposit
      * @return {number} epochs
      */
-    calculateNumEpochs: async(dataSize: number, deposit: number) => {
+    calculateNumEpochs: async(dataSize: bigint, deposit: bigint) => {
         try {
             if (BigInt(dataSize) > BigInt(constant.MaxDataStoreSize)) {
                 throw "Data size is too large";
@@ -138,7 +138,7 @@ var self = module.exports = {
      * @param {number} numEpochs
      * @returns {number} dsFee
      */
-    calculateFee: async(dsFee: number, numEpochs: number) => {
+    calculateFee: async(dsFee: bigint, numEpochs: bigint) => {
         try {
             return BigInt(BigInt(dsFee) * BigInt(BigInt(numEpochs) + BigInt(2))).toString(10);
         }
@@ -147,3 +147,5 @@ var self = module.exports = {
         }
     }
 }
+
+export default self;

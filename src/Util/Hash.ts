@@ -1,6 +1,6 @@
 import { Keccak256Hash } from "../types/Types";
 
-const validator = require('./Validator.js');
+const validator = require('./Validator');
 const ethUtil = require('ethereumjs-util');
 
 module.exports = {

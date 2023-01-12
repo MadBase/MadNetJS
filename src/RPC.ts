@@ -1,6 +1,6 @@
 import Api from "./Http/Api";
 import * as constant from "./Config/Constants";
-import { addTrailingSlash } from "./Util";
+import Utils from "./Util";
 import { Utxo, WalletType } from "./types/Types";
 
 interface DsAndIndices {
@@ -43,9 +43,7 @@ export default class RPC {
      */
     constructor(Wallet: WalletType, rpcServer: string, rpcTimeout: number = 0) {
         this.Wallet = Wallet;
-        this.rpcServer = rpcServer
-            ? addTrailingSlash(rpcServer)
-            : false;
+        this.rpcServer = rpcServer ? Utils.addTrailingSlash(rpcServer) : false;
         this.rpcTimeout = rpcTimeout || constant.ReqTimeout;
     }
 
@@ -60,7 +58,7 @@ export default class RPC {
             if (!rpcServer) {
                 throw "RPC server not provided";
             }
-            this.rpcServer = addTrailingSlash(rpcServer);
+            this.rpcServer = Utils.addTrailingSlash(rpcServer);
             const chainId = await this.getChainId();
             this.Wallet.chainId = chainId;
             return chainId;
@@ -193,10 +191,10 @@ export default class RPC {
                     utxos.UTXOs = [];
                 }
                 for await (let utxo of utxos.UTXOs) {
-                    if (utxo.DataStore) {
-                        DataStores.push(utxo.DataStore);
-                    } else if (utxo.ValueStore) {
-                        ValueStores.push(utxo.ValueStore);
+                    if (utxo.dataStore) {
+                        DataStores.push(utxo.dataStore);
+                    } else if (utxo.valueStore) {
+                        ValueStores.push(utxo.valueStore);
                     }
                 }
             }

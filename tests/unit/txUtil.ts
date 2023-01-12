@@ -33,8 +33,10 @@ describe('Unit/Util/Tx:', () => {
 
         it('Fail: Reject when called with invalid arguments', async () => {
             await expect(
-                Tx.remainingDeposit(null, null)
-            ).to.eventually.be.rejectedWith("Transaction.rewardDeposit: TypeError: Cannot read properties of null (reading 'DSLinker')");
+                Tx.remainingDeposit(DataStore, 9999)
+            ).to.eventually.be.rejectedWith(
+                "Transaction.rewardDeposit: TypeError: Cannot read properties of null (reading 'DSLinker')"
+            );
         });
     });
 
@@ -47,22 +49,22 @@ describe('Unit/Util/Tx:', () => {
     describe('Calculate Deposit, Fee and Epochs', () => {
         it('Fail: Reject calculateDeposit when data size is too large', async () => {
             await expect(
-                Tx.calculateDeposit(generateHex(1000 * 10000), 1000)
-            ).to.eventually.be.rejectedWith('Data size is too large');
+                Tx.calculateDeposit(generateHex(1000 * 10000), BigInt(1000))
+            ).to.eventually.be.rejectedWith("Data size is too large");
         });
 
         it('Fail: Reject calculateNumEpochs when data size is too large', async () => {
-            await expect(Tx.calculateNumEpochs(1000 * 10000, 1000)).to.eventually.be.rejectedWith('Data size is too large');
+            await expect(Tx.calculateNumEpochs(BigInt(1000 * 10000), BigInt(1000))).to.eventually.be.rejectedWith('Data size is too large');
         });
 
         it('Fail: Reject calculateNumEpochs when called with invalid dataSize and deposit', async () => {
             await expect(
-                Tx.calculateNumEpochs(0, 0)
+                Tx.calculateNumEpochs(BigInt(0), BigInt(0))
             ).to.eventually.be.rejectedWith('invalid dataSize and deposit causing integer overflow');
         });
 
         it('Fail: Reject calculateFee when called with invalid arguments', async () => {
-            await expect(Tx.calculateFee(NaN, NaN)).to.eventually.be.rejectedWith('Transaction.calculateFee: RangeError: The number NaN cannot be converted to a BigInt because it is not an integer');
+            await expect(Tx.calculateFee(BigInt(NaN), BigInt(NaN))).to.eventually.be.rejectedWith('Transaction.calculateFee: RangeError: The number NaN cannot be converted to a BigInt because it is not an integer');
         });
     });
 });

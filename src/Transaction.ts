@@ -5,7 +5,7 @@ import {
     RpcFee,
     FeeEstimates,
     Utxo,
-    ValueStore,
+    Vout,
     WalletType,
 } from "./types/Types";
 
@@ -333,7 +333,7 @@ export default class Transaction {
 
             const account = await this.wallet.account.getAccount(payeerAddress);
 
-            this.transaction.txFee(this.wallet.utils.numToHex(fee));
+            this.transaction.TxFee(this.wallet.utils.numToHex(fee));
 
             await this._addOutValue(fee, account.address);
         } catch (ex) {
@@ -361,7 +361,7 @@ export default class Transaction {
         to: string,
         toCurve: Number,
         fee?: string
-    ): Promise<ValueStore> {
+    ): Promise<Vout> {
         try {
             if (!from || !to || !value || !toCurve) throw "Missing arugments";
 
@@ -446,8 +446,8 @@ export default class Transaction {
         duration: number | bigint,
         rawData: string,
         issuedAt: Number | any = 0,
-        fee: Number
-    ): Promise<DataStore> {
+        fee: number
+    ): Promise<Vout> {
         try {
             if (!from || !index || !duration || !rawData) {
                 throw "Missing arguments";
@@ -774,7 +774,7 @@ export default class Transaction {
      */
     async _createDataTxIn(address: string, utxo: Utxo) {
         try {
-            this.transaction.txIn(
+            this.transaction.TxIn(
                 utxo.dsLinker.TxHash,
                 utxo.dsLinker.DSPreImage.TXOutIdx
                     ? utxo.dsLinker.DSPreImage.TXOutIdx

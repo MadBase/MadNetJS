@@ -5,7 +5,7 @@ import chaiAsPromised from 'chai-as-promised';
 dotenv.config({ path: process.cwd() + '/.env' });
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-import Eth from '../../src/Util/Eth';
+const Eth = require('../../src/Util/Eth');
 
 const generateHex = size => [...Array(size)].map(
     () => Math.floor(Math.random() * 16).toString(16)

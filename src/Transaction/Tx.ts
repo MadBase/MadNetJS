@@ -1,6 +1,6 @@
-import TxHasher from "../GoWrappers/TxHasher.js";
-import MultiSig from "../Signers/MultiSig.js";
-import * as utils from "../Util/Tx.js";
+import TxHasher from "../GoWrappers/TxHasher";
+import MultiSig from "../Signers/MultiSig";
+import utils from "../Util/Tx";
 import {
     AsPreImage,
     DSLinker,
@@ -143,9 +143,9 @@ export default class Tx {
      * @param {hex} consumedTxHash
      * @param {number} consumedTxIdx
      */
-    TxIn(consumedTxHash: string, consumedTxIdx: number) {
+    TxIn(consumedTxHash: string, consumedTxIdx: number | string) {
         this.vin.push({
-            Signature: "C0FFEE",
+            signature: "C0FFEE",
             txInLinker: this.txInLinker(consumedTxHash, consumedTxIdx),
         });
     }
@@ -189,11 +189,11 @@ export default class Tx {
         value: number,
         txOutIdx: number,
         owner: string,
-        fee: number
+        fee: number | string
     ): Vout {
         this.vout.push({
             valueStore: {
-                xxHash: "C0FFEE",
+                txHash: "C0FFEE",
                 vsPreImage: this.VsPreImage(value, txOutIdx, owner, fee),
             },
         });
@@ -212,7 +212,7 @@ export default class Tx {
         value: number,
         txOutIdx: number,
         owner: string,
-        fee: number
+        fee: number | string
     ): VsPreImage {
         return {
             chainID: this.wallet.chainId,
@@ -246,7 +246,7 @@ export default class Tx {
         this.vout.push({
             dataStore: {
                 signature: "C0FFEE",
-                dsLinker: this.dsLinker(
+                dsLinker: this.DSLinker(
                     index,
                     issuedAt,
                     deposit,

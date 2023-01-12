@@ -1,7 +1,7 @@
 import { HexData, PublicKey } from "../types/Types";
+import { toBuffer, keccak256, ecrecover, fromRpcSig } from "ethereumjs-util";
 
-const BNSignerWrapper = require('../GoWrappers/BNSignerWrapper.js');
-const ethUtil = require('ethereumjs-util');
+const BNSignerWrapper = require('../GoWrappers/BNSignerWrapper');
 const validator = require('./Validator');
 
 module.exports = {
