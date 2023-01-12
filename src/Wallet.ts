@@ -12,7 +12,7 @@ export type WalletParams = {
     Utils: any;
     rpcServer: any;
     rpcTimeout: any;
-}
+};
 
 /**
  * Wallet handler
@@ -25,18 +25,19 @@ export type WalletParams = {
  * @property {UtilityCollection} Utils - Utility Collection
  */
 class Wallet {
-    private chainId: Number;
-    public Account: any;
-    private Transaction: any;
-    private Rpc: any;
-    private Utils: any;
+    chainId: Number;
+    Account: any;
+    Transaction: any;
+    Rpc: any;
+    Utils: any;
 
     /**
      * Creates an instance of Wallet.
      * @param {WalletParams} params
      */
     constructor(...params: WalletParams[]) {
-        const { chainId, rpcServer, rpcTimeout } = this._initializeParams(params)
+        const { chainId, rpcServer, rpcTimeout } =
+            this._initializeParams(params);
         this.chainId = chainId ? utils.isNumber(chainId) : undefined;
         this.Account = new Account(this);
         this.Transaction = new Transaction(this);
@@ -69,14 +70,16 @@ class Wallet {
         }
 
         if (!rpcServer) {
-            console.warn('The RPC requests will not work properly if an endpoint is not provided.');
+            console.warn(
+                "The RPC requests will not work properly if an endpoint is not provided."
+            );
         }
 
         return {
             chainId,
             rpcServer,
-            rpcTimeout
-        }
+            rpcTimeout,
+        };
     }
 }
 module.exports = Wallet;
