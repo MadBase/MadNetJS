@@ -22,10 +22,10 @@ export interface PendingTxObject {
  * @property {Array} outValue - Collection of out values
  */
 export class Transaction {
-    private wallet: WalletType;
-    private transaction: Tx;
-    private fees: RpcFee;
-    private outValue: any[];
+    wallet: WalletType;
+    transaction: Tx;
+    fees: RpcFee;
+    outValue: any[];
 
     /**
      * Creates an instance of Transaction.

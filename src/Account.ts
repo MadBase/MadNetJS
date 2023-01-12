@@ -31,8 +31,8 @@ export interface AccountObject {
  * @property {Array} accounts - A list of associated account objects
  */
 export default class Account {
-    private Wallet: WalletParams;
-    public accounts: Array<AccountObject>;
+    Wallet: WalletParams;
+    accounts: Array<AccountObject>;
 
     /**
      * Creates an instance of Accounts.
