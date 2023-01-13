@@ -675,7 +675,7 @@ export default class Transaction {
                 }
                 // Control error handling for any accounts with insufficient funds
                 const insufficientFunds =
-                    BigInt(outValue.totalValue) > BigInt(account.UTXO.Value);
+                    BigInt(outValue.totalValue) > BigInt(account.utxo.value);
 
                 if (insufficientFunds && returnInsufficientOnGas) {
                     insufficientFundErrors.push({
@@ -684,7 +684,7 @@ export default class Transaction {
                             details: {
                                 account: account,
                                 outValue: outValue,
-                                totalFoundUtxoValue: BigInt(account.UTXO.Value),
+                                totalFoundUtxoValue: BigInt(account.utxo.value),
                             },
                         },
                     });
@@ -718,16 +718,14 @@ export default class Transaction {
                         changeAddressCurve ? changeAddressCurve : account.curve
                     );
                     await this._spendUTXO(
-                        account.UTXO,
-                        account,
+                        account.utxo,v                        account,
                         outValue.totalValue,
                         changeAddress,
                         changeAddressCurve
                     );
                 } else {
                     await this._spendUTXO(
-                        account.UTXO,
-                        account,
+                        account.utxo,v                        account,
                         outValue.totalValue,
                         changeAddress,
                         changeAddressCurve

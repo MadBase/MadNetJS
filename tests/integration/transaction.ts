@@ -24,14 +24,14 @@ describe('Integration/Transaction:', function () {
 
         invalidHexFrom = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
 
-        fees = await madWallet.Rpc.getFees();
+        fees = await madWallet.rpc.getFees();
 
         const balance = await madWallet.account.accounts[0].getAccountBalance();
 
-        if(balance === '00' ){
-            console.log(`Balance is ${balance}`, '\nInsufficient funds, skipping tests.');
-            this.skip();
-        }
+        // if(balance === '00' ){
+        //     console.log(`Balance is ${balance}`, '\nInsufficient funds, skipping tests.');
+        //     this.skip();
+        // }
     });
 
     beforeEach(async function() {
@@ -58,7 +58,7 @@ describe('Integration/Transaction:', function () {
             const currentFees = madWallet.transaction.fees;
             expect(currentFees.hasOwnProperty('MinTxFee')).to.true;
             expect(currentFees.hasOwnProperty('ValueStoreFee')).to.true;
-            expect(currentFees.hasOwnProperty('DataStoreFee')).to.true;
+            expect(currentFees.hasOwnProperty('dataStoreFee')).to.true;
         });
     });
 
@@ -162,7 +162,7 @@ describe('Integration/Transaction:', function () {
             const currentDSFee = madWallet.Utils.numToHex(
                 await madWallet.Utils.calculateFee(
                     madWallet.Utils.hexToInt(
-                        madWallet.transaction.fees.DataStoreFee
+                        madWallet.transaction.fees.dataStoreFee
                     ),
                     duration
                 )

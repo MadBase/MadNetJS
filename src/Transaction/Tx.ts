@@ -381,7 +381,7 @@ export default class Tx {
         for (let i = 0; i < this.vout.length; i++) {
             switch (Object.keys(this.vout[i])[0]) {
                 case "ValueStore": {
-                    thisTotal = BigInt("0x" + fees.ValueStoreFee);
+                    thisTotal = BigInt("0x" + fees.valueStoreFee);
                     total = BigInt(total) + BigInt(thisTotal);
                     voutCost.push(thisTotal.toString());
                     break;

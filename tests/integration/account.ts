@@ -22,10 +22,10 @@ describe('Integration/Account:', () => {
 
         const balance = await madWallet.account.accounts[0].getAccountBalance();
 
-        if(balance === '00') {
-            console.log(`Balance is ${balance}`, '\nInsufficient funds, skipping tests.');
-            this.skip();
-        }
+        // if(balance === '00') {
+        //     console.log(`Balance is ${balance}`, '\nInsufficient funds, skipping tests.');
+        //     this.skip();
+        // }
 
         secpAccount = madWallet.account.accounts[0];
         bnAccount = madWallet.account.accounts[1];
@@ -185,12 +185,12 @@ describe('Integration/Account:', () => {
         });
 
         it('Success: Poll UTXOs by utxoIds from account helper', async () => {
-            const utxoids = await madWallet.Rpc.getDataStoreUTXOIDs(secpAccount.address, 1);
+            const utxoids = await madWallet.rpc.getDataStoreUTXOIDs(secpAccount.address, 1);
             await expect(secpAccount.getAccountUTXOsByIds(utxoids)).to.eventually.be.fulfilled;
         });
 
         it('Success: Poll UTXOs for an added account by utxoIds', async () => {
-            const utxoids = await madWallet.Rpc.getDataStoreUTXOIDs(secpAccount.address, 1);
+            const utxoids = await madWallet.rpc.getDataStoreUTXOIDs(secpAccount.address, 1);
             await expect(madWallet.account._getAccountUTXOsByIds(secpAccount.address, utxoids)).to.eventually.be.fulfilled;
         });
     });
@@ -205,7 +205,7 @@ describe('Integration/Account:', () => {
         it('Success: Get value stores from account helper', async () => {
             await secpAccount.getAccountValueStores(0);
             const account = await madWallet.account.getAccount(secpAccount.address);
-            expect(account.UTXO.ValueStoreIDs.length).to.be.greaterThan(0);
+            expect(account.utxo.valueStoreIDs.length).to.be.greaterThan(0);
         });
 
         it('Success: Get account value stores for an added account', async () => {
@@ -215,7 +215,7 @@ describe('Integration/Account:', () => {
         it('Success: Get account value stores for an added account with minValue greater than 0', async () => {
             await madWallet.account._getAccountValueStores(secpAccount.address, 1);
             const account = await madWallet.account.getAccount(secpAccount.address);
-            expect(account.UTXO.ValueStoreIDs.length).to.be.greaterThan(0);
+            expect(account.utxo.valueStoreIDs.length).to.be.greaterThan(0);
         });
     });
 
