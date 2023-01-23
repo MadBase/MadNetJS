@@ -1,18 +1,18 @@
-import Account from "./Account.js";
-import Transaction from "./Transaction.js";
-import RPC from "./RPC.js";
-import utils from "./Util";
+import Account from "./Account";
+import Transaction from "./Transaction";
+import RPC from "./RPC";
+import { isNumber } from "./Util/Validator";
+import Util from "./Util";
 
-//TODO replace with Account, Transaction, RPC, UtilityCollection, etc
-export type WalletParams = {
+interface WalletConstructorParams {
     chainId: Number;
-    Account: any;
-    Transaction: any;
-    Rpc: any;
-    Utils: any;
+    account: Account;
+    transaction: Transaction;
+    rpc: RPC;
+    utils: any;
     rpcServer: any;
     rpcTimeout: any;
-};
+}
 
 /**
  * Wallet handler
@@ -24,25 +24,26 @@ export type WalletParams = {
  * @property {RPC} RPC - Main RPC Handler Instance
  * @property {UtilityCollection} Utils - Utility Collection
  */
-class Wallet {
+export default class Wallet {
     chainId: Number;
-    Account: any;
-    Transaction: any;
-    Rpc: any;
-    Utils: any;
+    account: Account;
+    transaction: Transaction;
+    rpc: RPC;
+    utils: any;
 
     /**
      * Creates an instance of Wallet.
      * @param {WalletParams} params
      */
-    constructor(...params: WalletParams[]) {
+    constructor(...params: WalletConstructorParams[]) {
         const { chainId, rpcServer, rpcTimeout } =
             this._initializeParams(params);
-        this.chainId = chainId ? utils.isNumber(chainId) : undefined;
-        this.Account = new Account(this);
-        this.Transaction = new Transaction(this);
-        this.Rpc = new RPC(this, rpcServer, rpcTimeout);
-        this.Utils = utils;
+
+        this.chainId = chainId ? isNumber(chainId) : undefined;
+        this.account = new Account(this);
+        this.transaction = new Transaction(this);
+        this.rpc = new RPC(this, rpcServer, rpcTimeout);
+        this.utils = Util;
     }
 
     /**
@@ -50,7 +51,7 @@ class Wallet {
      * @param {WalletParams} params - Accepts a chainId and rpcServer arguments for backwards compatibility, a shorthand instancing w/ RPC endpoint only or object Based configuration
      * @returns {Object<WalletParams>} Wallet parameters
      */
-    _initializeParams(params: WalletParams[]) {
+    _initializeParams(params: WalletConstructorParams[]) {
         let chainId, rpcServer, rpcTimeout;
 
         // Backwards compatibility catch
@@ -58,12 +59,14 @@ class Wallet {
             chainId = params[0];
             rpcServer = params[1];
         }
+
         // Object Based configuration
         if (params.length === 1 && typeof params[0] === "object") {
             chainId = params[0].chainId;
             rpcServer = params[0].rpcServer;
             rpcTimeout = params[0].rpcTimeout;
         }
+
         // Shorthand instancing w/ RPC only
         if (params.length === 1 && typeof params[0] === "string") {
             rpcServer = params[0];
@@ -82,4 +85,3 @@ class Wallet {
         };
     }
 }
-module.exports = Wallet;

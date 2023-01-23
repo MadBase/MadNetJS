@@ -1,8 +1,8 @@
 import { post } from "./Http/Api";
 import * as constant from "./Config/Constants";
-import { addTrailingSlash } from "./Util";
-import { WalletParams } from "./Wallet";
 import { Utxo } from "./types/Types";
+import { addTrailingSlash } from "./Util/String";
+import Wallet from "./Wallet";
 
 interface DsAndIndices {
     Results?: Array<any>;
@@ -32,7 +32,7 @@ export interface RpcResponse {
  * @property {String|Boolean} rpcTimeout - (Optional) - RPC Endpoint to use for RPC requests
  */
 export default class RPC {
-    wallet: WalletParams;
+    wallet: Wallet;
     rpcServer: string;
     rpcTimeout: number;
 
@@ -42,11 +42,7 @@ export default class RPC {
      * @param {String|Boolean} [rpcServer=false] - (Optional - Rpc endpoint to use for RPC requests)
      * @param {number} [rpcTimeout=false] - (Optional - Maximum time to wait for RPC requests)
      */
-    constructor(
-        Wallet: WalletParams,
-        rpcServer: string,
-        rpcTimeout: number = 0
-    ) {
+    constructor(Wallet: Wallet, rpcServer: string, rpcTimeout: number = 0) {
         this.wallet = Wallet;
         this.rpcServer = rpcServer ? addTrailingSlash(rpcServer) : false;
         this.rpcTimeout = rpcTimeout || constant.ReqTimeout;
@@ -80,7 +76,7 @@ export default class RPC {
      * @returns {number} Block Header
      */
     async getBlockHeader(height: number): Promise<number> {
-        height = this.wallet.Utils.isNumber(height);
+        height = this.wallet.utils.isNumber(height);
         try {
             const BH = await this.request("get-block-header", {
                 Height: height,
@@ -232,13 +228,13 @@ export default class RPC {
         try {
             if (!address || !curve) throw "Invalid arguments";
 
-            address = this.wallet.Utils.isAddress(address);
-            curve = this.wallet.Utils.isNumber(curve);
+            address = this.wallet.utils.isAddress(address);
+            curve = this.wallet.utils.isNumber(curve);
 
             if (!minValue) {
                 minValue = constant.MaxValue;
             } else {
-                minValue = this.wallet.Utils.numToHex(minValue);
+                minValue = this.wallet.utils.numToHex(minValue);
             }
 
             const valueForOwner = {
@@ -303,8 +299,8 @@ export default class RPC {
         try {
             if (!address || !curve) throw "Invalid arguments";
 
-            address = this.wallet.Utils.isAddress(address);
-            curve = this.wallet.Utils.isNumber(curve);
+            address = this.wallet.utils.isAddress(address);
+            curve = this.wallet.utils.isNumber(curve);
 
             let getAll = false;
 
@@ -313,12 +309,12 @@ export default class RPC {
 
                 limit = constant.MaxUTXOs;
             } else {
-                limit = this.wallet.Utils.isNumber(limit);
+                limit = this.wallet.utils.isNumber(limit);
             }
             if (!offset) {
                 offset = "";
             } else {
-                offset = this.wallet.Utils.isHex(offset);
+                offset = this.wallet.utils.isHex(offset);
             }
 
             let DataStoreUTXOResults = [];
@@ -407,9 +403,9 @@ export default class RPC {
         index: string
     ): Promise<string> {
         try {
-            address = this.wallet.Utils.isAddress(address);
-            curve = this.wallet.Utils.isNumber(curve);
-            index = this.wallet.Utils.isHex(index);
+            address = this.wallet.utils.isAddress(address);
+            curve = this.wallet.utils.isNumber(curve);
+            index = this.wallet.utils.isHex(index);
 
             if (!address || !index || !curve) throw "Invalid arguments";
 
