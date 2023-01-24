@@ -19,3 +19,9 @@ yarn-error.log*
 
 # PyCharm
 /.idea
+
+# Linting
+.eslintcache
+
+# dist for now
+dist
