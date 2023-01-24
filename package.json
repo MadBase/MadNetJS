@@ -1,6 +1,6 @@
 {
-    "name": "@alicenet/alicenetjs",
-    "version": "1.0.0-rc.1",
+    "name": "alicenetjs",
+    "version": "1.0.1-alpha",
     "description": "",
     "main": "dist/esm/index.js",
     "types": "dist/esm/index.d.ts",
