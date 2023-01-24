@@ -16,6 +16,7 @@
         "build-docs": "jsdoc -c jsdoc.json",
         "lint": "eslint .",
         "lint-fix": "eslint --fix .",
+        "build": "rollup -c",
         "ru-build": "rollup -c",
         "ru-dev": "rollup -c -w"
     },
