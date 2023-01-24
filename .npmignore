@@ -1,0 +1,24 @@
+# dependencies
+.env
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+docs/*
+!docs/.gitkeep
+tests/.env
+.nyc_output/
+
+# misc
+.DS_Store
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# PyCharm
+/.idea
+
+# Linting
+.eslintcache
