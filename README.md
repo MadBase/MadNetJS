@@ -1,12 +1,12 @@
 # MadNetJS
 
 ##### Requirements
-- `Nodejs 12+`
+- `Nodejs 16+`
 - `NPM 6+`
 ##
 
 ##### Install
-`npm install MadBase/alicenetjs`
+`npm i @alicenet_/alicenetjs-legacy`
 ##
 
 #### Usage
