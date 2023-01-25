@@ -1,6 +1,6 @@
 {
-    "name": "alicenetjs",
-    "version": "1.0.1-alpha",
+    "name": "@alicenet_/alicenetjs",
+    "version": "1.0.3-alpha",
     "description": "",
     "main": "dist/esm/index.js",
     "types": "dist/esm/index.d.ts",
@@ -55,7 +55,7 @@
         "prettier": "^2.8.1"
     },
     "files": [
-        "dist"
+        "dist/*"
     ],
     "lint-staged": {
         "*.js": [
