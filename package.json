@@ -5,7 +5,6 @@
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
     "types": "dist/esm/index.d.ts",
-    "type": "module",
     "exports": {
         ".": {
             "require": "./dist/cjs/index.js",
@@ -24,9 +23,9 @@
         "build-docs": "jsdoc -c jsdoc.json",
         "lint": "eslint .",
         "lint-fix": "eslint --fix .",
-        "build": "rollup -c",
-        "ru-build": "rollup -c",
-        "ru-dev": "rollup -c -w"
+        "build": "rollup -c --bundleConfigAsCjs",
+        "ru-build": "rollup -c --bundleConfigAsCjs",
+        "ru-dev": "rollup -c -w --bundleConfigAsCjs"
     },
     "author": "",
     "license": "ISC",
