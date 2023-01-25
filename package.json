@@ -1,6 +1,6 @@
 {
   "name": "alicenetjs",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-legacy",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -16,7 +16,7 @@
     "lint-fix": "eslint --fix ."
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "axios": "0.26.0",
     "ethereum-cryptography": "^1.0.3",
