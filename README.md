@@ -1,4 +1,4 @@
-# MadNetJS
+# alicenetjs
 
 ##### Requirements
 - `Nodejs 16+`
