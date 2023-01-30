@@ -1,6 +1,13 @@
 import Tx, { RpcTxObject } from "./Transaction/Tx";
 import * as Constants from "./Config/Constants";
-import { DataStore, RpcFee, Utxo, ValueStore } from "./types/Types";
+import {
+    DataStore,
+    RpcFee,
+    Utxo,
+    ValueStore,
+    FeeEstimates,
+    Vout,
+} from "./types/Types";
 import Wallet from "./Wallet";
 
 export interface PolledTxObject {
@@ -86,15 +93,15 @@ export default class Transaction {
                             return this.PolledTxObject(
                                 txHash,
                                 false,
-                                txStatus.Tx
+                                txStatus.tx
                             );
                         }
 
-                        if (txStatus.IsMined) {
+                        if (txStatus.isMined) {
                             return this.PolledTxObject(
                                 txHash,
                                 true,
-                                txStatus.Tx
+                                txStatus.tx
                             );
                         } else {
                             waited += 2000;
@@ -353,7 +360,7 @@ export default class Transaction {
         from: string,
         value: number | bigint | string,
         to: string,
-        toCurve: Number,
+        toCurve: number | string,
         fee?: string
     ): Promise<Vout> {
         try {

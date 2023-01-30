@@ -1,6 +1,7 @@
 import { post } from "./Http/Api";
 import * as constant from "./Config/Constants";
-import { Utxo } from "./types/Types";
+import { Utxo, RpcFee } from "./types/Types";
+import { PolledTxObject } from "./Transaction";
 import { addTrailingSlash } from "./Util/String";
 import Wallet from "./Wallet";
 
@@ -22,6 +23,10 @@ export interface RpcResponse {
     Rawdata: string;
     Tx: any; // TODO Needs defined in Transaction/Tx.ts
     TxHash: string;
+    IsMined: boolean;
+    minTxFee: string;
+    valueStoreFee: string;
+    dataStoreFee: string;
 }
 
 /**
@@ -33,7 +38,7 @@ export interface RpcResponse {
  */
 export default class RPC {
     wallet: Wallet;
-    rpcServer: string;
+    rpcServer: string | boolean;
     rpcTimeout: number;
 
     /**
@@ -155,7 +160,7 @@ export default class RPC {
      * @throws Could not get fees
      * @returns {Object} Fees
      */
-    async getFees(): Promise<Object> {
+    async getFees(): Promise<RpcFee> {
         try {
             const fees = await this.request("get-fees");
 
@@ -430,7 +435,7 @@ export default class RPC {
         address: string,
         curve: number,
         index: string
-    ): Promise<Object | boolean> {
+    ): Promise<any> { // TODO type any here for unit tests pass - needs to be adjusted
         try {
             const dsUTXOIDS = await this.getDataStoreUTXOIDs(
                 address,
@@ -542,7 +547,7 @@ export default class RPC {
         countMax: number = 30,
         startDelay: number = 1000,
         currCount: number = 1
-    ): Promise<Object> {
+    ): Promise<PolledTxObject> {
         try {
             if (!txHash) throw "Argument txHash cannot be empty";
 
@@ -551,7 +556,7 @@ export default class RPC {
                 ReturnTx: true,
             });
 
-            return status;
+            return { tx: status.Tx, isMined: status.IsMined };
         } catch (ex) {
             if (currCount > countMax) {
                 throw new Error("RPC.getTxStatus\r\n" + String(ex));
