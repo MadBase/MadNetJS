@@ -1,4 +1,4 @@
-import { post } from "./Http/Api";
+import Axios from "./Http/Api";
 import * as constant from "./Config/Constants";
 import { Utxo, RpcFee } from "./types/Types";
 import { PolledTxObject } from "./Transaction";
@@ -59,11 +59,11 @@ export default class RPC {
      * @throws RPC server not provided
      * @returns {number} ChainId
      */
-    async setProvider(rpcServer: string): Promise<number> {
+    async setProvider(rpcServer: string | boolean): Promise<number> {
         try {
             if (!rpcServer) throw "RPC server not provided";
 
-            this.rpcServer = addTrailingSlash(rpcServer);
+            this.rpcServer = addTrailingSlash(rpcServer.toString());
 
             const chainId = await this.getChainId();
             this.wallet.chainId = chainId;
@@ -122,7 +122,7 @@ export default class RPC {
             // Directly call API for chainID to avoid recursive loop from this.request()'s chainID dependency
             const {
                 data: { ChainID = null },
-            } = await post({
+            } = await Axios.post({
                 url: this.rpcServer + "get-chain-id",
                 data: {},
                 config: {
@@ -628,14 +628,14 @@ export default class RPC {
 
             while (true) {
                 try {
-                    resp = await post({
+                    resp = await Axios.post({
                         url: this.rpcServer + route,
                         data: data,
                         config: {
                             timeout: this.rpcTimeout,
                             validateStatus: function (status) {
                                 // TODO: this expects a boolean
-                                return status;
+                                return Boolean(status);
                             },
                         },
                     });

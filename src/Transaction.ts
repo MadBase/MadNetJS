@@ -12,7 +12,7 @@ import Wallet from "./Wallet";
 
 export interface PolledTxObject {
     tx: Tx;
-    txHash: string;
+    txHash?: string;
     isMined: Boolean;
 }
 
