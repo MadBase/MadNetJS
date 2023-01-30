@@ -10,7 +10,7 @@ const validHex = /^[0-9a-fA-F]+$/;
  * @param str
  * @returns { string }
  */
-export const isHex = (str: string): string => {
+export const isHex = (str: string | number | HexData): string => {
     try {
         if (!str || typeof str != "string") {
             throw "No input provided";
@@ -178,7 +178,7 @@ export const hexToInt = (hex: string): string => {
  */
 export const hexToTxt = (hex: HexData): string => {
     try {
-        return Buffer.from(hex, "hex").toString("utf8");
+        return Buffer.from(hex.toString(), "hex").toString("utf8");
     } catch (ex) {
         throw new Error("Validator.hexToTxt\r\n" + String(ex));
     }

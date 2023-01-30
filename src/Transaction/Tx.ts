@@ -1,5 +1,5 @@
-import TxHasher from "../GoWrappers/TxHasher.js";
-import MultiSig from "../Signers/MultiSig.js";
+import TxHasher from "../GoWrappers/TxHasher";
+import MultiSig from "../Signers/MultiSig";
 import {
     AsPreImage,
     DSLinker,
