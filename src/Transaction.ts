@@ -675,7 +675,7 @@ export default class Transaction {
                 }
                 // Control error handling for any accounts with insufficient funds
                 const insufficientFunds =
-                    BigInt(outValue.totalValue) > BigInt(account.utxo.value);
+                    BigInt(outValue.totalValue) > BigInt(account.utxo.Value);
 
                 if (insufficientFunds && returnInsufficientOnGas) {
                     insufficientFundErrors.push({
@@ -684,7 +684,7 @@ export default class Transaction {
                             details: {
                                 account: account,
                                 outValue: outValue,
-                                totalFoundUtxoValue: BigInt(account.utxo.value),
+                                totalFoundUtxoValue: BigInt(account.utxo.Value),
                             },
                         },
                     });
@@ -718,14 +718,16 @@ export default class Transaction {
                         changeAddressCurve ? changeAddressCurve : account.curve
                     );
                     await this._spendUTXO(
-                        account.utxo,v                        account,
+                        account.utxo,
+                        account,
                         outValue.totalValue,
                         changeAddress,
                         changeAddressCurve
                     );
                 } else {
                     await this._spendUTXO(
-                        account.utxo,v                        account,
+                        account.utxo,
+                        account,
                         outValue.totalValue,
                         changeAddress,
                         changeAddressCurve
@@ -809,7 +811,7 @@ export default class Transaction {
         changeAddressCurve: string
     ) {
         try {
-            accountUTXO = accountUTXO.ValueStores;
+            accountUTXO = accountUTXO.valueStores;
 
             while (true) {
                 let highestUnspent: any = false;

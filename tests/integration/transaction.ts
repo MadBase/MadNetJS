@@ -236,7 +236,7 @@ describe('Integration/Transaction:', function () {
 
         it('Success: Vout length is correct', async () => {
             await madWalletSigned.transaction.createDataStore(secpAccountSigned.address, 'World', 1, 'stringData', 1);
-            expect(madWalletSigned.transaction.Tx.Vout).to.have.lengthOf(1);
+            expect(madWalletSigned.transaction.transaction.Vout).to.have.lengthOf(1);
         });
     });
 
@@ -244,26 +244,26 @@ describe('Integration/Transaction:', function () {
         it('Success: Sign Transaction', async () => {
             await madWallet.transaction.createValueStore(secpAccount.address, 1, secpAccount.address, 1);
             await madWallet.transaction._createTxIns(secpAccount.address, 1);
-            await madWallet.transaction.Tx._createTx();
-            expect(madWallet.transaction.Tx.Vin).to.be.an('array').that.is.not.empty;
-            madWallet.transaction.Tx.Vin.forEach(vin => expect(vin).to.have.all.keys('Signature', 'TXInLinker'));
+            await madWallet.transaction.transaction._createTx();
+            expect(madWallet.transaction.transaction.Vin).to.be.an('array').that.is.not.empty;
+            madWallet.transaction.transaction.Vin.forEach(vin => expect(vin).to.have.all.keys('Signature', 'TXInLinker'));
         });
 
         it('Success: Vout length is correct', async () => {
             await madWalletSigned.transaction.createValueStore(secpAccountSigned.address, 1, secpAccountSigned.address, 1);
-            expect(madWalletSigned.transaction.Tx.Vout).to.have.lengthOf(1);
+            expect(madWalletSigned.transaction.transaction.Vout).to.have.lengthOf(1);
         });
 
         it('Fail: Reject sendSignedTx when Vouts length is less than or equal 0', async () => {
             await expect(
-                madWalletSigned.transaction.sendSignedTx(madWalletSigned.transaction.Tx.getTx())
+                madWalletSigned.transaction.sendSignedTx(madWalletSigned.transaction.transaction.getTx())
             ).to.eventually.be.rejectedWith('No Vouts for transaction');
         });
 
         it('Fail: Reject sendSignedTx when Vins length is less than or equal 0', async () => {
             await madWalletSigned.transaction.createValueStore(secpAccountSigned.address, BigInt(1), bnAccountSigned.address, 1, 1);
             await expect(
-                madWalletSigned.transaction.sendSignedTx(madWalletSigned.transaction.Tx.getTx())
+                madWalletSigned.transaction.sendSignedTx(madWalletSigned.transaction.transaction.getTx())
             ).to.eventually.be.rejectedWith('No Vins for transaction');
         });
 
