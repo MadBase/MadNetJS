@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import MadWalletJS from '../../src/Wallet';
+import AliceNetJS from '../../src/Wallet';
 
 dotenv.config({ path: process.cwd() + '/.env' });
 chai.use(chaiAsPromised);
@@ -14,7 +14,10 @@ describe('Integration/Account:', () => {
 
     before(async function() {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
-        madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
+        madWallet = new AliceNetJS({
+            chainId: process.env.CHAIN_ID,
+            rpcServer: process.env.RPC,
+        });
         wrongAccountAddress = '0xc2f89cbbcdcc7477442e7250445f0fdb3238259b';
 
         await madWallet.account.addAccount(privateKey, 1);
@@ -32,7 +35,10 @@ describe('Integration/Account:', () => {
     });
 
     beforeEach(async function() {
-        const madWalletSigned = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
+        const madWalletSigned = new AliceNetJS({
+            chainId: process.env.CHAIN_ID,
+            rpcServer: process.env.RPC,
+        });
 
         await madWalletSigned.account.addAccount(privateKey, 1);
         await madWalletSigned.account.addAccount(privateKey, 2);
@@ -67,12 +73,18 @@ describe('Integration/Account:', () => {
         });
 
         it('Success: Add Account when Private Key is valid and curve = 1', async () => {
-            const madWalletInstance = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
+            const madWalletInstance = new AliceNetJS({
+                chainId: process.env.CHAIN_ID,
+                rpcServer: process.env.RPC,
+            });
             await expect(madWalletInstance.account.addAccount(privateKey, 1)).to.eventually.be.fulfilled;
         });
 
         it('Success: Add Account when Private Key is valid and curve = 2', async () => {
-            const madWalletInstance = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
+            const madWalletInstance = new AliceNetJS({
+                chainId: process.env.CHAIN_ID,
+                rpcServer: process.env.RPC,
+            });
             await expect(madWalletInstance.account.addAccount(privateKey, 2)).to.eventually.be.fulfilled;
         });
 

@@ -13,22 +13,22 @@ export interface RpcFee {
 }
 
 export interface ValueStore {
-    vsPreImage: VsPreImage;
+    vsPreImage?: VsPreImage;
     txHash?: string;
 }
 
 export interface DataStore {
-    dsLinker: any;
-    signature: string;
+    dsLinker?: any;
+    signature?: string;
 }
 
 export interface Utxo {
-    dataStores: Array<DataStore>;
-    valueStores: Array<ValueStore>;
+    dataStores: DataStore[] | Object;
+    valueStores: ValueStore[] | Object;
     dataStore?: DataStore;
     valueStore?: ValueStore;
-    valueStoreIDs: Array<string>;
-    dataStoreIDs: Array<string>;
+    valueStoreIDs: Object;
+    dataStoreIDs: Object;
     value: string | number | bigint;
     vsPreImage?: VsPreImage;
     txHash?: string;

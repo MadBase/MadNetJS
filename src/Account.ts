@@ -19,9 +19,9 @@ export interface AccountObject {
     signer: Signer;
     getAccountUTXOs: (minValue: number) => Promise<Utxo>;
     getAccountUTXOsByIds: (utxoIds: Array<string>) => Promise<Utxo>;
-    getAccountValueStores: (minValue: number) => Promise<ValueStore[]>;
-    getAccountDataStores: (minValue: number) => Promise<DataStore[]>;
-    getAccountBalance: () => Promise<string>;
+    getAccountValueStores: (minValue: number) => Promise<ValueStore[] | Object>;
+    getAccountDataStores: (minValue: number) => Promise<Object[]>;
+    getAccountBalance: () => Promise<Object>;
 }
 
 /**
@@ -272,8 +272,8 @@ export default class Account {
             const dataUTXOIDs = await this.wallet.rpc.getDataStoreUTXOIDs(
                 address,
                 this.accounts[accountIndex].curve,
-                false,
-                false
+                0,
+                0
             );
 
             this.accounts[accountIndex].utxo.dataStoreIDs = dataUTXOIDs;
@@ -320,11 +320,11 @@ export default class Account {
 
             const [DS, VS] = await this.wallet.rpc.getUTXOsByIds(utxoIds);
 
-            if (DS.length > 0) {
-                this.accounts[accountIndex].utxoDataStores = DS;
+            if (Object.keys(DS).length > 0) {
+                this.accounts[accountIndex].utxo.dataStores = DS;
             }
 
-            if (VS.length > 0) {
+            if (Object.keys(VS).length > 0) {
                 this.accounts[accountIndex].utxo.valueStores = VS;
             }
 
@@ -332,7 +332,7 @@ export default class Account {
 
             for (
                 let i = 0;
-                i < this.accounts[accountIndex].utxo.valueStores.length;
+                i < Object.keys(this.accounts[accountIndex].utxo.valueStores).length;
                 i++
             ) {
                 // TODO: vsPreImage type is currently empty. We'll need to test out
@@ -361,7 +361,7 @@ export default class Account {
     async _getAccountValueStores(
         address: string,
         minValue: number
-    ): Promise<ValueStore[]> {
+    ): Promise<ValueStore[] | Object> {
         try {
             address = this.wallet.utils.isAddress(address);
 

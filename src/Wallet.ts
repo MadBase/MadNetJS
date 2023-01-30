@@ -5,13 +5,13 @@ import { isNumber } from "./Util/Validator";
 import Util from "./Util";
 
 interface WalletConstructorParams {
-    chainId: Number;
-    account: Account;
-    transaction: Transaction;
-    rpc: RPC;
-    utils: any;
-    rpcServer: any;
-    rpcTimeout: any;
+    chainId?: number | string | undefined;
+    account?: Account;
+    transaction?: Transaction;
+    rpc?: RPC;
+    utils?: any;
+    rpcServer?: any;
+    rpcTimeout?: any;
 }
 
 /**
@@ -25,7 +25,7 @@ interface WalletConstructorParams {
  * @property {UtilityCollection} Utils - Utility Collection
  */
 export default class Wallet {
-    chainId: Number;
+    chainId: number | string | undefined;
     account: Account;
     transaction: Transaction;
     rpc: RPC;

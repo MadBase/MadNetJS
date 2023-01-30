@@ -291,7 +291,7 @@ export default class RPC {
         address: string,
         curve: number,
         limit: number,
-        offset: string | number
+        offset: string | number | boolean
     ): Promise<Object[]> {
         try {
             if (!address || !curve) throw "Invalid arguments";
