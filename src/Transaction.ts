@@ -1,13 +1,7 @@
 import Tx, { RpcTxObject } from "./Transaction/Tx";
 import * as Constants from "./Config/Constants";
-import {
-    DataStore,
-    RpcFee,
-    FeeEstimates,
-    Utxo,
-    Vout,
-    WalletType,
-} from "./types/Types";
+import { DataStore, RpcFee, Utxo, ValueStore } from "./types/Types";
+import Wallet from "./Wallet";
 
 export interface PolledTxObject {
     tx: Tx;
@@ -23,22 +17,22 @@ export interface PendingTxObject {
 /**
  * Transaction handler
  * @class
- * @property {WalletType} wallet - Circular Wallet reference
+ * @property {Wallet} wallet - Circular Wallet reference
  * @property {Tx} transaction - The transaction object to be sent
  * @property {RpcFee} fees - Fees Object - Contains associated transaction fees
  * @property {Array} outValue - Collection of out values
  */
 export default class Transaction {
-    private wallet: WalletType;
-    private transaction: Tx;
-    private fees: RpcFee;
-    private outValue: any[];
+    wallet: Wallet;
+    transaction: Tx;
+    fees: RpcFee;
+    outValue: any[];
 
     /**
      * Creates an instance of Transaction.
-     * @param {WalletType} wallet - Circular wallet reference to use internally of Transaction class
+     * @param {Wallet} wallet - Circular wallet reference to use internally of Transaction class
      */
-    constructor(wallet: WalletType) {
+    constructor(wallet: Wallet) {
         this.wallet = wallet;
         this.transaction = new Tx(wallet);
         this.fees = undefined;
@@ -675,7 +669,7 @@ export default class Transaction {
                 }
                 // Control error handling for any accounts with insufficient funds
                 const insufficientFunds =
-                    BigInt(outValue.totalValue) > BigInt(account.utxo.Value);
+                    BigInt(outValue.totalValue) > BigInt(account.utxo.value);
 
                 if (insufficientFunds && returnInsufficientOnGas) {
                     insufficientFundErrors.push({
@@ -684,7 +678,7 @@ export default class Transaction {
                             details: {
                                 account: account,
                                 outValue: outValue,
-                                totalFoundUtxoValue: BigInt(account.utxo.Value),
+                                totalFoundUtxoValue: BigInt(account.utxo.value),
                             },
                         },
                     });

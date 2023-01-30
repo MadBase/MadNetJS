@@ -1,8 +1,18 @@
 import Account from "./Account";
 import Transaction from "./Transaction";
 import RPC from "./RPC";
-import utils from "./Util";
-import { WalletType } from "./types/Types";
+import { isNumber } from "./Util/Validator";
+import Util from "./Util";
+
+interface WalletConstructorParams {
+    chainId: Number;
+    account: Account;
+    transaction: Transaction;
+    rpc: RPC;
+    utils: any;
+    rpcServer: any;
+    rpcTimeout: any;
+}
 
 /**
  * Wallet handler
@@ -15,24 +25,25 @@ import { WalletType } from "./types/Types";
  * @property {UtilityCollection} Utils - Utility Collection
  */
 export default class Wallet {
-    public chainId: Number;
-    public account: any;
-    public transaction: any;
-    public rpc: any;
-    public utils: any;
+    chainId: Number;
+    account: Account;
+    transaction: Transaction;
+    rpc: RPC;
+    utils: any;
 
     /**
      * Creates an instance of Wallet.
      * @param {WalletType} params
      */
-    constructor(...params: any | WalletType[]) {
+    constructor(...params: WalletConstructorParams[]) {
         const { chainId, rpcServer, rpcTimeout } =
             this._initializeParams(params);
-        this.chainId = chainId ? utils.isNumber(chainId) : undefined;
+
+        this.chainId = chainId ? isNumber(chainId) : undefined;
         this.account = new Account(this);
         this.transaction = new Transaction(this);
         this.rpc = new RPC(this, rpcServer, rpcTimeout);
-        this.utils = utils;
+        this.utils = Util;
     }
 
     /**
@@ -40,22 +51,22 @@ export default class Wallet {
      * @param {WalletParams} params - Accepts a chainId and rpcServer arguments for backwards compatibility, a shorthand instancing w/ RPC endpoint only or object Based configuration
      * @returns {Object<WalletType>} Wallet parameters
      */
-    _initializeParams(params: any | WalletType[]) {
-        let chainId: Number = 0;
-        let rpcServer: string = "";
-        let rpcTimeout: number = 0;
+    _initializeParams(params: WalletConstructorParams[]) {
+        let chainId, rpcServer, rpcTimeout;
 
         // Backwards compatibility catch
         if (params.length === 2) {
             chainId = params[0];
             rpcServer = params[1];
         }
+
         // Object Based configuration
         if (params.length === 1 && typeof params[0] === "object") {
             chainId = params[0].chainId;
             rpcServer = params[0].rpcServer;
             rpcTimeout = params[0].rpcTimeout;
         }
+
         // Shorthand instancing w/ RPC only
         if (params.length === 1 && typeof params[0] === "string") {
             rpcServer = params[0];

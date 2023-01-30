@@ -1,6 +1,5 @@
-import TxHasher from "../GoWrappers/TxHasher";
-import MultiSig from "../Signers/MultiSig";
-import utils from "../Util/Tx";
+import TxHasher from "../GoWrappers/TxHasher.js";
+import MultiSig from "../Signers/MultiSig.js";
 import {
     AsPreImage,
     DSLinker,
@@ -15,6 +14,13 @@ import {
     VsPreImage,
     WalletType,
 } from "../types/Types";
+import {
+    calculateNumEpochs,
+    prefixSVACurve,
+    extractOwner,
+    calculateFee,
+    remainingDeposit,
+} from "../Util/Tx";
 
 export interface RpcTxObject {
     vin: Vin[];
@@ -390,7 +396,7 @@ export default class Tx {
                     const rawData =
                         this.vout[i].dataStore.dsLinker.DsPreImage.RawData;
                     const dataSize = BigInt(Buffer.from(rawData, "hex").length);
-                    const dsEpochs = await utils.calculateNumEpochs(
+                    const dsEpochs = await calculateNumEpochs(
                         dataSize,
                         BigInt(
                             "0x" +
@@ -398,7 +404,7 @@ export default class Tx {
                                     .Deposit
                         )
                     );
-                    thisTotal = await utils.calculateFee(
+                    thisTotal = await calculateFee(
                         BigInt("0x" + fees.dataStoreFee),
                         BigInt(dsEpochs)
                     );
@@ -411,7 +417,7 @@ export default class Tx {
                                         .Deposit
                             )
                         );
-                    const owner = await utils.extractOwner(
+                    const owner = await extractOwner(
                         this.vout[i].dataStore.dsLinker.DsPreImage.Owner
                     );
                     const DS = await this.wallet.rpc.getDataStoreByIndex(
@@ -424,7 +430,7 @@ export default class Tx {
                         DS.dsLinker.DsPreImage.Index ==
                             this.vout[i].dataStore.dsLinker.DsPreImage.Index
                     ) {
-                        const reward = await utils.remainingDeposit(
+                        const reward = await remainingDeposit(
                             DS,
                             this.vout[i].dataStore.dsLinker.DsPreImage.IssuedAt
                         );
@@ -563,13 +569,13 @@ export default class Tx {
                 );
                 let signature;
                 if (txInObj.isDataStore) {
-                    signature = await utils.prefixSVACurve(
+                    signature = await prefixSVACurve(
                         3,
                         ownerAccount.curve,
                         signed
                     );
                 } else {
-                    signature = await utils.prefixSVACurve(
+                    signature = await prefixSVACurve(
                         1,
                         ownerAccount.curve,
                         signed
@@ -581,7 +587,7 @@ export default class Tx {
             for (let i = 0; i < rpcTx.vout.length; i++) {
                 const txOut = JSON.parse(JSON.stringify(rpcTx.vout[i]));
                 if (txOut.dataStore) {
-                    const owner = await utils.extractOwner(
+                    const owner = await extractOwner(
                         txOut.dataStore.dsLinker.DsPreImage.Owner
                     );
                     const ownerAccount = await this.wallet.account.getAccount(
@@ -590,7 +596,7 @@ export default class Tx {
                     const signed = await ownerAccount.signer.sign(
                         "0x" + txOut.dataStore.Signature
                     );
-                    const signature = await utils.prefixSVACurve(
+                    const signature = await prefixSVACurve(
                         3,
                         ownerAccount.curve,
                         signed
@@ -663,9 +669,9 @@ export default class Tx {
                 let signature;
 
                 if (txInObj.isDataStore) {
-                    signature = await utils.prefixSVACurve(3, 2, signed);
+                    signature = await prefixSVACurve(3, 2, signed);
                 } else {
-                    signature = await utils.prefixSVACurve(1, 2, signed);
+                    signature = await prefixSVACurve(1, 2, signed);
                 }
 
                 txIn.Signature = signature;
@@ -688,7 +694,7 @@ export default class Tx {
                     }
 
                     const signed = await multiSig.aggregateSignatures(idxSig);
-                    const signature = await utils.prefixSVACurve(3, 2, signed);
+                    const signature = await prefixSVACurve(3, 2, signed);
 
                     txOut.dataStore.Signature = signature;
                 }
@@ -748,13 +754,13 @@ export default class Tx {
                 let signature;
 
                 if (txInObj.isDataStore) {
-                    signature = await utils.prefixSVACurve(
+                    signature = await prefixSVACurve(
                         3,
                         ownerAccount.curve,
                         signed
                     );
                 } else {
-                    signature = await utils.prefixSVACurve(
+                    signature = await prefixSVACurve(
                         1,
                         ownerAccount.curve,
                         signed
@@ -770,14 +776,14 @@ export default class Tx {
                 );
 
                 if (txOut.dataStore) {
-                    const owner = await utils.extractOwner(
+                    const owner = await extractOwner(
                         txOut.dataStore.dsLinker.DsPreImage.Owner
                     );
                     const ownerAccount = await this.wallet.account.getAccount(
                         owner[2]
                     );
                     const signed = voutSignatures[i];
-                    const signature = await utils.prefixSVACurve(
+                    const signature = await prefixSVACurve(
                         3,
                         ownerAccount.curve,
                         signed

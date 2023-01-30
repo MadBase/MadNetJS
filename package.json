@@ -1,9 +1,17 @@
 {
-    "name": "alicenetjs",
-    "version": "1.0.0-rc.1",
+    "name": "@alicenet_/alicenetjs",
+    "version": "1.0.6-alpha",
     "description": "",
-    "main": "dist/esm/index.js",
+    "main": "dist/cjs/index.js",
+    "module": "dist/esm/index.js",
     "types": "dist/esm/index.d.ts",
+    "exports": {
+        ".": {
+            "require": "./dist/cjs/index.js",
+            "import": "./dist/esm/index.mjs",
+            "types": "./dist/esm/index.d.ts"
+        }
+    },
     "scripts": {
         "test": "mocha --experimental-specifier-resolution=node --recursive tests/**/*.ts",
         "test-unit": "mocha --experimental-specifier-resolution=node --recursive tests/unit/*.ts",
@@ -15,8 +23,9 @@
         "build-docs": "jsdoc -c jsdoc.json",
         "lint": "eslint .",
         "lint-fix": "eslint --fix .",
-        "ru-build": "rollup -c",
-        "ru-dev": "rollup -c -w"
+        "build": "rollup -c --bundleConfigAsCjs",
+        "ru-build": "rollup -c --bundleConfigAsCjs",
+        "ru-dev": "rollup -c -w --bundleConfigAsCjs"
     },
     "author": "",
     "license": "ISC",
@@ -57,7 +66,7 @@
         "ts-node": "10.9.1"
     },
     "files": [
-        "dist"
+        "dist/*"
     ],
     "lint-staged": {
         "*.js": [

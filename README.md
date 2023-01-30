@@ -1,12 +1,16 @@
-# MadNetJS
+# Notice: This alpha version is highly unstable
+Please use [the legacy version](https://www.npmjs.com/package/@alicenet_/alicenetjs-legacy) until alicenetjs@V1.0.0 is released. 
+
+v1.0.0 will be released as a complete overhaul of the underlying codebase that will add additional typescript support, better intellisense, and improved in-code and external documentation for interacting with the AliceNet blockchain.
+# alicenetjs
 
 ##### Requirements
-- `Nodejs 12+`
+- `Nodejs 16+`
 - `NPM 6+`
 ##
 
 ##### Install
-`npm install MadBase/alicenetjs`
+`npm i @alicenet_/alicenetjs-legacy`
 ##
 
 #### Usage

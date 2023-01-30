@@ -1,12 +1,13 @@
-import Api from "./Http/Api";
+import { post } from "./Http/Api";
 import * as constant from "./Config/Constants";
-import Utils from "./Util";
-import { Utxo, WalletType } from "./types/Types";
+import { Utxo } from "./types/Types";
+import { addTrailingSlash } from "./Util/String";
+import Wallet from "./Wallet";
 
 interface DsAndIndices {
     Results?: any[];
     UTXOID?: Utxo;
-};
+}
 
 export interface RpcResponse {
     BlockHeader: number;
@@ -31,19 +32,19 @@ export interface RpcResponse {
  * @property {String|Boolean} rpcTimeout - (Optional) - RPC Endpoint to use for RPC requests
  */
 export default class RPC {
-    private Wallet: WalletType;
-    public rpcServer: string;
-    public rpcTimeout: number;
+    wallet: Wallet;
+    rpcServer: string;
+    rpcTimeout: number;
 
     /**
      * Creates an instance of RPC.
-     * @param {Wallet} Wallet - Circular wallet reference to use internally of RPC class
+     * @param {Wallet} wallet - Circular wallet reference to use internally of RPC class
      * @param {String|Boolean} [rpcServer=false] - (Optional - Rpc endpoint to use for RPC requests)
      * @param {number} [rpcTimeout=false] - (Optional - Maximum time to wait for RPC requests)
      */
-    constructor(Wallet: WalletType, rpcServer: string, rpcTimeout: number = 0) {
-        this.Wallet = Wallet;
-        this.rpcServer = rpcServer ? Utils.addTrailingSlash(rpcServer) : false;
+    constructor(Wallet: Wallet, rpcServer: string, rpcTimeout: number = 0) {
+        this.wallet = Wallet;
+        this.rpcServer = rpcServer ? addTrailingSlash(rpcServer) : false;
         this.rpcTimeout = rpcTimeout || constant.ReqTimeout;
     }
 
@@ -55,12 +56,13 @@ export default class RPC {
      */
     async setProvider(rpcServer: string): Promise<number> {
         try {
-            if (!rpcServer) {
-                throw "RPC server not provided";
-            }
-            this.rpcServer = Utils.addTrailingSlash(rpcServer);
+            if (!rpcServer) throw "RPC server not provided";
+
+            this.rpcServer = addTrailingSlash(rpcServer);
+
             const chainId = await this.getChainId();
-            this.Wallet.chainId = chainId;
+            this.wallet.chainId = chainId;
+
             return chainId;
         } catch (ex) {
             throw new Error("RPC.setProvider\r\n" + String(ex));
@@ -74,14 +76,14 @@ export default class RPC {
      * @returns {number} Block Header
      */
     async getBlockHeader(height: number): Promise<number> {
-        height = this.Wallet.utils.isNumber(height);
+        height = this.wallet.utils.isNumber(height);
         try {
             const BH = await this.request("get-block-header", {
                 Height: height,
             });
-            if (!BH.BlockHeader) {
-                throw "Block header not found";
-            }
+
+            if (!BH.BlockHeader) throw "Block header not found";
+
             return BH.BlockHeader;
         } catch (ex) {
             throw new Error("RPC.getBlockHeader\r\n" + String(ex));
@@ -96,9 +98,9 @@ export default class RPC {
     async getBlockNumber(): Promise<number> {
         try {
             const BN = await this.request("get-block-number");
-            if (!BN.BlockHeight) {
-                throw "Block height not found";
-            }
+
+            if (!BN.BlockHeight) throw "Block height not found";
+
             return BN.BlockHeight;
         } catch (ex) {
             throw new Error("RPC.getBlockNumber\r\n" + String(ex));
@@ -115,14 +117,16 @@ export default class RPC {
             // Directly call API for chainID to avoid recursive loop from this.request()'s chainID dependency
             const {
                 data: { ChainID = null },
-            } = await Api.post({
+            } = await post({
                 url: this.rpcServer + "get-chain-id",
                 data: {},
-                config: { timeout: this.rpcTimeout },
+                config: {
+                    timeout: this.rpcTimeout,
+                },
             });
-            if (!ChainID) {
-                throw "Chain id not found";
-            }
+
+            if (!ChainID) throw "Chain id not found";
+
             return ChainID;
         } catch (ex) {
             throw new Error("RPC.getChainId\r\n" + String(ex));
@@ -137,9 +141,9 @@ export default class RPC {
     async getEpoch(): Promise<number> {
         try {
             const epoch = await this.request("get-epoch-number");
-            if (!epoch.Epoch) {
-                throw "Epoch not found";
-            }
+
+            if (!epoch.Epoch) throw "Epoch not found";
+
             return epoch.Epoch;
         } catch (ex) {
             throw new Error("RPC.getEpoch\r\n" + String(ex));
@@ -154,9 +158,9 @@ export default class RPC {
     async getFees(): Promise<Object> {
         try {
             const fees = await this.request("get-fees");
-            if (!fees.MinTxFee) {
-                throw "Could not get fees";
-            }
+
+            if (!fees.MinTxFee) throw "Could not get fees";
+
             return fees;
         } catch (ex) {
             throw new Error("RPC.getFees\r\n" + String(ex));
@@ -173,12 +177,14 @@ export default class RPC {
     async getUTXOsByIds(UTXOIDs: Object): Promise<Array<Object>> {
         try {
             const isArray = Array.isArray(UTXOIDs);
-            if (!isArray) {
-                throw "Invalid arguments";
-            }
+
+            if (!isArray) throw "Invalid arguments";
+
             const minrequests = Math.ceil(UTXOIDs.length / constant.MaxUTXOs);
-            let DataStores = [];
-            let ValueStores = [];
+
+            let dataStores = [];
+            let valueStores = [];
+
             for (let i = 0; i < minrequests; i++) {
                 const reqData = {
                     UTXOIDs: UTXOIDs.slice(
@@ -187,18 +193,19 @@ export default class RPC {
                     ),
                 };
                 let utxos = await this.request("get-utxo", reqData);
-                if (!utxos.UTXOs) {
-                    utxos.UTXOs = [];
-                }
+
+                if (!utxos.UTXOs) utxos.UTXOs = [];
+
                 for await (let utxo of utxos.UTXOs) {
-                    if (utxo.dataStore) {
-                        DataStores.push(utxo.dataStore);
-                    } else if (utxo.valueStore) {
-                        ValueStores.push(utxo.valueStore);
+                    if (utxo.dataStores) {
+                        dataStores.push(utxo.dataStores);
+                    } else if (utxo.valueStores) {
+                        valueStores.push(utxo.valueStores);
                     }
                 }
             }
-            return [DataStores, ValueStores];
+
+            return [dataStores, valueStores];
         } catch (ex) {
             throw new Error("RPC.getUTXOsByIds\r\n" + String(ex));
         }
@@ -218,16 +225,17 @@ export default class RPC {
         minValue: number | boolean | string = false
     ): Promise<Object[]> {
         try {
-            if (!address || !curve) {
-                throw "Invalid arguments";
-            }
-            address = this.Wallet.utils.isAddress(address);
-            curve = this.Wallet.utils.isNumber(curve);
+            if (!address || !curve) throw "Invalid arguments";
+
+            address = this.wallet.utils.isAddress(address);
+            curve = this.wallet.utils.isNumber(curve);
+
             if (!minValue) {
                 minValue = constant.MaxValue;
             } else {
-                minValue = this.Wallet.utils.numToHex(minValue);
+                minValue = this.wallet.utils.numToHex(minValue);
             }
+
             const valueForOwner = {
                 CurveSpec: curve,
                 Account: address,
@@ -236,6 +244,7 @@ export default class RPC {
             };
             let runningUtxos = [];
             let runningTotalBigInt = BigInt("0");
+
             while (true) {
                 const value = await this.request(
                     "get-value-for-owner",
@@ -248,19 +257,21 @@ export default class RPC {
                 ) {
                     break;
                 }
+
                 runningUtxos = runningUtxos.concat(value.UTXOIDs);
                 runningTotalBigInt = BigInt(
                     BigInt("0x" + value.TotalValue) + BigInt(runningTotalBigInt)
                 );
-                if (!value.PaginationToken) {
-                    break;
-                }
+
+                if (!value.PaginationToken) break;
+
                 valueForOwner.PaginationToken = value.PaginationToken;
             }
+
             let runningTotal = runningTotalBigInt.toString(16);
-            if (runningTotal.length % 2) {
-                runningTotal = "0" + runningTotal;
-            }
+
+            if (runningTotal.length % 2) runningTotal = "0" + runningTotal;
+
             return [runningUtxos, runningTotal];
         } catch (ex) {
             throw new Error("RPC.getBalance\r\n" + String(ex));
@@ -283,26 +294,28 @@ export default class RPC {
         offset: string | number
     ): Promise<Object[]> {
         try {
-            if (!address || !curve) {
-                throw "Invalid arguments";
-            }
-            address = this.Wallet.utils.isAddress(address);
-            curve = this.Wallet.utils.isNumber(curve);
+            if (!address || !curve) throw "Invalid arguments";
+
+            address = this.wallet.utils.isAddress(address);
+            curve = this.wallet.utils.isNumber(curve);
+
             let getAll = false;
+
             if (!limit || limit > constant.MaxUTXOs) {
-                if (!limit) {
-                    getAll = true;
-                }
+                if (!limit) getAll = true;
+
                 limit = constant.MaxUTXOs;
             } else {
-                limit = this.Wallet.utils.isNumber(limit);
+                limit = this.wallet.utils.isNumber(limit);
             }
             if (!offset) {
                 offset = "";
             } else {
-                offset = this.Wallet.utils.isHex(offset);
+                offset = this.wallet.utils.isHex(offset);
             }
+
             let DataStoreUTXOResults = [];
+
             while (true) {
                 let reqData = {
                     CurveSpec: curve,
@@ -314,18 +327,19 @@ export default class RPC {
                     "iterate-name-space",
                     reqData
                 );
-                if (!dataStoreIDs.Results.length) {
-                    break;
-                }
+
+                if (!dataStoreIDs.Results.length) break;
+
                 DataStoreUTXOResults = DataStoreUTXOResults.concat(
                     dataStoreIDs.Results
                 );
-                if (dataStoreIDs.Results.length <= limit && !getAll) {
-                    break;
-                }
+
+                if (dataStoreIDs.Results.length <= limit && !getAll) break;
+
                 offset =
                     dataStoreIDs.Results[dataStoreIDs.Results.length - 1].Index;
             }
+
             /** @type { DataStoreAndIndexObject } */
             return DataStoreUTXOResults;
         } catch (ex) {
@@ -358,6 +372,7 @@ export default class RPC {
                     offset
                 );
             let DataStoreUTXOIDs = [];
+
             // Filter out the datastore UTXOIDs, don't return indices that are in the results objects
             dsAndIndices.forEach((dsAndIdx) => {
                 DataStoreUTXOIDs.push(dsAndIdx.UTXOID);
@@ -383,21 +398,21 @@ export default class RPC {
         index: string
     ): Promise<string> {
         try {
-            address = this.Wallet.utils.isAddress(address);
-            curve = this.Wallet.utils.isNumber(curve);
-            index = this.Wallet.utils.isHex(index);
-            if (!address || !index || !curve) {
-                throw "Invalid arguments";
-            }
+            address = this.wallet.utils.isAddress(address);
+            curve = this.wallet.utils.isNumber(curve);
+            index = this.wallet.utils.isHex(index);
+
+            if (!address || !index || !curve) throw "Invalid arguments";
+
             const reqData = {
                 Account: address,
                 CurveSpec: curve,
                 Index: index,
             };
             const dataStoreData = await this.request("get-data", reqData);
-            if (!dataStoreData.Rawdata) {
-                throw "Data not found";
-            }
+
+            if (!dataStoreData.Rawdata) throw "Data not found";
+
             return dataStoreData.Rawdata;
         } catch (ex) {
             throw new Error("RPC.getData\r\n" + String(ex));
@@ -425,10 +440,10 @@ export default class RPC {
             );
             if (dsUTXOIDS.length > 0) {
                 const [DS] = await this.getUTXOsByIds(dsUTXOIDS);
-                if (Object.keys(DS).length > 0) {
-                    return DS[0];
-                }
+
+                if (Object.keys(DS).length > 0) return DS[0];
             }
+
             return false;
         } catch (ex) {
             throw new Error("RPC.getDataStoreByIndex\r\n" + String(ex));
@@ -444,9 +459,9 @@ export default class RPC {
     async sendTransaction(Tx: Object): Promise<string> {
         try {
             const sendTx = await this.request("send-transaction", Tx);
-            if (!sendTx.TxHash) {
-                throw "Transaction Error";
-            }
+
+            if (!sendTx.TxHash) throw "Transaction Error";
+
             return sendTx.TxHash;
         } catch (ex) {
             throw new Error("RPC.sendTransaction\r\n" + String(ex));
@@ -464,9 +479,9 @@ export default class RPC {
             const getMined = await this.request("get-mined-transaction", {
                 TxHash: txHash,
             });
-            if (!getMined.Tx) {
-                throw "Transaction not mined";
-            }
+
+            if (!getMined.Tx) throw "Transaction not mined";
+
             return getMined;
         } catch (ex) {
             throw new Error("RPC.getMinedTransaction\r\n" + String(ex));
@@ -484,9 +499,9 @@ export default class RPC {
             const getPending = await this.request("get-pending-transaction", {
                 TxHash: txHash,
             });
-            if (!getPending.Tx) {
-                throw "Transaction not pending";
-            }
+
+            if (!getPending.Tx) throw "Transaction not pending";
+
             return getPending.Tx;
         } catch (ex) {
             throw new Error("RPC.getPendingTransaction\r\n" + String(ex));
@@ -504,9 +519,9 @@ export default class RPC {
             const txHeight = await this.request("get-tx-block-number", {
                 TxHash: txHash,
             });
-            if (!txHeight.BlockHeight) {
-                throw "Block height not found";
-            }
+
+            if (!txHeight.BlockHeight) throw "Block height not found";
+
             return txHeight.BlockHeight;
         } catch (ex) {
             throw new Error("RPC.getTxBlockHeight\r\n" + String(ex));
@@ -529,18 +544,19 @@ export default class RPC {
         currCount: number = 1
     ): Promise<Object> {
         try {
-            if (!txHash) {
-                throw "Argument txHash cannot be empty";
-            }
+            if (!txHash) throw "Argument txHash cannot be empty";
+
             const status = await this.request("get-transaction-status", {
                 TxHash: txHash,
                 ReturnTx: true,
             });
+
             return status;
         } catch (ex) {
             if (currCount > countMax) {
                 throw new Error("RPC.getTxStatus\r\n" + String(ex));
             }
+
             await this.sleep(startDelay);
             await this.getTxStatus(
                 txHash,
@@ -592,30 +608,29 @@ export default class RPC {
      */
     async request(route?: string, data?: Object): Promise<RpcResponse> {
         try {
-            if (!this.Wallet.chainId && this.rpcServer) {
+            if (!this.wallet.chainId && this.rpcServer) {
                 await this.setProvider(this.rpcServer);
             }
-            if (!this.rpcServer) {
-                throw "No rpc provider";
-            }
-            if (!route) {
-                throw "No route provided";
-            }
-            if (!data) {
-                data = {};
-            }
+
+            if (!this.rpcServer) throw "No rpc provider";
+            if (!route) throw "No route provided";
+            if (!data) data = {};
+
             let attempts,
                 timeout = 0;
+
             let resp;
+
             while (true) {
                 try {
-                    resp = await Api.post({
+                    resp = await post({
                         url: this.rpcServer + route,
-                        data,
+                        data: data,
                         config: {
                             timeout: this.rpcTimeout,
                             validateStatus: function (status) {
-                                return Boolean(status);
+                                // TODO: this expects a boolean
+                                return status;
                             },
                         },
                     });
@@ -627,6 +642,7 @@ export default class RPC {
                     );
                     continue;
                 }
+
                 if (!resp || !resp.data || resp.data.error || resp.data.code) {
                     let parsedErr = resp.data
                         ? resp.data.error || resp.data.message
@@ -638,8 +654,10 @@ export default class RPC {
                     );
                     continue;
                 }
+
                 break;
             }
+
             return resp.data;
         } catch (ex) {
             throw new Error("RPC.request\r\n" + String(ex));
@@ -665,17 +683,21 @@ export default class RPC {
                         latestErr
                 );
             }
+
             if (!attempts) {
                 attempts = 1;
             } else {
                 attempts++;
             }
+
             if (!timeout) {
                 timeout = 1000;
             } else {
                 timeout = Math.floor(timeout * 1.25);
             }
+
             await this.sleep(timeout);
+
             return [attempts, timeout];
         } catch (ex) {
             throw new Error("RPC.request\r\n" + String(ex));
