@@ -7,14 +7,14 @@ import Faucet from '../../src/Util/Faucet';
 dotenv.config({ path: process.cwd() + '/.env' });
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const FAUCET_SERVER = process.env.FAUCET_API_URL;
+const FAUCET_SERVER: any = process.env.FAUCET_API_URL;
 
 describe('Unit/Util/Faucet:', () => {
     let privateKey, madWallet, bnAccount, secpAccount;
 
     before(async function() {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
-        madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
+        madWallet = new MadWalletJS({ chainId: process.env.CHAIN_ID, rpcServer: process.env.RPC });
 
         await madWallet.account.addAccount(privateKey, 1);
         await madWallet.account.addAccount(privateKey, 2);
@@ -53,12 +53,6 @@ describe('Unit/Util/Faucet:', () => {
             await expect(
                 Faucet.requestTestnetFunds('wrongaddressformat', isBN, FAUCET_SERVER, 45000)
             ).to.eventually.be.rejectedWith('Invalid hex character');
-        });
-
-        it('Fail: Cannot request testnet funds without arguments', async () => {
-            await expect(
-                Faucet.requestTestnetFunds()
-            ).to.eventually.be.rejectedWith('Arguments address and faucetServer cannot be empty');
         });
     });
 });

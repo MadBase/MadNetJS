@@ -13,7 +13,13 @@ describe('Integration/Transaction:', function () {
     let invalidHexFrom, fees;
 
     before(async function() {
-        madWallet = (process.env.RPC && process.env.CHAIN_ID) ? new MadWalletJS(process.env.CHAIN_ID, process.env.RPC) : new MadWalletJS();
+        madWallet =
+            process.env.RPC && process.env.CHAIN_ID
+                ? new MadWalletJS({
+                      chainId: process.env.CHAIN_ID,
+                      rpcServer: process.env.RPC,
+                  })
+                : new MadWalletJS();
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
 
         await madWallet.account.addAccount(privateKey, 1);
@@ -35,7 +41,10 @@ describe('Integration/Transaction:', function () {
     });
 
     beforeEach(async function() {
-        madWalletSigned = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
+        madWalletSigned = new MadWalletJS({
+            chainId: process.env.CHAIN_ID,
+            rpcServer: process.env.RPC
+        });
 
         await madWalletSigned.account.addAccount(privateKey, 1);
         await madWalletSigned.account.addAccount(privateKey, 2);
@@ -46,7 +55,9 @@ describe('Integration/Transaction:', function () {
 
     describe('Fee Estimates', () => {
         it('Fail: Reject to get current fees when RPC server is invalid', async () => {
-            const madWalletWithoutRPC = new MadWalletJS(process.env.CHAIN_ID, null);
+            const madWalletWithoutRPC = new MadWalletJS({
+                chainId: process.env.CHAIN_ID,
+            });
             await madWalletWithoutRPC.account.addAccount(privateKey, 1);
             await expect(
                 madWalletWithoutRPC.transaction._getFees()
@@ -118,7 +129,9 @@ describe('Integration/Transaction:', function () {
         });
 
         it('Fail: Reject createDataStore when issuedAt is invalid', async () => {
-            const madWalletWithoutRPC = new MadWalletJS(process.env.CHAIN_ID, null);
+            const madWalletWithoutRPC = new MadWalletJS({
+                chainId: process.env.CHAIN_ID,
+            });
             await madWalletWithoutRPC.account.addAccount(privateKey, 1);
             const secpAccountWRPC = madWalletWithoutRPC.account.accounts[0];
             await expect(
@@ -292,7 +305,9 @@ describe('Integration/Transaction:', function () {
         });
 
         it('Fail: Reject createValueStore without Fee', async () => {
-            const madWalletWithoutRPC = new MadWalletJS(process.env.CHAIN_ID, null);
+            const madWalletWithoutRPC = new MadWalletJS({
+                chainId: process.env.CHAIN_ID,
+            });
             await madWalletWithoutRPC.account.addAccount(privateKey, 1);
             await expect(
                 madWalletWithoutRPC.transaction.createValueStore(secpAccount.address, BigInt(1), bnAccount.address, 1, undefined)

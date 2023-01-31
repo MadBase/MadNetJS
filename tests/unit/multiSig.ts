@@ -16,7 +16,7 @@ describe('Unit/MultiSig:', () => {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
         secondaryPrivateKey = process.env.OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY;
         msgHex = Buffer.from('hello world', 'utf8').toString('hex').toLowerCase();
-        madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
+        madWallet = new MadWalletJS({ chainId: process.env.CHAIN_ID, rpcServer: process.env.RPC });
 
         bnSigner = new BNSigner(madWallet, privateKey);
         multiSigBn = new MultiSig(madWallet, bnSigner);

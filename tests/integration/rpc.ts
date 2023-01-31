@@ -21,7 +21,7 @@ describe('Integration/RPC:', function () {
             secondaryPrivateKey = process.env.OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY;
             madWallet = new MadWalletJS({
                 rpcTimeout: 20000,
-                chainId: false,
+                chainId: undefined,
                 rpcServer: process.env.RPC
             });
         }

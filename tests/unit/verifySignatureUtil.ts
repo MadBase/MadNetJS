@@ -13,7 +13,7 @@ describe('Unit/Util/VerifySignature:', () => {
 
     before(async function() {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
-        madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
+        madWallet = new MadWalletJS({ chainId: process.env.CHAIN_ID, rpcServer: process.env.RPC });
         const secpAccount = await madWallet.account.addAccount(privateKey, 1);
         const bnAccount = await madWallet.account.addAccount(privateKey, 2)
         bnSigner = bnAccount.signer;

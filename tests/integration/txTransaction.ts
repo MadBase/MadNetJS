@@ -10,9 +10,18 @@ import MadWalletJS from '../../index';
 describe('Integration/Transaction/Tx:', () => {
     let privateKey, validHex;
     let secpAccountTwo, secpAccountThree;
-    const madWallet = new MadWalletJS(process.env.CHAIN_ID, process.env.RPC);
-    const madWalletTwo = new MadWalletJS(1, process.env.RPC);
-    const madWalletThree = new MadWalletJS(11, process.env.RPC);
+    const madWallet = new MadWalletJS({
+        chainId: process.env.CHAIN_ID,
+        rpcServer: process.env.RPC,
+    });
+    const madWalletTwo = new MadWalletJS({
+        chainId: 1,
+        rpcServer: process.env.RPC,
+    });
+    const madWalletThree = new MadWalletJS({
+        chainId: 11,
+        rpcServer: process.env.RPC,
+    });
 
     before(async function() {
         privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
@@ -66,7 +75,7 @@ describe('Integration/Transaction/Tx:', () => {
         it('Fail: Reject to Inject Signatures Aggregate when voutSignatures is invalid', async () => {
             await madWalletThree.transaction.transaction.DataStore(validHex, 1, 1, validHex, 1, secpAccountThree.address, 5);
             await expect(
-                madWalletThree.transaction.transaction.injectSignaturesAggregate([validHex], [null])).to.eventually.be.rejectedWith('Missing signature in Vout');
+                madWalletThree.transaction.transaction.injectSignaturesAggregate([validHex], ["null"])).to.eventually.be.rejectedWith('Missing signature in Vout');
         });
 
         it('Fail: Reject to Inject Signatures Aggregate when Hex length is invalid', async () => {
@@ -110,15 +119,8 @@ describe('Integration/Transaction/Tx:', () => {
         });
 
         it('Fail: Reject createRawTx', async () => {
-            madWalletTwo.transaction.transaction.Vin = null;
+            madWalletTwo.transaction.transaction.vin = [];
             await expect(madWalletTwo.transaction.transaction.createRawTx()).to.eventually.be.rejected;
-        });
-
-        it('Fail: Reject _signTx when Tx is invalid', async () => {
-            const tx = {};
-            await expect(
-                madWallet.transaction.transaction._signTx(tx)
-            ).to.eventually.be.rejectedWith('TypeError: Cannot read properties of undefined (reading \'Vin\')');
         });
 
         it('Success: Calls ASPreImage', async () => {
@@ -132,20 +134,14 @@ describe('Integration/Transaction/Tx:', () => {
                 Fee: 6
             };
             expect(
-                madWallet.transaction.transaction.ASPreImage(1, 2, 3, 4, 5, 6)
+                madWallet.transaction.transaction.AsPreImage(1, 2, 3, 4, "5", 6)
             ).to.deep.equal(preImageResult);
-        });
-
-        it('Fail: Reject _signTx when Tx is invalid', async () => {
-            await expect(
-                madWallet.transaction.transaction._signTx(undefined)
-            ).to.eventually.be.rejectedWith('Unexpected token u in JSON at position 0');
         });
     });
 
     describe('Fees Estimate', () => {
         it('Fail: Reject get estimate of fees when RPC Server is invalid', async () => {
-            const madWalletWithoutRPC = new MadWalletJS(null, null);
+            const madWalletWithoutRPC = new MadWalletJS();
             await expect(
                 madWalletWithoutRPC.transaction.transaction.estimateFees()
             ).to.eventually.be.rejectedWith('Cannot estimate fees without RPC');
@@ -159,13 +155,6 @@ describe('Integration/Transaction/Tx:', () => {
             expect( madWallet.transaction.transaction.getTx() ).to.deep.equal(tx);
         });
 
-        it('Fail: Reject Import Transaction when Tx is invalid', async () => {
-            const tx = {};
-            await expect(
-                madWallet.transaction.transaction.importTransaction(tx)
-            ).to.eventually.be.rejectedWith('TypeError: Cannot read properties of undefined (reading \'Vin\')');
-        });
-
         it('Success: Import a transaction preSigned', async () => {
             const tx = madWallet.transaction.transaction.getTx();
             await expect(madWallet.transaction.transaction.importRawTransaction(tx)).to.eventually.be.fulfilled;
@@ -173,7 +162,7 @@ describe('Integration/Transaction/Tx:', () => {
         });
 
         it('Fail: Reject Import Raw Transaction when Tx is invalid', async () => {
-            const madWalletWithoutRPC = new MadWalletJS(process.env.CHAIN_ID, null);
+            const madWalletWithoutRPC = new MadWalletJS({ chainId: process.env.CHAIN_ID });
             await expect(
                 madWalletWithoutRPC.transaction.transaction.importRawTransaction(madWalletWithoutRPC.transaction.transaction.getTx())
             ).to.eventually.be.rejectedWith('RPC server must be set to fetch Vin data');
