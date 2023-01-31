@@ -48,7 +48,7 @@ export const SecpSignerVerify = async (
         msg = ethUtil.toBuffer("0x" + String(msg));
         const msgHash = ethUtil.keccak256(msg);
         const signature = ethUtil.toBuffer("0x" + String(sig));
-        const sigParams = ethUtil.fromRpcSig(signature);
+        const sigParams = ethUtil.fromRpcSig(signature.toString());
         const publicKeyRecovered = ethUtil
             .ecrecover(msgHash, sigParams.v, sigParams.r, sigParams.s)
             .toString("hex");
