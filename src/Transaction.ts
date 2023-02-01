@@ -25,6 +25,7 @@ import {
     prefixSVACurve,
     remainingDeposit,
 } from "./Util/Tx";
+import { sleep } from "./Util/Generic";
 
 export interface PolledTxObject {
     tx: Tx;
@@ -121,7 +122,7 @@ export default class Transaction {
                             );
                         } else {
                             waited += 2000;
-                            await this.wallet.utils.Generic.sleep(2000);
+                            await sleep(2000);
 
                             return null;
                         }
