@@ -1,5 +1,7 @@
 import * as BNSignerWrapper from "../GoWrappers/BNSignerWrapper";
 import { keccak256 } from "ethereumjs-util";
+import { isHex } from "../Util/Validator";
+import { BNSignerVerify } from "../Util/VerifySignature";
 
 /**
  * BNSigner
@@ -10,7 +12,7 @@ import { keccak256 } from "ethereumjs-util";
  */
 export default class BNSigner {
     Wallet: any; // TODO: Wallet type
-    privK: string;
+    privK: string | boolean;
     multiSig: any;
 
     /**
@@ -21,12 +23,12 @@ export default class BNSigner {
      */
     constructor(
         wallet: any /* TODO: Wallet type */,
-        privK?: string,
+        privK?: string | boolean,
         multiSig?: any
     ) {
         this.Wallet = wallet;
         this.multiSig = multiSig;
-        this.privK = privK ? this.Wallet.utils.isHex(privK) : false;
+        this.privK = privK ? isHex(privK) : false;
     }
 
     /**
@@ -38,7 +40,7 @@ export default class BNSigner {
      */
     async sign(msg: string) {
         try {
-            if (!this.Wallet.utils.isHex(msg)) throw "Bad argument type";
+            if (!isHex(msg)) throw "Bad argument type";
             if (!this.privK) throw "Private key not set";
 
             let sig = await BNSignerWrapper.Sign(msg, this.privK);
@@ -79,7 +81,7 @@ export default class BNSigner {
      */
     async verify(msg: string, sig: string) {
         try {
-            return await this.Wallet.utils.BNSignerVerify(msg, sig);
+            return await BNSignerVerify(msg, sig);
         } catch (ex) {
             throw new Error("BNSigner.verify\r\n" + String(ex));
         }
@@ -108,7 +110,7 @@ export default class BNSigner {
      */
     async pubFromSig(sig: string) {
         try {
-            if (!this.Wallet.utils.isHex(sig)) throw "Bad argument type";
+            if (!isHex(sig)) throw "Bad argument type";
 
             return await BNSignerWrapper.PubFromSig(sig);
         } catch (ex) {
