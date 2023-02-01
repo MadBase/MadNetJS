@@ -29,7 +29,7 @@ export default class Wallet {
     account: Account;
     transaction: Transaction;
     rpc: RPC;
-    utils: any;
+    utils: any; // TODO: typeof Util
 
     /**
      * Creates an instance of Wallet.

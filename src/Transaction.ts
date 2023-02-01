@@ -105,7 +105,7 @@ export default class Transaction {
                             );
                         } else {
                             waited += 2000;
-                            await this.wallet.utils.sleep(2000);
+                            await this.wallet.utils.Generic.sleep(2000);
 
                             return null;
                         }
@@ -313,28 +313,29 @@ export default class Transaction {
      */
     async createTxFee(
         payeerAddress: string,
-        payeerCurve: Number,
+        payeerCurve: number,
         fee: number | bigint
     ) {
         try {
             if (!payeerAddress || !payeerCurve) throw "Missing arguments";
 
-            payeerAddress = this.wallet.utils.isAddress(payeerAddress);
-            payeerCurve = this.wallet.utils.isCurve(payeerCurve);
+            payeerAddress =
+                this.wallet.utils.Validator.isAddress(payeerAddress);
+            payeerCurve = this.wallet.utils.Validator.isCurve(payeerCurve);
 
             if (!fee) {
                 if (!this.fees.minTxFee) await this._getFees();
 
                 fee = BigInt("0x" + this.fees.minTxFee);
             } else {
-                fee = this.wallet.utils.isBigInt(fee);
+                fee = this.wallet.utils.Validator.isBigInt(fee);
 
                 if (fee <= BigInt(0)) throw "Invalid value";
             }
 
             const account = await this.wallet.account.getAccount(payeerAddress);
 
-            this.transaction.TxFee(this.wallet.utils.numToHex(fee));
+            this.transaction.TxFee(fee);
 
             await this._addOutValue(fee, account.address);
         } catch (ex) {
@@ -366,19 +367,21 @@ export default class Transaction {
         try {
             if (!from || !to || !value || !toCurve) throw "Missing arugments";
 
-            from = this.wallet.utils.isAddress(from);
-            value = this.wallet.utils.isBigInt(value);
-            toCurve = this.wallet.utils.isCurve(toCurve);
-            to = this.wallet.utils.isAddress(to);
+            from = this.wallet.utils.Validator.isAddress(from);
+            value = this.wallet.utils.Validator.isBigInt(value);
+            toCurve = this.wallet.utils.Validator.isCurve(toCurve);
+            to = this.wallet.utils.Validator.isAddress(to);
 
             if (value <= BigInt(0)) throw "Invalid value";
 
             if (fee) {
-                fee = this.wallet.utils.numToHex(fee);
+                fee = this.wallet.utils.Validator.numToHex(fee);
+
                 if (this.wallet.rpc.rpcServer) {
                     if (!this.fees.valueStoreFee) {
                         await this._getFees();
                     }
+
                     if (
                         BigInt("0x" + this.fees.valueStoreFee) <
                         BigInt("0x" + fee)
@@ -401,14 +404,14 @@ export default class Transaction {
 
             if (!account.curve) throw "Cannot get curve";
 
-            const owner = await this.wallet.utils.prefixSVACurve(
+            const owner = await this.wallet.utils.Tx.prefixSVACurve(
                 1,
                 toCurve,
                 to
             );
 
             const vStore = this.transaction.ValueStore(
-                this.wallet.utils.numToHex(value),
+                this.wallet.utils.Validator.numToHex(value),
                 this.transaction.vout.length,
                 owner,
                 fee
@@ -454,8 +457,8 @@ export default class Transaction {
                 throw "Missing arguments";
             }
 
-            from = this.wallet.utils.isAddress(from);
-            duration = this.wallet.utils.isBigInt(duration);
+            from = this.wallet.utils.Validator.isAddress(from);
+            duration = this.wallet.utils.Validator.isBigInt(duration);
 
             if (duration <= BigInt(0)) throw "Invalid duration";
 
@@ -464,7 +467,7 @@ export default class Transaction {
             if (!account) throw "Cannot get account";
 
             if (issuedAt) {
-                issuedAt = this.wallet.utils.isNumber(issuedAt);
+                issuedAt = this.wallet.utils.Validator.isNumber(issuedAt);
             } else {
                 if (!this.wallet.rpc.rpcServer) {
                     throw "RPC server must be set to fetch epoch";
@@ -482,16 +485,16 @@ export default class Transaction {
 
             rawData =
                 rawData.indexOf("0x") === 0
-                    ? this.wallet.utils.isHex(rawData)
-                    : this.wallet.utils.txtToHex(rawData);
+                    ? this.wallet.utils.Validator.isHex(rawData)
+                    : this.wallet.utils.Validator.txtToHex(rawData);
 
-            let deposit = await this.wallet.utils.calculateDeposit(
+            let deposit = await this.wallet.utils.Tx.calculateDeposit(
                 rawData,
                 duration
             );
-            deposit = this.wallet.utils.isBigInt(deposit);
+            deposit = this.wallet.utils.Validator.isBigInt(deposit);
 
-            const owner = await this.wallet.utils.prefixSVACurve(
+            const owner = await this.wallet.utils.Tx.prefixSVACurve(
                 3,
                 account.curve,
                 account.address
@@ -500,8 +503,8 @@ export default class Transaction {
 
             index =
                 index.indexOf("0x") === 0
-                    ? this.wallet.utils.isHex(index)
-                    : (index = this.wallet.utils.txtToHex(index));
+                    ? this.wallet.utils.Validator.isHex(index)
+                    : (index = this.wallet.utils.Validator.txtToHex(index));
 
             if (index.length > 64) {
                 throw "Index too large";
@@ -510,14 +513,16 @@ export default class Transaction {
             }
 
             if (fee) {
-                fee = this.wallet.utils.numToHex(fee);
+                fee = this.wallet.utils.Validator.numToHex(fee);
             }
 
             if (this.wallet.rpc.rpcServer) {
                 if (!this.fees.dataStoreFee) await this._getFees();
 
-                let calculatedFee = await this.wallet.utils.calculateFee(
-                    this.wallet.utils.hexToInt(this.fees.dataStoreFee),
+                let calculatedFee = await this.wallet.utils.Tx.calculateFee(
+                    this.wallet.utils.Validator.hexToInt(
+                        this.fees.dataStoreFee
+                    ),
                     duration
                 );
 
@@ -526,7 +531,7 @@ export default class Transaction {
                         throw "Invalid fee";
                     }
                 } else {
-                    fee = this.wallet.utils.numToHex(calculatedFee);
+                    fee = this.wallet.utils.Validator.numToHex(calculatedFee);
                 }
             } else {
                 if (!fee) throw "RPC server must be set to fetch fee";
@@ -535,7 +540,7 @@ export default class Transaction {
             const dStore = this.transaction.DataStore(
                 index,
                 issuedAt,
-                this.wallet.utils.numToHex(deposit),
+                this.wallet.utils.Validator.numToHex(deposit),
                 rawData,
                 txIdx,
                 owner,
@@ -579,7 +584,7 @@ export default class Transaction {
      * @param {hex|any} [dsIndex=false]
      */
     async _addOutValue(
-        value: Number | bigint,
+        value: number | bigint,
         ownerAddress: string,
         dsIndex?: string | any
     ) {
@@ -662,10 +667,11 @@ export default class Transaction {
                         DS.DSLinker.DSPreImage.Index ==
                             outValue.dsIndex[i].index
                     ) {
-                        const reward = await this.wallet.utils.remainingDeposit(
-                            DS,
-                            outValue.dsIndex[i].epoch
-                        );
+                        const reward =
+                            await this.wallet.utils.Tx.remainingDeposit(
+                                DS,
+                                outValue.dsIndex[i].epoch
+                            );
 
                         if (reward) {
                             await this._createDataTxIn(account.address, DS);

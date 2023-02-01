@@ -54,7 +54,7 @@ export const isPrivateKey = (str: PrivateKeyString): PrivateKeyString => {
 };
 
 /**
- * Verifies that a passed number is a number and formats it as a Number or BigInt string
+ * Verifies that a passed number is a number and formats it as a Number or bigint string
  * @param num - The number to validate
  * @returns {string|Number}
  */
@@ -124,11 +124,11 @@ export const isAddress = (str: string): PublicAddress => {
 };
 
 /**
- * Takes an expected BigInt and validated * formats it
- * @param bn - The expcted BigInt
- * @returns {BigInt}
+ * Takes an expected bigint and validated * formats it
+ * @param bn - The expcted bigint
+ * @returns {bigint}
  */
-export const isBigInt = (bn): BigInt => {
+export const isBigInt = (bn): bigint => {
     try {
         return BigInt(bn);
     } catch (ex) {

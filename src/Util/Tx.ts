@@ -66,7 +66,10 @@ export const prefixSVACurve = async (
  * @param {number} duration - How long the DataStore is to be stored
  * @return {number} The deposit cost
  */
-export const calculateDeposit = async (data: HexData | number, duration: number | bigint) => {
+export const calculateDeposit = async (
+    data: HexData | number,
+    duration: number | bigint
+) => {
     try {
         // dspi.go - BaseDepositEquation
         const dataSize = BigInt(Buffer.from(isHex(data), "hex").length);
@@ -129,7 +132,10 @@ export const remainingDeposit = async (
  * @param {number} deposit
  * @return {number} epochs
  */
-export const calculateNumEpochs = async (dataSize: number | bigint, deposit: number | bigint) => {
+export const calculateNumEpochs = async (
+    dataSize: number | bigint,
+    deposit: number | bigint
+) => {
     try {
         if (BigInt(dataSize) > BigInt(MaxDataStoreSize)) {
             throw "Data size is too large";
@@ -153,7 +159,10 @@ export const calculateNumEpochs = async (dataSize: number | bigint, deposit: num
  * @param {number} numEpochs
  * @returns {number} dsFee
  */
-export const calculateFee = async (dsFee: number | bigint, numEpochs: number | bigint) => {
+export const calculateFee = async (
+    dsFee: number | bigint,
+    numEpochs: number | bigint
+) => {
     try {
         return BigInt(
             BigInt(dsFee) * BigInt(BigInt(numEpochs) + BigInt(2))

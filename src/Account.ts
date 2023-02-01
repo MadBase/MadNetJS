@@ -112,8 +112,8 @@ export default class Account {
         curve: number = 1
     ): Promise<AccountObject> {
         try {
-            privateKey = this.wallet.utils.isPrivateKey(privateKey);
-            curve = this.wallet.utils.isCurve(curve);
+            privateKey = this.wallet.utils.Validator.isPrivateKey(privateKey);
+            curve = this.wallet.utils.Validator.isCurve(curve);
 
             if (!privateKey || !curve) {
                 throw "Bad argument";
@@ -163,7 +163,7 @@ export default class Account {
             let pubs = [];
 
             for (let i = 0; i < publicKeys.length; i++) {
-                const pCheck = this.wallet.utils.isHex(publicKeys[i]);
+                const pCheck = this.wallet.utils.Validator.isHex(publicKeys[i]);
                 pubs.push(pCheck);
             }
 
@@ -201,7 +201,7 @@ export default class Account {
      */
     async getAccount(address: string): Promise<AccountObject> {
         try {
-            address = this.wallet.utils.isAddress(address);
+            address = this.wallet.utils.Validator.isAddress(address);
 
             const account = this.accounts.find((a) => a.address === address);
 
@@ -221,7 +221,7 @@ export default class Account {
      */
     async _getAccountIndex(address: string): Promise<number> {
         try {
-            address = this.wallet.utils.isAddress(address);
+            address = this.wallet.utils.Validator.isAddress(address);
 
             const accountIndex = this.accounts.findIndex(
                 (a) => a.address === address
@@ -243,7 +243,7 @@ export default class Account {
      */
     async _getAccountUTXOs(address: string, minValue: number): Promise<Utxo> {
         try {
-            address = this.wallet.utils.isAddress(address);
+            address = this.wallet.utils.Validator.isAddress(address);
 
             const accountIndex = await this._getAccountIndex(address);
 
@@ -306,7 +306,7 @@ export default class Account {
                 utxoIds = [utxoIds];
             }
 
-            address = this.wallet.utils.isAddress(address);
+            address = this.wallet.utils.Validator.isAddress(address);
 
             const accountIndex = await this._getAccountIndex(address);
 
@@ -332,7 +332,9 @@ export default class Account {
 
             for (
                 let i = 0;
-                i < Object.keys(this.accounts[accountIndex].utxo.valueStores).length;
+                i <
+                Object.keys(this.accounts[accountIndex].utxo.valueStores)
+                    .length;
                 i++
             ) {
                 // TODO: vsPreImage type is currently empty. We'll need to test out
@@ -363,7 +365,7 @@ export default class Account {
         minValue: number
     ): Promise<ValueStore[] | Object> {
         try {
-            address = this.wallet.utils.isAddress(address);
+            address = this.wallet.utils.Validator.isAddress(address);
 
             const accountIndex = await this._getAccountIndex(address);
 
