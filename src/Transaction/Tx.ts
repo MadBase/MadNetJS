@@ -365,8 +365,8 @@ export default class Tx {
      * Create TxFee
      * @param {string} value
      */
-    TxFee(value: string) {
-        this.fee = value;
+    TxFee(value: string | number | bigint) {
+        this.fee = value.toString();
     }
 
     /**
