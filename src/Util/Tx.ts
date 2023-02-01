@@ -160,7 +160,7 @@ export const calculateNumEpochs = async (
  * @returns {number} dsFee
  */
 export const calculateFee = async (
-    dsFee: number | bigint,
+    dsFee: number | string | bigint,
     numEpochs: number | bigint
 ) => {
     try {

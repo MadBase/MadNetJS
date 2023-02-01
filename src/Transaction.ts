@@ -391,8 +391,6 @@ export default class Transaction {
             if (value <= BigInt(0)) throw "Invalid value";
 
             if (fee) {
-                fee = numToHex(fee);
-
                 if (this.wallet.rpc.rpcServer) {
                     if (!this.fees.valueStoreFee) {
                         await this._getFees();
@@ -400,7 +398,7 @@ export default class Transaction {
 
                     if (
                         BigInt("0x" + this.fees.valueStoreFee) <
-                        BigInt("0x" + fee)
+                        BigInt("0x" + numToHex(fee))
                     ) {
                         throw "Fee too low";
                     }
@@ -423,13 +421,13 @@ export default class Transaction {
             const owner = await prefixSVACurve(1, toCurve, to);
 
             const vStore = this.transaction.ValueStore(
-                numToHex(value),
+                Number(value),
                 this.transaction.vout.length,
                 owner,
                 fee
             );
 
-            const total = BigInt(value) + BigInt("0x" + fee);
+            const total = BigInt(value) + BigInt("0x" + numToHex(fee));
 
             await this._addOutValue(total, account.address);
 
@@ -495,12 +493,12 @@ export default class Transaction {
                 }
             }
 
-            rawData =
+            const rawDataHex =
                 rawData.indexOf("0x") === 0
                     ? isHex(rawData)
                     : txtToHex(rawData);
 
-            let deposit = await calculateDeposit(rawData, duration);
+            let deposit = await calculateDeposit(rawDataHex, duration);
             deposit = isBigInt(deposit);
 
             const owner = await prefixSVACurve(
@@ -510,19 +508,13 @@ export default class Transaction {
             );
             const txIdx = this.transaction.vout.length;
 
-            index =
-                index.indexOf("0x") === 0
-                    ? isHex(index)
-                    : (index = txtToHex(index));
+            let indexHex =
+                index.indexOf("0x") === 0 ? isHex(index) : txtToHex(index);
 
-            if (index.length > 64) {
+            if (indexHex.length > 64) {
                 throw "Index too large";
-            } else if (index.length != 64) {
-                index = index.padStart(64, "0");
-            }
-
-            if (fee) {
-                fee = numToHex(fee);
+            } else if (indexHex.length != 64) {
+                indexHex = indexHex.toString().padStart(64, "0");
             }
 
             if (this.wallet.rpc.rpcServer) {
@@ -538,25 +530,25 @@ export default class Transaction {
                         throw "Invalid fee";
                     }
                 } else {
-                    fee = numToHex(calculatedFee);
+                    fee = parseInt(calculatedFee);
                 }
             } else {
                 if (!fee) throw "RPC server must be set to fetch fee";
             }
 
             const dStore = this.transaction.DataStore(
-                index,
+                indexHex.toString(),
                 issuedAt,
-                numToHex(deposit),
+                parseInt(numToHex(deposit).toString()),
                 rawData,
                 txIdx,
                 owner,
                 fee
             );
-            const total = BigInt(deposit) + BigInt("0x" + fee);
+            const total = BigInt(deposit) + BigInt("0x" + numToHex(fee));
 
             await this._addOutValue(total, account.address, {
-                index: index,
+                index: indexHex,
                 epoch: issuedAt,
             });
 
