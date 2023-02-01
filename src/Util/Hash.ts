@@ -1,5 +1,5 @@
 import { Keccak256Hash } from "../types/Types";
-import ethUtil from "ethereumjs-util";
+import { keccak256 } from "ethereumjs-util";
 import { isHex } from "./Validator";
 
 /**
@@ -13,7 +13,7 @@ export const hash = (msg: string): Keccak256Hash => {
             throw "Argument msg cannot be empty.";
         }
         const msgBuffer: Buffer = Buffer.from(isHex(msg), "hex");
-        const msgHash: Buffer = ethUtil.keccak256(msgBuffer);
+        const msgHash: Buffer = keccak256(msgBuffer);
         return msgHash.toString("hex");
     } catch (ex) {
         throw new Error("MultiSigner.hash\r\n" + String(ex));
