@@ -9,6 +9,22 @@ import {
     Vout,
 } from "./types/Types";
 import Wallet from "./Wallet";
+import {
+    hexToInt,
+    isAddress,
+    isBigInt,
+    isCurve,
+    isHex,
+    isNumber,
+    numToHex,
+    txtToHex,
+} from "./Util/Validator";
+import {
+    calculateDeposit,
+    calculateFee,
+    prefixSVACurve,
+    remainingDeposit,
+} from "./Util/Tx";
 
 export interface PolledTxObject {
     tx: Tx;
@@ -319,16 +335,15 @@ export default class Transaction {
         try {
             if (!payeerAddress || !payeerCurve) throw "Missing arguments";
 
-            payeerAddress =
-                this.wallet.utils.Validator.isAddress(payeerAddress);
-            payeerCurve = this.wallet.utils.Validator.isCurve(payeerCurve);
+            payeerAddress = isAddress(payeerAddress);
+            payeerCurve = isCurve(payeerCurve);
 
             if (!fee) {
                 if (!this.fees.minTxFee) await this._getFees();
 
                 fee = BigInt("0x" + this.fees.minTxFee);
             } else {
-                fee = this.wallet.utils.Validator.isBigInt(fee);
+                fee = isBigInt(fee);
 
                 if (fee <= BigInt(0)) throw "Invalid value";
             }
@@ -367,15 +382,15 @@ export default class Transaction {
         try {
             if (!from || !to || !value || !toCurve) throw "Missing arugments";
 
-            from = this.wallet.utils.Validator.isAddress(from);
-            value = this.wallet.utils.Validator.isBigInt(value);
-            toCurve = this.wallet.utils.Validator.isCurve(toCurve);
-            to = this.wallet.utils.Validator.isAddress(to);
+            from = isAddress(from);
+            value = isBigInt(value);
+            toCurve = isCurve(toCurve);
+            to = isAddress(to);
 
             if (value <= BigInt(0)) throw "Invalid value";
 
             if (fee) {
-                fee = this.wallet.utils.Validator.numToHex(fee);
+                fee = numToHex(fee);
 
                 if (this.wallet.rpc.rpcServer) {
                     if (!this.fees.valueStoreFee) {
@@ -404,14 +419,10 @@ export default class Transaction {
 
             if (!account.curve) throw "Cannot get curve";
 
-            const owner = await this.wallet.utils.Tx.prefixSVACurve(
-                1,
-                toCurve,
-                to
-            );
+            const owner = await prefixSVACurve(1, toCurve, to);
 
             const vStore = this.transaction.ValueStore(
-                this.wallet.utils.Validator.numToHex(value),
+                numToHex(value),
                 this.transaction.vout.length,
                 owner,
                 fee
@@ -457,8 +468,8 @@ export default class Transaction {
                 throw "Missing arguments";
             }
 
-            from = this.wallet.utils.Validator.isAddress(from);
-            duration = this.wallet.utils.Validator.isBigInt(duration);
+            from = isAddress(from);
+            duration = isBigInt(duration);
 
             if (duration <= BigInt(0)) throw "Invalid duration";
 
@@ -467,7 +478,7 @@ export default class Transaction {
             if (!account) throw "Cannot get account";
 
             if (issuedAt) {
-                issuedAt = this.wallet.utils.Validator.isNumber(issuedAt);
+                issuedAt = isNumber(issuedAt);
             } else {
                 if (!this.wallet.rpc.rpcServer) {
                     throw "RPC server must be set to fetch epoch";
@@ -485,16 +496,13 @@ export default class Transaction {
 
             rawData =
                 rawData.indexOf("0x") === 0
-                    ? this.wallet.utils.Validator.isHex(rawData)
-                    : this.wallet.utils.Validator.txtToHex(rawData);
+                    ? isHex(rawData)
+                    : txtToHex(rawData);
 
-            let deposit = await this.wallet.utils.Tx.calculateDeposit(
-                rawData,
-                duration
-            );
-            deposit = this.wallet.utils.Validator.isBigInt(deposit);
+            let deposit = await calculateDeposit(rawData, duration);
+            deposit = isBigInt(deposit);
 
-            const owner = await this.wallet.utils.Tx.prefixSVACurve(
+            const owner = await prefixSVACurve(
                 3,
                 account.curve,
                 account.address
@@ -503,8 +511,8 @@ export default class Transaction {
 
             index =
                 index.indexOf("0x") === 0
-                    ? this.wallet.utils.Validator.isHex(index)
-                    : (index = this.wallet.utils.Validator.txtToHex(index));
+                    ? isHex(index)
+                    : (index = txtToHex(index));
 
             if (index.length > 64) {
                 throw "Index too large";
@@ -513,16 +521,14 @@ export default class Transaction {
             }
 
             if (fee) {
-                fee = this.wallet.utils.Validator.numToHex(fee);
+                fee = numToHex(fee);
             }
 
             if (this.wallet.rpc.rpcServer) {
                 if (!this.fees.dataStoreFee) await this._getFees();
 
-                let calculatedFee = await this.wallet.utils.Tx.calculateFee(
-                    this.wallet.utils.Validator.hexToInt(
-                        this.fees.dataStoreFee
-                    ),
+                let calculatedFee = await calculateFee(
+                    hexToInt(this.fees.dataStoreFee),
                     duration
                 );
 
@@ -531,7 +537,7 @@ export default class Transaction {
                         throw "Invalid fee";
                     }
                 } else {
-                    fee = this.wallet.utils.Validator.numToHex(calculatedFee);
+                    fee = numToHex(calculatedFee);
                 }
             } else {
                 if (!fee) throw "RPC server must be set to fetch fee";
@@ -540,7 +546,7 @@ export default class Transaction {
             const dStore = this.transaction.DataStore(
                 index,
                 issuedAt,
-                this.wallet.utils.Validator.numToHex(deposit),
+                numToHex(deposit),
                 rawData,
                 txIdx,
                 owner,
@@ -667,11 +673,10 @@ export default class Transaction {
                         DS.DSLinker.DSPreImage.Index ==
                             outValue.dsIndex[i].index
                     ) {
-                        const reward =
-                            await this.wallet.utils.Tx.remainingDeposit(
-                                DS,
-                                outValue.dsIndex[i].epoch
-                            );
+                        const reward = await remainingDeposit(
+                            DS,
+                            outValue.dsIndex[i].epoch
+                        );
 
                         if (reward) {
                             await this._createDataTxIn(account.address, DS);
