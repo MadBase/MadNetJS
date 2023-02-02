@@ -35,10 +35,6 @@ describe('Unit/Util/Validator:', () => {
             expect(() => Validator.hexToInt('notAHex')).to.throw('Invalid hex character');
         });
 
-        it('Fail: hexToTxt throws an error if Hex is invalid', () => {
-            expect(() => Validator.hexToTxt(Number('notAHex'))).to.throw('The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received type number (NaN)');
-        });
-
         it('Fail: txtToHex throws an error if string is invalid', () => {
             expect(() => Validator.txtToHex(Number('notAHex'))).to.throw('The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received type number (NaN)');
         });

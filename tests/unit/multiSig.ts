@@ -34,7 +34,6 @@ describe("Unit/MultiSig:", () => {
         bnSigner = new BNSigner(madWallet, privateKey);
         multiSigBn = new MultiSig(madWallet, bnSigner);
 
-        console.log(privateKey, secondaryPrivateKey);
         await madWallet.account.addAccount(privateKey, 2);
         await madWallet.account.addAccount(secondaryPrivateKey, 2);
 
