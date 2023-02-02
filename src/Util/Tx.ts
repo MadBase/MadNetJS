@@ -9,7 +9,7 @@ export type SvaCurvePubhashTuple = [number | string, number | string, string];
  * @typedef TxUtils - Collection of Tx Utilities
  */
 
-/** Extract SVA | Curve | PubHash from a given DSPreImage.Owner "owner"
+/** Extract SVA | Curve | PubHash from a given dsPreImage.Owner "owner"
  * @param owner - The owner string
  */
 export const extractOwner = async (
@@ -88,19 +88,19 @@ export const calculateDeposit = async (
 
 /**
  * Get remaing DataStore deposit value
- * @param {Object} DataStore
+ * @param {Object} dataStore
  * @return {number} deposit
  */
 export const remainingDeposit = async (
-    DataStore: DataStore,
+    dataStore: DataStore,
     thisEpoch: number
 ) => {
     try {
         // dspi.go - RemainingValue
-        const DSPreImage = DataStore.dsLinker.DSPreImage;
-        const issuedAt = DSPreImage.IssuedAt;
-        const deposit = BigInt("0x" + DSPreImage.Deposit);
-        const rawData = DSPreImage.RawData;
+        const dsPreImage = dataStore.dsLinker.dsPreImage;
+        const issuedAt = dsPreImage.issuedAt;
+        const deposit = BigInt("0x" + dsPreImage.deposit);
+        const rawData = dsPreImage.rawData;
         const dataSize = BigInt(Buffer.from(rawData, "hex").length);
         if (BigInt(thisEpoch) < BigInt(issuedAt)) {
             throw "thisEpoch < issuedAt";

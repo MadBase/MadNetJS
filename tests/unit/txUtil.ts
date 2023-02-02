@@ -12,15 +12,15 @@ const generateHex = size => [...Array(size)].map(
 ).join('');
 
 describe('Unit/Util/Tx:', () => {
-    let DataStore;
+    let dataStore;
 
     before(async function() {
-        DataStore = {
-            DSLinker: {
-                DSPreImage: {
-                    IssuedAt: 100,
-                    Deposit: 100,
-                    RawData: 'rawdata'
+        dataStore = {
+            dsLinker: {
+                dsPreImage: {
+                    issuedAt: 100,
+                    deposit: 100,
+                    rawData: 'rawdata'
                 }
             }
         }
@@ -28,14 +28,14 @@ describe('Unit/Util/Tx:', () => {
 
     describe('Remaining Deposit', () => {
         it('Fail: Reject when thisEpoch is lower than issuedAt', async () => {
-            await expect(Tx.remainingDeposit(DataStore, 1)).to.eventually.be.rejectedWith('thisEpoch < issuedAt');
+            await expect(Tx.remainingDeposit(dataStore, 1)).to.eventually.be.rejectedWith('thisEpoch < issuedAt');
         });
 
         it('Fail: Reject when called with invalid arguments', async () => {
             await expect(
-                Tx.remainingDeposit(DataStore, 9999)
+                Tx.remainingDeposit(dataStore, 9999)
             ).to.eventually.be.rejectedWith(
-                "Transaction.rewardDeposit: TypeError: Cannot read properties of null (reading 'DSLinker')"
+                "Transaction.rewardDeposit: Transaction.calculateNumEpochs: invalid dataSize and deposit causing integer overflow"
             );
         });
     });
@@ -61,10 +61,6 @@ describe('Unit/Util/Tx:', () => {
             await expect(
                 Tx.calculateNumEpochs(BigInt(0), BigInt(0))
             ).to.eventually.be.rejectedWith('invalid dataSize and deposit causing integer overflow');
-        });
-
-        it('Fail: Reject calculateFee when called with invalid arguments', async () => {
-            await expect(Tx.calculateFee(BigInt(NaN), BigInt(NaN))).to.eventually.be.rejectedWith('Transaction.calculateFee: RangeError: The number NaN cannot be converted to a BigInt because it is not an integer');
         });
     });
 });

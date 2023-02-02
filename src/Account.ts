@@ -4,7 +4,6 @@ import SecpSigner from "./Signers/SecpSigner";
 import Wallet from "./Wallet";
 import { isPrivateKey, isCurve, isHex, isAddress } from "./Util/Validator";
 import { DataStore, Utxo, ValueStore } from "./types/Types";
-import { isAddress, isCurve, isHex, isPrivateKey } from "./Util/Validator";
 
 // TODO Multisig.js or BNSigner.js
 export interface Signer {
