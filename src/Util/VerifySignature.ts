@@ -1,5 +1,5 @@
 import { HexData, PublicKey } from "../types/Types";
-import ethUtil from "ethereumjs-util";
+import { toBuffer, keccak256, fromRpcSig, ecrecover } from "ethereumjs-util";
 import { isHex } from "./Validator";
 
 const BNSignerWrapper = require("../GoWrappers/BNSignerWrapper.js");
@@ -45,12 +45,10 @@ export const SecpSignerVerify = async (
         }
         msg = isHex(msg);
         sig = isHex(sig);
-        msg = ethUtil.toBuffer("0x" + String(msg));
-        const msgHash = ethUtil.keccak256(msg);
-        const signature = ethUtil.toBuffer("0x" + String(sig));
-        const sigParams = ethUtil.fromRpcSig(signature.toString());
-        const publicKeyRecovered = ethUtil
-            .ecrecover(msgHash, sigParams.v, sigParams.r, sigParams.s)
+        msg = toBuffer("0x" + String(msg));
+        const msgHash = keccak256(msg);
+        const sigParams = fromRpcSig("0x" + String(sig));
+        const publicKeyRecovered = ecrecover(msgHash, sigParams.v, sigParams.r, sigParams.s)
             .toString("hex");
         if (publicKeyRecovered !== pubKey) {
             throw "Public Keys don't match";

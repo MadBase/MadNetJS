@@ -1,4 +1,5 @@
 import { keccak256, privateToPublic, pubToAddress } from "ethereumjs-util";
+import { isHex } from "../Util/Validator";
 import pkg from "secp256k1";
 const { ecdsaSign, ecdsaRecover } = pkg;
 
@@ -19,7 +20,7 @@ export default class SecpSigner {
      */
     constructor(Wallet: any /* TODO: Wallet type */, privK: string) {
         this.Wallet = Wallet;
-        this.privK = this.Wallet.utils.isHex(privK);
+        this.privK = isHex(privK);
     }
 
     /**
@@ -31,7 +32,7 @@ export default class SecpSigner {
      */
     async sign(msg: string): Promise<string> {
         try {
-            if (!this.Wallet.utils.isHex(msg)) throw "Bad argument type";
+            if (!isHex(msg)) throw "Bad argument type";
             if (!this.privK) throw "Private key not set";
 
             const msgBuffer = keccak256(Buffer.from(msg, "hex"));
@@ -78,7 +79,7 @@ export default class SecpSigner {
      */
     async verify(msg: string, sig: string): Promise<Uint8Array> {
         try {
-            if (!this.Wallet.utils.isHex(msg) || !this.Wallet.utils.isHex(sig))
+            if (!isHex(msg) || !isHex(sig))
                 throw "Bad argument type";
             // Get and parse recid from last byte of passed hexadecimal signature from this.sign() method
             const recidByteString = sig.slice(sig.length - 2);
