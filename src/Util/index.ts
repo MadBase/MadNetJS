@@ -8,12 +8,12 @@ import VerifySignature from "./VerifySignature";
 import Faucet from "./Faucet";
 
 export default {
-    Eth,
-    Generic,
-    Hash,
-    String,
-    Tx,
-    Validator,
-    VerifySignature,
-    Faucet,
+    eth: Eth,
+    generic: Generic,
+    hash: Hash,
+    string: String,
+    tx: Tx,
+    validator: Validator,
+    verifySignature: VerifySignature,
+    faucet: Faucet,
 };

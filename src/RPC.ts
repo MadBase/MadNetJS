@@ -232,13 +232,13 @@ export default class RPC {
         try {
             if (!address || !curve) throw "Invalid arguments";
 
-            address = this.wallet.utils.isAddress(address);
-            curve = this.wallet.utils.isNumber(curve);
+            address = this.wallet.utils.validator.isAddress(address);
+            curve = this.wallet.utils.validator.isNumber(curve);
 
             if (!minValue) {
                 minValue = constant.MaxValue;
             } else {
-                minValue = this.wallet.utils.numToHex(minValue);
+                minValue = this.wallet.utils.validator.numToHex(minValue);
             }
 
             const valueForOwner = {
@@ -301,8 +301,8 @@ export default class RPC {
         try {
             if (!address || !curve) throw "Invalid arguments";
 
-            address = this.wallet.utils.isAddress(address);
-            curve = this.wallet.utils.isNumber(curve);
+            address = this.wallet.utils.validator.isAddress(address);
+            curve = this.wallet.utils.validator.isNumber(curve);
 
             let getAll = false;
 
@@ -311,12 +311,12 @@ export default class RPC {
 
                 limit = constant.MaxUTXOs;
             } else {
-                limit = this.wallet.utils.isNumber(limit);
+                limit = this.wallet.utils.validator.isNumber(limit);
             }
             if (!offset) {
                 offset = "";
             } else {
-                offset = this.wallet.utils.isHex(offset);
+                offset = this.wallet.utils.validator.isHex(offset);
             }
 
             let DataStoreUTXOResults = [];
@@ -403,9 +403,9 @@ export default class RPC {
         index: string
     ): Promise<string> {
         try {
-            address = this.wallet.utils.isAddress(address);
-            curve = this.wallet.utils.isNumber(curve);
-            index = this.wallet.utils.isHex(index);
+            address = this.wallet.utils.validator.isAddress(address);
+            curve = this.wallet.utils.validator.isNumber(curve);
+            index = this.wallet.utils.validator.isHex(index);
 
             if (!address || !index || !curve) throw "Invalid arguments";
 
