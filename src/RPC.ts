@@ -81,7 +81,7 @@ export default class RPC {
      * @returns {number} Block Header
      */
     async getBlockHeader(height: number): Promise<number> {
-        height = this.wallet.utils.isNumber(height);
+        height = this.wallet.utils.validator.isNumber(height);
         try {
             const BH = await this.request("get-block-header", {
                 Height: height,

@@ -165,7 +165,7 @@ describe('Integration/Account:', () => {
             expect(verify).to.eventually.be.fulfilled;
         })
 
-        it('Fail: An incorrect verifacation request for \'caffee\' will fail for a signed SECP message of \'c0ffee\'', async () => {
+        it('Fail: An incorrect verification request for \'caffee\' will fail for a signed SECP message of \'c0ffee\'', async () => {
             let msg = '0xc0ffee';
             let wrongVerifyMsg = '0xcafee';
             let signature = await secpAccountSigned.signer.sign(msg);
