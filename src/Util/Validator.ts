@@ -62,15 +62,16 @@ export const isNumber = (
     num: string | bigint | number | boolean
 ): string | number => {
     try {
-        if (!num || typeof num === "boolean") {
+        if (!Number.isInteger(parseInt(num.toString())) || typeof num === "boolean") {
+            console.log({ num });
             throw "No input or boolean provided";
         }
         if (typeof num === "bigint") {
             num = num.toString();
-            return num;
+            return parseInt(num);
         }
         if (typeof num === "string") {
-            if (!parseInt(num) || !Number.isInteger(parseInt(num))) {
+            if (!Number.isInteger(parseInt(num))) {
                 throw "Invalid number";
             }
             return parseInt(num);
@@ -144,7 +145,8 @@ export const isBigInt = (bn): bigint => {
 export const numToHex = (num: string | number | bigint | boolean): HexData => {
     try {
         let decimal = isNumber(num);
-        if (!decimal) {
+        // TODO Improve this code
+        if (!Number.isInteger(decimal)) {
             throw "Not a number";
         }
         let h = BigInt(num).toString(16);

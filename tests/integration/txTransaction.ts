@@ -55,7 +55,7 @@ describe('Integration/Transaction/Tx:', () => {
             ).to.eventually.be.rejectedWith('Invalid owner');
             await expect(
                 madWallet.transaction.transaction.getSignatures()
-            ).to.eventually.include.all.keys('Vin', 'Vout');
+            ).to.eventually.include.all.keys('vin', 'vout');
         });
 
         it('Fail: Reject to Inject Signatures when TxIn owner cannot be found', async () => {
@@ -69,7 +69,7 @@ describe('Integration/Transaction/Tx:', () => {
             await expect(
                 madWalletThree.transaction.transaction.injectSignaturesAggregate([validHex], [validHex])
             ).to.eventually.be.fulfilled;
-            await expect(madWallet.transaction.transaction.getSignatures()).to.eventually.include.all.keys('Vin', 'Vout');
+            await expect(madWallet.transaction.transaction.getSignatures()).to.eventually.include.all.keys('vin', 'vout');
         });
 
         it('Fail: Reject to Inject Signatures Aggregate when voutSignatures is invalid', async () => {
@@ -94,13 +94,13 @@ describe('Integration/Transaction/Tx:', () => {
         });
 
         it('Success: Get Signatures without DataStore and TxIn', async () => {
-            await expect(madWallet.transaction.transaction.getSignatures()).to.eventually.include.all.keys('Vin', 'Vout');
+            await expect(madWallet.transaction.transaction.getSignatures()).to.eventually.include.all.keys('vin', 'vout');
         });
 
         it('Success: Get Signatures with DataStore and TxIn', async () => {
             madWalletTwo.transaction.transaction.TxIn(validHex, validHex);
             await madWalletTwo.transaction.transaction.DataStore(validHex, 1, 1, validHex, 1, secpAccountTwo.address, 5);
-            await expect(madWallet.transaction.transaction.getSignatures()).to.eventually.include.all.keys('Vin', 'Vout');
+            await expect(madWallet.transaction.transaction.getSignatures()).to.eventually.include.all.keys('vin', 'vout');
         });
     });
 
@@ -115,7 +115,7 @@ describe('Integration/Transaction/Tx:', () => {
         it('Success: Hash the transaction and return it with the TxHash', async () => {
             await expect(
                 madWallet.transaction.transaction.createRawTx()
-            ).to.eventually.be.fulfilled.and.have.property('Tx').and.include.all.keys('Vin', 'Vout', 'Fee');
+            ).to.eventually.be.fulfilled.and.have.property('Tx').and.include.all.keys('vin', 'vout', 'fee');
         });
 
         it('Fail: Reject createRawTx', async () => {
@@ -125,13 +125,13 @@ describe('Integration/Transaction/Tx:', () => {
 
         it('Success: Calls ASPreImage', async () => {
             const preImageResult = {
-                ChainID: Number(process.env.CHAIN_ID),
-                Value: 1,
-                TXOutIdx: 2,
-                IssuedAt: 3,
-                Exp: 4,
-                Owner: 5,
-                Fee: 6
+                chainID: Number(process.env.CHAIN_ID),
+                value: 1,
+                txOutIdx: 2,
+                issuedAt: 3,
+                exp: 4,
+                owner: 5,
+                fee: 6
             };
             expect(
                 madWallet.transaction.transaction.AsPreImage(1, 2, 3, 4, "5", 6)

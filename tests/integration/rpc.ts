@@ -115,10 +115,9 @@ describe('Integration/RPC:', function () {
         });
 
         it('Success: Return Fees with the correct keys', async () => {
-            /* eslint-disable no-prototype-builtins */
-            expect(fees.hasOwnProperty('MinTxFee')).to.true;
-            expect(fees.hasOwnProperty('ValueStoreFee')).to.true;
-            expect(fees.hasOwnProperty('DataStoreFee')).to.true;
+            expect(fees.hasOwnProperty('minTxFee')).to.true;
+            expect(fees.hasOwnProperty('valueStoreFee')).to.true;
+            expect(fees.hasOwnProperty('dataStoreFee')).to.true;
         });
 
         it('Success: Return Fees with the correct length', async () => {

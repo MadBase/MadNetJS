@@ -25,8 +25,8 @@ export interface RpcResponse {
     TxHash: string;
     IsMined: boolean;
     minTxFee: string;
-    valueStoreFee: string;
-    dataStoreFee: string;
+    ValueStoreFee: string;
+    DataStoreFee: string;
 }
 
 /**
@@ -166,7 +166,11 @@ export default class RPC {
 
             if (!fees.MinTxFee) throw "Could not get fees";
 
-            return fees;
+            return {
+                minTxFee: fees.MinTxFee,
+                valueStoreFee: fees.ValueStoreFee,
+                dataStoreFee: fees.DataStoreFee,
+            };
         } catch (ex) {
             throw new Error("RPC.getFees\r\n" + String(ex));
         }
