@@ -7,7 +7,7 @@ export interface WalletType {
 }
 
 export interface RpcFee {
-    minTxFee: string;
+    minTxFee: object;
     valueStoreFee: string;
     dataStoreFee: string;
 }

@@ -392,7 +392,7 @@ export default class Transaction {
 
             if (fee) {
                 if (this.wallet.rpc.rpcServer) {
-                    if (!this.fees.valueStoreFee) {
+                    if (!this.fees?.valueStoreFee) {
                         await this._getFees();
                     }
 
@@ -405,7 +405,7 @@ export default class Transaction {
                 }
             } else {
                 if (this.wallet.rpc.rpcServer) {
-                    if (!this.fees.valueStoreFee) {
+                    if (!this.fees?.valueStoreFee) {
                         await this._getFees();
                     }
                     fee = this.fees.valueStoreFee;
@@ -518,10 +518,10 @@ export default class Transaction {
             }
 
             if (this.wallet.rpc.rpcServer) {
-                if (!this.fees.dataStoreFee) await this._getFees();
+                if (!this.fees?.dataStoreFee) await this._getFees();
 
                 let calculatedFee = await calculateFee(
-                    hexToInt(this.fees.dataStoreFee),
+                    hexToInt(this.fees?.dataStoreFee),
                     duration
                 );
 
