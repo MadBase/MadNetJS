@@ -115,7 +115,7 @@ describe('Integration/Transaction/Tx:', () => {
         it('Success: Hash the transaction and return it with the TxHash', async () => {
             await expect(
                 madWallet.transaction.transaction.createRawTx()
-            ).to.eventually.be.fulfilled.and.have.property('Tx').and.include.all.keys('vin', 'vout', 'fee');
+            ).to.eventually.be.fulfilled.and.have.property('tx').and.include.all.keys('vin', 'vout', 'fee');
         });
 
         it('Fail: Reject createRawTx', async () => {
@@ -130,7 +130,7 @@ describe('Integration/Transaction/Tx:', () => {
                 txOutIdx: 2,
                 issuedAt: 3,
                 exp: 4,
-                owner: 5,
+                owner: "5",
                 fee: 6
             };
             expect(

@@ -89,15 +89,15 @@ describe('Integration/Transaction:', function () {
     });
 
     describe('Data Store', () => {
-         it('Success: Send DataStore with SECP address', async () => {
-            await madWallet.transaction.createTxFee(secpAccount.address, parseInt(secpAccount.curve), false);
+        it('Success: Send DataStore with SECP address', async () => {
             await madWallet.transaction.createDataStore(secpAccount.address, '0x02', 1, '0x02');
+            await madWallet.transaction.createTxFee(secpAccount.address, parseInt(secpAccount.curve), 1);
             await expect(madWallet.transaction.sendTx()).to.eventually.be.fulfilled;
         });
 
         it('Success: Send DataStore with BN address', async () => {
             await madWallet.transaction.createDataStore(bnAccount.address, '0x03', 2, '0x02');
-            await madWallet.transaction.createTxFee(bnAccount.address, bnAccount.curve, false);
+            await madWallet.transaction.createTxFee(bnAccount.address, bnAccount.curve, 1);
             await expect(madWallet.transaction.sendTx()).to.eventually.be.fulfilled;
         });
 
@@ -181,8 +181,10 @@ describe('Integration/Transaction:', function () {
                 )
             );
             const rawDataToHex = madWallet.utils.validator.txtToHex(rawData);
-            expect(dataStore.dsLinker.dsPreImage.Fee).to.equal(currentDSFee);
-            expect(dataStore.dsLinker.dsPreImage.RawData).to.equal(rawDataToHex);
+            console.log(currentDSFee);
+            console.log(dataStore.dsLinker.dsPreImage.fee);
+            expect(dataStore.dsLinker.dsPreImage.fee).to.equal(currentDSFee);
+            expect(dataStore.dsLinker.dsPreImage.rawData).to.equal(rawDataToHex);
         });
 
         it('Fail: Cannot create DataStore with missing arguments', async () => {

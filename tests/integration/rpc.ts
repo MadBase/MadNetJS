@@ -106,12 +106,12 @@ describe('Integration/RPC:', function () {
 
     describe('Chain ID, Epochs, Fees', () => {
         it('Success: Get Chain ID', async () => {
-            const chainId = await madWallet.Rpc.getChainId();
+            const chainId = await madWallet.rpc.getChainId();
             expect(chainId).to.equal(Number(process.env.CHAIN_ID));
         });
 
         it('Success: Get Current Epoch', async () => {
-            await expect(madWallet.Rpc.getEpoch()).to.eventually.be.fulfilled;
+            await expect(madWallet.rpc.getEpoch()).to.eventually.be.fulfilled;
         });
 
         it('Success: Return Fees with the correct keys', async () => {
@@ -127,15 +127,15 @@ describe('Integration/RPC:', function () {
 
     describe('UTXOs', () => {
         it('Fail: Cannot get UTXOs with invalid Ids', async () => {
-            await expect(madWallet.Rpc.getUTXOsByIds(['utxoInvalidId'])).to.eventually.be.rejectedWith('invalid length');
+            await expect(madWallet.rpc.getUTXOsByIds(['utxoInvalidId'])).to.eventually.be.rejectedWith('invalid length');
         });
 
         it('Fail: Cannot get UTXOs by Ids with missing argument', async () => {
-            await expect(madWallet.Rpc.getUTXOsByIds()).to.eventually.be.rejectedWith('Invalid arguments');
+            await expect(madWallet.rpc.getUTXOsByIds()).to.eventually.be.rejectedWith('Invalid arguments');
         });
 
         it('Fail: Cannot get Value Store UTXOs with missing arguments', async () => {
-            await expect(madWallet.Rpc.getValueStoreUTXOIDs()).to.eventually.be.rejectedWith('Invalid arguments');
+            await expect(madWallet.rpc.getValueStoreUTXOIDs()).to.eventually.be.rejectedWith('Invalid arguments');
         });
 
         it('Fail: Cannot get Data Store UTXOs with missing arguments', async () => {
