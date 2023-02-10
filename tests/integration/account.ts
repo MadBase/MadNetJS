@@ -151,7 +151,7 @@ describe('Integration/Account:', () => {
 
     describe('Signatures', () => {
         it('Success: Sign a message with BN signer', async () => {
-            await expect(bnAccountSigned.signer.sign('0xc0ffee')).to.eventually.be.fulfilled;
+            await expect(bnAccountSigned.signer.sign('c0ffee')).to.eventually.be.fulfilled;
         });
 
         it('Success: Sign a message with SECP signer', async () => {
@@ -166,7 +166,7 @@ describe('Integration/Account:', () => {
         })
 
         it('Fail: An incorrect verification request for \'caffee\' will fail for a signed SECP message of \'c0ffee\'', async () => {
-            let msg = '0xc0ffee';
+            let msg = '0c0ffee';
             let wrongVerifyMsg = '0xcafee';
             let signature = await secpAccountSigned.signer.sign(msg);
             await expect(
@@ -217,6 +217,7 @@ describe('Integration/Account:', () => {
         it('Success: Get value stores from account helper', async () => {
             await secpAccount.getAccountValueStores(0);
             const account = await madWallet.account.getAccount(secpAccount.address);
+            console.log(account);
             expect(account.utxo.valueStoreIDs.length).to.be.greaterThan(0);
         });
 
