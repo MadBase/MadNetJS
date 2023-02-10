@@ -663,7 +663,7 @@ export default class Transaction {
                     // Skip if the store doesn't equal datastore for spending
                     if (
                         DS &&
-                        DS.DSLinker.DSPreImage.Index ==
+                        DS.dsLinker.dsPreImage.index ==
                             outValue.dsIndex[i].index
                     ) {
                         const reward = await remainingDeposit(

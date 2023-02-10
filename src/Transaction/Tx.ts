@@ -97,13 +97,13 @@ export default class Tx {
             this.fee = rpcTx.fee;
             for (let i = 0; i < rpcTx.vin.length; i++) {
                 const cTx = await this.wallet.rpc.getMinedTransaction(
-                    rpcTx.vin[i].txInLinker.TXInPreImage.ConsumedTxHash
+                    rpcTx.vin[i].txInLinker.txInPreImage.consumedTxHash
                 );
                 let isValueStore, address;
                 if (
                     cTx.Tx.vout[
                         parseInt(
-                            rpcTx.vin[i].txInLinker.TXInPreImage.ConsumedTxIdx
+                            rpcTx.vin[i].txInLinker.txInPreImage.consumedTxIdx
                         )
                     ].ValueStore
                 ) {
@@ -112,30 +112,30 @@ export default class Tx {
                         cTx.Tx.vout[
                             parseInt(
                                 rpcTx.vin[i].txInLinker.TXInPreImage
-                                    .ConsumedTxIdx
+                                    .consumedTxIdx
                             )
-                        ].ValueStore.VsPreImage.Owner;
+                        ].valueStore.vsPreImage.owner;
                     address = owner[2];
                 } else {
                     const owner =
                         cTx.Tx.vout[
                             parseInt(
                                 rpcTx.vin[i].txInLinker.TXInPreImage
-                                    .ConsumedTxIdx
+                                    .consumedTxIdx
                             )
-                        ].dataStore.dsLinker.DsPreImage.Owner;
+                        ].dataStore.dsLinker.dsPreImage.owner;
                     address = owner[2];
                 }
                 this.txInOwners.push({
                     address: address,
                     txOutIdx: isValueStore
-                        ? rpcTx.vin[i].vsPreImage.TXOutIdx
-                            ? rpcTx.vin[i].vsPreImage.TXOutIdx
+                        ? rpcTx.vin[i].vsPreImage.txOutIdx
+                            ? rpcTx.vin[i].vsPreImage.txOutIdx
                             : 0
-                        : rpcTx.vin[i].dsLinker.DsPreImage.TXOutIdx
-                        ? rpcTx.vin[i].dsLinker.DsPreImage.TXOutIdx
+                        : rpcTx.vin[i].dsLinker.dsPreImage.txOutIdx
+                        ? rpcTx.vin[i].dsLinker.dsPreImage.txOutIdx
                         : 0,
-                    txHash: rpcTx.vin[i].txInLinker.TXInPreImage.ConsumedTxHash,
+                    txHash: rpcTx.vin[i].txInLinker.txInPreImage.consumedTxHash,
                     isDataStore: isValueStore,
                 });
             }
@@ -394,7 +394,7 @@ export default class Tx {
                 }
                 case "DataStore": {
                     const rawData =
-                        this.vout[i].dataStore.dsLinker.DsPreImage.RawData;
+                        this.vout[i].dataStore.dsLinker.dsPreImage.RawData;
                     const dataSize = BigInt(Buffer.from(rawData, "hex").length);
                     const dsEpochs = await calculateNumEpochs(
                         dataSize,
@@ -418,21 +418,21 @@ export default class Tx {
                             )
                         );
                     const owner = await extractOwner(
-                        this.vout[i].dataStore.dsLinker.DsPreImage.Owner
+                        this.vout[i].dataStore.dsLinker.dsPreImage.owner
                     );
                     const DS = await this.wallet.rpc.getDataStoreByIndex(
                         owner[2],
                         owner[1],
-                        this.vout[i].dataStore.dsLinker.DsPreImage.Index
+                        this.vout[i].dataStore.dsLinker.dsPreImage.Index
                     );
                     if (
                         DS &&
-                        DS.dsLinker.DsPreImage.Index ==
-                            this.vout[i].dataStore.dsLinker.DsPreImage.Index
+                        DS.dsLinker.dsPreImage.Index ==
+                            this.vout[i].dataStore.dsLinker.dsPreImage.Index
                     ) {
                         const reward = await remainingDeposit(
                             DS,
-                            this.vout[i].dataStore.dsLinker.DsPreImage.IssuedAt
+                            this.vout[i].dataStore.dsLinker.dsPreImage.IssuedAt
                         );
                         if (reward) {
                             thisTotal = BigInt(thisTotal) - BigInt(reward);
@@ -522,10 +522,11 @@ export default class Tx {
 
             delete tx.fee;
 
+            // BUG -- TxHasher failing with json cannot unmarshal
             const injected = await TxHasher.TxHasher(JSON.stringify(tx));
             const Tx = { Tx: JSON.parse(injected) };
 
-            await this._signTx(tx);
+            await this._signTx(Tx as any); // TODO Add proper type
         } catch (ex) {
             throw new Error("Tx.createTx\r\n" + String(ex));
         }
@@ -542,9 +543,9 @@ export default class Tx {
             for (let i = 0; i < rpcTx.vin.length; i++) {
                 const txIn = JSON.parse(JSON.stringify(rpcTx.vin[i]));
                 const consumedHash =
-                    txIn.txInLinker.TXInPreImage.ConsumedTxHash;
-                const consumedIdx = txIn.txInLinker.TXInPreImage.ConsumedTxIdx
-                    ? txIn.txInLinker.TXInPreImage.ConsumedTxIdx
+                    txIn.txInLinker.txInPreImage.consumedTxHash;
+                const consumedIdx = txIn.txInLinker.txInPreImage.consumedTxIdx
+                    ? txIn.txInLinker.txInPreImage.consumedTxIdx
                     : "0";
                 let txInObj;
                 for (let j = 0; j < this.txInOwners.length; j++) {
@@ -588,7 +589,7 @@ export default class Tx {
                 const txOut = JSON.parse(JSON.stringify(rpcTx.vout[i]));
                 if (txOut.dataStore) {
                     const owner = await extractOwner(
-                        txOut.dataStore.dsLinker.DsPreImage.Owner
+                        txOut.dataStore.dsLinker.dsPreImage.owner
                     );
                     const ownerAccount = await this.wallet.account.getAccount(
                         owner[2]
@@ -601,7 +602,7 @@ export default class Tx {
                         ownerAccount.curve,
                         signed
                     );
-                    txOut.dataStore.Signature = signature;
+                    txOut.dataStore.signature = signature;
                 }
                 this.vout[i] = txOut;
             }
@@ -634,9 +635,9 @@ export default class Tx {
                     JSON.stringify(parsedTransaction.vin[i])
                 );
                 const consumedHash =
-                    txIn.txInLinker.TXInPreImage.ConsumedTxHash;
-                const consumedIdx = txIn.txInLinker.TXInPreImage.ConsumedTxIdx
-                    ? txIn.txInLinker.TXInPreImage.ConsumedTxIdx
+                    txIn.txInLinker.txInPreImage.consumedTxHash;
+                const consumedIdx = txIn.txInLinker.txInPreImage.consumedTxIdx
+                    ? txIn.txInLinker.txInPreImage.consumedTxIdx
                     : "0";
 
                 let txInObj;
@@ -674,7 +675,7 @@ export default class Tx {
                     signature = await prefixSVACurve(1, 2, signed);
                 }
 
-                txIn.Signature = signature;
+                txIn.signature = signature;
                 this.vin[i] = txIn;
             }
             for (let i = 0; i < parsedTransaction.vout.length; i++) {
@@ -696,7 +697,7 @@ export default class Tx {
                     const signed = await multiSig.aggregateSignatures(idxSig);
                     const signature = await prefixSVACurve(3, 2, signed);
 
-                    txOut.dataStore.Signature = signature;
+                    txOut.dataStore.signature = signature;
                 }
 
                 this.vout[i] = txOut;
@@ -724,9 +725,9 @@ export default class Tx {
                     JSON.stringify(parsedTransaction.vin[i])
                 );
                 const consumedHash =
-                    txIn.txInLinker.TXInPreImage.ConsumedTxHash;
-                const consumedIdx = txIn.txInLinker.TXInPreImage.ConsumedTxIdx
-                    ? txIn.txInLinker.TXInPreImage.ConsumedTxIdx
+                    txIn.txInLinker.txInPreImage.consumedTxHash;
+                const consumedIdx = txIn.txInLinker.txInPreImage.consumedTxIdx
+                    ? txIn.txInLinker.txInPreImage.consumedTxIdx
                     : "0";
 
                 let txInObj;
@@ -777,7 +778,7 @@ export default class Tx {
 
                 if (txOut.dataStore) {
                     const owner = await extractOwner(
-                        txOut.dataStore.dsLinker.DsPreImage.Owner
+                        txOut.dataStore.dsLinker.dsPreImage.owner
                     );
                     const ownerAccount = await this.wallet.account.getAccount(
                         owner[2]
@@ -789,7 +790,7 @@ export default class Tx {
                         signed
                     );
 
-                    txOut.dataStore.Signature = signature;
+                    txOut.dataStore.signature = signature;
                 }
 
                 this.vout[i] = txOut;

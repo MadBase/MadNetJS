@@ -63,7 +63,6 @@ export const isNumber = (
 ): string | number => {
     try {
         if (!Number.isInteger(parseInt(num.toString())) || typeof num === "boolean") {
-            console.log({ num });
             throw "No input or boolean provided";
         }
         if (typeof num === "bigint") {
