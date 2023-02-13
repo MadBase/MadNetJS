@@ -1,6 +1,6 @@
 {
-  "name": "@alicenet_/alicenetjs-legacy",
-  "version": "1.0.3",
+  "name": "@alicenet_/alicenetjs",
+  "version": "2.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
