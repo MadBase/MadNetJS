@@ -6,7 +6,7 @@
 ##
 
 ##### Install
-`npm i @alicenet_/alicenetjs-legacy`
+`npm i @alicenet_/alicenetjs`
 ##
 
 #### Usage
@@ -16,21 +16,34 @@
 > 
 > BN (curve = 2)
 ##### Require
+
+First AliceNetJS must be required where you would like to use it 
+-- To quickly inititiate AliceNetJS It needs the RPC url to connect to
+
 ```
 const AliceWallet = require("alicenetjs");
-const aliceWallet = new AliceWallet(${CHAIN_ID}, ${MADNET_RPC})
+const aliceWallet = new AliceWallet(${alicenet_rpc})
 ```
 
 ##### Add Account
+
+Accounts can be added to the wallet instance as secp256k1 (int(1)) or BN ((int(2)) curves via a private key
+
+If you wish to use MultiSig features, please opt for BN curve (2)
+
 ```
 await aliceWallet.Account.addAccount(${PRIVATE_KEY}, ${CURVE})
 ```
 ###### Example
 ```
-await aliceWallet.Account.addAccount(privateKey, 1);
+await aliceWallet.Account.addAccount(privateKey, 1); // Creates a secp256k1 curve based key pair account
 ```
 
 ##### Create A ValueStore
+
+Valuestores are used to move value of the utility token from one address to another
+
+The curve of the receiving address must be declared
 
 ```
 await aliceWallet.Transaction.createValueStore(0x${FROM}, ${VALUE}, 0x${TO}, ${TO_CURVE})
@@ -43,6 +56,9 @@ await aliceWallet.Transaction.createValueStore(aliceWallet.Account.accounts[0]["
 ```
 
 ##### Create A DataStore
+
+Datastores are used to store segments of data on chain for various use cases, data is stored as hexadecimal blobs
+
 ```
 await aliceWallet.Transaction.createDataStore(0x${FROM}, ${INDEX}, ${DURATION}, ${RAW_DATA}, !(optional){ISSUED_AT_EPOCH})
 ```
@@ -54,6 +70,9 @@ await aliceWallet.Transaction.createDataStore(aliceWallet.Account.accounts[0]["a
 ```
 
 ##### Send Transaction
+
+Transactions can contain both value stores and data stores ( Up to 255 ) -- Once all of have been created the transaction can be sent,
+
 ```
 await aliceWallet.sendTransaction(!(optional){CHANGE_ADDRESS}, !(optional){CHANGE_ADDRESS_CURVE}, !(optional)[{UTXOIDs}])
 ```
