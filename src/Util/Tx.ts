@@ -3,13 +3,13 @@ import { AccountCurve, DataStore, HexData } from "../types/Types";
 import { isHex, isNumber, numToHex } from "./Validator";
 
 /** @type  */
-export type SvaCurvePubhashTuple = [number, number, string][];
+export type SvaCurvePubhashTuple = [number | string, number | string, string];
 
 /**
  * @typedef TxUtils - Collection of Tx Utilities
  */
 
-/** Extract SVA | Curve | PubHash from a given DSPreImage.Owner "owner"
+/** Extract SVA | Curve | PubHash from a given dsPreImage.Owner "owner"
  * @param owner - The owner string
  */
 export const extractOwner = async (
@@ -39,19 +39,19 @@ export const extractOwner = async (
  * @param base - "" @Troy what is this exactly?
  */
 export const prefixSVACurve = async (
-    validation: string,
-    curve: AccountCurve,
+    validation: string | number | HexData,
+    curve: AccountCurve | HexData,
     base: string
 ) => {
     try {
-        validation = numToHex(validation);
-        curve = numToHex(curve);
+        validation = numToHex(validation.toString());
+        curve = numToHex(curve.toString());
         base = isHex(base);
         if (!validation || !curve || !base) {
             throw "Bad argument type";
         }
-        const v = Buffer.from(validation, "hex");
-        const c = Buffer.from(curve, "hex");
+        const v = Buffer.from(validation.toString(), "hex");
+        const c = Buffer.from(curve.toString(), "hex");
         const p = Buffer.from(base, "hex");
         const prefixed = Buffer.concat([v, c, p]);
         return prefixed.toString("hex");
@@ -66,7 +66,10 @@ export const prefixSVACurve = async (
  * @param {number} duration - How long the DataStore is to be stored
  * @return {number} The deposit cost
  */
-export const calculateDeposit = async (data: HexData, duration: number) => {
+export const calculateDeposit = async (
+    data: HexData | number,
+    duration: number | bigint
+) => {
     try {
         // dspi.go - BaseDepositEquation
         const dataSize = BigInt(Buffer.from(isHex(data), "hex").length);
@@ -85,19 +88,19 @@ export const calculateDeposit = async (data: HexData, duration: number) => {
 
 /**
  * Get remaing DataStore deposit value
- * @param {Object} DataStore
+ * @param {Object} dataStore
  * @return {number} deposit
  */
 export const remainingDeposit = async (
-    DataStore: DataStore,
+    dataStore: DataStore,
     thisEpoch: number
 ) => {
     try {
         // dspi.go - RemainingValue
-        const DSPreImage = DataStore.DSLinker.DSPreImage;
-        const issuedAt = DSPreImage.IssuedAt;
-        const deposit = BigInt("0x" + DSPreImage.Deposit);
-        const rawData = DSPreImage.RawData;
+        const dsPreImage = dataStore.dsLinker.dsPreImage;
+        const issuedAt = dsPreImage.issuedAt;
+        const deposit = BigInt("0x" + dsPreImage.deposit);
+        const rawData = dsPreImage.rawData;
         const dataSize = BigInt(Buffer.from(rawData, "hex").length);
         if (BigInt(thisEpoch) < BigInt(issuedAt)) {
             throw "thisEpoch < issuedAt";
@@ -129,7 +132,10 @@ export const remainingDeposit = async (
  * @param {number} deposit
  * @return {number} epochs
  */
-export const calculateNumEpochs = async (dataSize: number, deposit: number) => {
+export const calculateNumEpochs = async (
+    dataSize: number | bigint,
+    deposit: number | bigint
+) => {
     try {
         if (BigInt(dataSize) > BigInt(MaxDataStoreSize)) {
             throw "Data size is too large";
@@ -153,7 +159,10 @@ export const calculateNumEpochs = async (dataSize: number, deposit: number) => {
  * @param {number} numEpochs
  * @returns {number} dsFee
  */
-export const calculateFee = async (dsFee: number, numEpochs: number) => {
+export const calculateFee = async (
+    dsFee: number | string | bigint,
+    numEpochs: number | bigint
+) => {
     try {
         return BigInt(
             BigInt(dsFee) * BigInt(BigInt(numEpochs) + BigInt(2))

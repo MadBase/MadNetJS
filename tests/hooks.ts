@@ -1,12 +1,14 @@
 /**
  * A Root Hook Plugin is loaded via --require which “registers” one or more root hooks to be used across all test files.
  */
-require('dotenv').config({ path: process.cwd() + '/.env' });
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
+import * as dotenv from 'dotenv';
+import * as chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+
+dotenv.config({ path: process.cwd() + '/.env' });
 chai.use(chaiAsPromised);
 
-exports.mochaHooks = {
+export default {
 	async beforeAll() {
 		try {
 			if(!process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY) {

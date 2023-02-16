@@ -10,7 +10,7 @@ const validHex = /^[0-9a-fA-F]+$/;
  * @param str
  * @returns { string }
  */
-export const isHex = (str: string): string => {
+export const isHex = (str: string | number | boolean | HexData): string => {
     try {
         if (!str || typeof str != "string") {
             throw "No input provided";
@@ -54,7 +54,7 @@ export const isPrivateKey = (str: PrivateKeyString): PrivateKeyString => {
 };
 
 /**
- * Verifies that a passed number is a number and formats it as a Number or BigInt string
+ * Verifies that a passed number is a number and formats it as a Number or bigint string
  * @param num - The number to validate
  * @returns {string|Number}
  */
@@ -62,15 +62,15 @@ export const isNumber = (
     num: string | bigint | number | boolean
 ): string | number => {
     try {
-        if (!num || typeof num === "boolean") {
+        if (!Number.isInteger(parseInt(num.toString())) || typeof num === "boolean") {
             throw "No input or boolean provided";
         }
         if (typeof num === "bigint") {
             num = num.toString();
-            return num;
+            return parseInt(num);
         }
         if (typeof num === "string") {
-            if (!parseInt(num) || !Number.isInteger(parseInt(num))) {
+            if (!Number.isInteger(parseInt(num))) {
                 throw "Invalid number";
             }
             return parseInt(num);
@@ -124,11 +124,11 @@ export const isAddress = (str: string): PublicAddress => {
 };
 
 /**
- * Takes an expected BigInt and validated * formats it
- * @param bn - The expcted BigInt
- * @returns {BigInt}
+ * Takes an expected bigint and validated * formats it
+ * @param bn - The expcted bigint
+ * @returns {bigint}
  */
-export const isBigInt = (bn): BigInt => {
+export const isBigInt = (bn): bigint => {
     try {
         return BigInt(bn);
     } catch (ex) {
@@ -144,7 +144,8 @@ export const isBigInt = (bn): BigInt => {
 export const numToHex = (num: string | number | bigint | boolean): HexData => {
     try {
         let decimal = isNumber(num);
-        if (!decimal) {
+        // TODO Improve this code
+        if (!Number.isInteger(decimal)) {
             throw "Not a number";
         }
         let h = BigInt(num).toString(16);
@@ -178,7 +179,7 @@ export const hexToInt = (hex: string): string => {
  */
 export const hexToTxt = (hex: HexData): string => {
     try {
-        return Buffer.from(hex, "hex").toString("utf8");
+        return Buffer.from(hex.toString(), "hex").toString("utf8");
     } catch (ex) {
         throw new Error("Validator.hexToTxt\r\n" + String(ex));
     }

@@ -1,11 +1,12 @@
-import { post } from "./Http/Api";
+import Axios from "./Http/Api";
 import * as constant from "./Config/Constants";
-import { Utxo } from "./types/Types";
+import { Utxo, RpcFee } from "./types/Types";
+import { PolledTxObject } from "./Transaction";
 import { addTrailingSlash } from "./Util/String";
 import Wallet from "./Wallet";
 
 interface DsAndIndices {
-    Results?: Array<any>;
+    Results?: any[];
     UTXOID?: Utxo;
 }
 
@@ -15,13 +16,17 @@ export interface RpcResponse {
     Epoch: number;
     MinTxFee: Object; // TODO Needs defined in Transaction.ts
     UTXOs: Utxo[];
-    UTXOIDs: string[];
+    UTXOIDs: never[];
     TotalValue: bigint | string;
     PaginationToken: string;
-    Results: Array<any>; // TODO Needs defined in Transaction.ts
+    Results: any[]; // TODO Needs defined in Transaction.ts
     Rawdata: string;
     Tx: any; // TODO Needs defined in Transaction/Tx.ts
     TxHash: string;
+    IsMined: boolean;
+    minTxFee: string;
+    ValueStoreFee: string;
+    DataStoreFee: string;
 }
 
 /**
@@ -33,7 +38,7 @@ export interface RpcResponse {
  */
 export default class RPC {
     wallet: Wallet;
-    rpcServer: string;
+    rpcServer: string | boolean;
     rpcTimeout: number;
 
     /**
@@ -54,11 +59,11 @@ export default class RPC {
      * @throws RPC server not provided
      * @returns {number} ChainId
      */
-    async setProvider(rpcServer: string): Promise<number> {
+    async setProvider(rpcServer: string | boolean): Promise<number> {
         try {
             if (!rpcServer) throw "RPC server not provided";
 
-            this.rpcServer = addTrailingSlash(rpcServer);
+            this.rpcServer = addTrailingSlash(rpcServer.toString());
 
             const chainId = await this.getChainId();
             this.wallet.chainId = chainId;
@@ -76,7 +81,7 @@ export default class RPC {
      * @returns {number} Block Header
      */
     async getBlockHeader(height: number): Promise<number> {
-        height = this.wallet.utils.isNumber(height);
+        height = this.wallet.utils.validator.isNumber(height);
         try {
             const BH = await this.request("get-block-header", {
                 Height: height,
@@ -117,7 +122,7 @@ export default class RPC {
             // Directly call API for chainID to avoid recursive loop from this.request()'s chainID dependency
             const {
                 data: { ChainID = null },
-            } = await post({
+            } = await Axios.post({
                 url: this.rpcServer + "get-chain-id",
                 data: {},
                 config: {
@@ -155,13 +160,17 @@ export default class RPC {
      * @throws Could not get fees
      * @returns {Object} Fees
      */
-    async getFees(): Promise<Object> {
+    async getFees(): Promise<RpcFee> {
         try {
             const fees = await this.request("get-fees");
 
             if (!fees.MinTxFee) throw "Could not get fees";
 
-            return fees;
+            return {
+                minTxFee: fees.MinTxFee,
+                valueStoreFee: fees.ValueStoreFee,
+                dataStoreFee: fees.DataStoreFee,
+            };
         } catch (ex) {
             throw new Error("RPC.getFees\r\n" + String(ex));
         }
@@ -192,7 +201,6 @@ export default class RPC {
                         (i + 1) * constant.MaxUTXOs
                     ),
                 };
-
                 let utxos = await this.request("get-utxo", reqData);
 
                 if (!utxos.UTXOs) utxos.UTXOs = [];
@@ -228,13 +236,13 @@ export default class RPC {
         try {
             if (!address || !curve) throw "Invalid arguments";
 
-            address = this.wallet.utils.isAddress(address);
-            curve = this.wallet.utils.isNumber(curve);
+            address = this.wallet.utils.validator.isAddress(address);
+            curve = this.wallet.utils.validator.isNumber(curve);
 
             if (!minValue) {
                 minValue = constant.MaxValue;
             } else {
-                minValue = this.wallet.utils.numToHex(minValue);
+                minValue = this.wallet.utils.validator.numToHex(minValue);
             }
 
             const valueForOwner = {
@@ -243,7 +251,6 @@ export default class RPC {
                 Minvalue: minValue,
                 PaginationToken: "",
             };
-
             let runningUtxos = [];
             let runningTotalBigInt = BigInt("0");
 
@@ -252,7 +259,6 @@ export default class RPC {
                     "get-value-for-owner",
                     valueForOwner
                 );
-
                 if (
                     !value.UTXOIDs ||
                     value.UTXOIDs.length == 0 ||
@@ -294,13 +300,13 @@ export default class RPC {
         address: string,
         curve: number,
         limit: number,
-        offset: string | number
+        offset: string | number | boolean
     ): Promise<Object[]> {
         try {
             if (!address || !curve) throw "Invalid arguments";
 
-            address = this.wallet.utils.isAddress(address);
-            curve = this.wallet.utils.isNumber(curve);
+            address = this.wallet.utils.validator.isAddress(address);
+            curve = this.wallet.utils.validator.isNumber(curve);
 
             let getAll = false;
 
@@ -309,12 +315,12 @@ export default class RPC {
 
                 limit = constant.MaxUTXOs;
             } else {
-                limit = this.wallet.utils.isNumber(limit);
+                limit = this.wallet.utils.validator.isNumber(limit);
             }
             if (!offset) {
                 offset = "";
             } else {
-                offset = this.wallet.utils.isHex(offset);
+                offset = this.wallet.utils.validator.isHex(offset);
             }
 
             let DataStoreUTXOResults = [];
@@ -326,7 +332,6 @@ export default class RPC {
                     Number: limit,
                     StartIndex: offset,
                 };
-
                 let dataStoreIDs = await this.request(
                     "iterate-name-space",
                     reqData
@@ -381,7 +386,6 @@ export default class RPC {
             dsAndIndices.forEach((dsAndIdx) => {
                 DataStoreUTXOIDs.push(dsAndIdx.UTXOID);
             });
-
             return DataStoreUTXOIDs;
         } catch (ex) {
             throw new Error("RPC.getDataStoreUTXOIDs\r\n" + String(ex));
@@ -403,9 +407,9 @@ export default class RPC {
         index: string
     ): Promise<string> {
         try {
-            address = this.wallet.utils.isAddress(address);
-            curve = this.wallet.utils.isNumber(curve);
-            index = this.wallet.utils.isHex(index);
+            address = this.wallet.utils.validator.isAddress(address);
+            curve = this.wallet.utils.validator.isNumber(curve);
+            index = this.wallet.utils.validator.isHex(index);
 
             if (!address || !index || !curve) throw "Invalid arguments";
 
@@ -414,7 +418,6 @@ export default class RPC {
                 CurveSpec: curve,
                 Index: index,
             };
-
             const dataStoreData = await this.request("get-data", reqData);
 
             if (!dataStoreData.Rawdata) throw "Data not found";
@@ -436,7 +439,7 @@ export default class RPC {
         address: string,
         curve: number,
         index: string
-    ): Promise<Object | boolean> {
+    ): Promise<any> { // TODO type any here for unit tests pass - needs to be adjusted
         try {
             const dsUTXOIDS = await this.getDataStoreUTXOIDs(
                 address,
@@ -444,7 +447,6 @@ export default class RPC {
                 1,
                 index
             );
-
             if (dsUTXOIDS.length > 0) {
                 const [DS] = await this.getUTXOsByIds(dsUTXOIDS);
 
@@ -549,7 +551,7 @@ export default class RPC {
         countMax: number = 30,
         startDelay: number = 1000,
         currCount: number = 1
-    ): Promise<Object> {
+    ): Promise<PolledTxObject> {
         try {
             if (!txHash) throw "Argument txHash cannot be empty";
 
@@ -558,7 +560,7 @@ export default class RPC {
                 ReturnTx: true,
             });
 
-            return status;
+            return { tx: status.Tx, isMined: status.IsMined };
         } catch (ex) {
             if (currCount > countMax) {
                 throw new Error("RPC.getTxStatus\r\n" + String(ex));
@@ -595,7 +597,6 @@ export default class RPC {
             if (currCount > 30) {
                 throw new Error("RPC.monitorPending\r\n" + String(ex));
             }
-
             await this.sleep(startDelay);
             await this.monitorPending(
                 tx,
@@ -631,14 +632,14 @@ export default class RPC {
 
             while (true) {
                 try {
-                    resp = await post({
+                    resp = await Axios.post({
                         url: this.rpcServer + route,
                         data: data,
                         config: {
                             timeout: this.rpcTimeout,
                             validateStatus: function (status) {
                                 // TODO: this expects a boolean
-                                return status;
+                                return Boolean(status);
                             },
                         },
                     });
@@ -648,7 +649,6 @@ export default class RPC {
                         timeout,
                         String(ex)
                     );
-
                     continue;
                 }
 
@@ -661,7 +661,6 @@ export default class RPC {
                         timeout,
                         parsedErr
                     );
-
                     continue;
                 }
 

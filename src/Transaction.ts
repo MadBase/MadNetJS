@@ -1,11 +1,35 @@
 import Tx, { RpcTxObject } from "./Transaction/Tx";
 import * as Constants from "./Config/Constants";
-import { DataStore, RpcFee, Utxo, ValueStore } from "./types/Types";
+import {
+    DataStore,
+    RpcFee,
+    Utxo,
+    ValueStore,
+    FeeEstimates,
+    Vout,
+} from "./types/Types";
 import Wallet from "./Wallet";
+import {
+    hexToInt,
+    isAddress,
+    isBigInt,
+    isCurve,
+    isHex,
+    isNumber,
+    numToHex,
+    txtToHex,
+} from "./Util/Validator";
+import {
+    calculateDeposit,
+    calculateFee,
+    prefixSVACurve,
+    remainingDeposit,
+} from "./Util/Tx";
+import { sleep } from "./Util/Generic";
 
 export interface PolledTxObject {
     tx: Tx;
-    txHash: string;
+    txHash?: string;
     isMined: Boolean;
 }
 
@@ -86,19 +110,19 @@ export default class Transaction {
                             return this.PolledTxObject(
                                 txHash,
                                 false,
-                                txStatus.Tx
+                                txStatus.tx
                             );
                         }
 
-                        if (txStatus.IsMined) {
+                        if (txStatus.isMined) {
                             return this.PolledTxObject(
                                 txHash,
                                 true,
-                                txStatus.Tx
+                                txStatus.tx
                             );
                         } else {
                             waited += 2000;
-                            await this.wallet.utils.sleep(2000);
+                            await sleep(2000);
 
                             return null;
                         }
@@ -143,6 +167,7 @@ export default class Transaction {
 
             return txHash;
         } catch (ex) {
+            console.trace({ ex })
             this._reset();
 
             throw new Error("Transaction.sendTx\r\n" + String(ex));
@@ -164,7 +189,7 @@ export default class Transaction {
         changeAddress: string,
         changeAddressCurve: string,
         UTXOIDs: any[] = []
-    ): Promise<Tx> {
+    ): Promise<PendingTxObject> {
         try {
             if (this.transaction.fee === "0") throw "No Tx fee added";
             if (this.transaction.vout.length <= 0) {
@@ -260,7 +285,7 @@ export default class Transaction {
         changeAddressCurve: string,
         UTXOIDs: String[] = [],
         returnInsufficientOnGas: Boolean
-    ): Promise<RpcFee> {
+    ): Promise<FeeEstimates> {
         try {
             if (this.transaction.fee === "0") throw "No Tx fee added to tx";
             if (this.transaction.vout.length <= 0) {
@@ -306,28 +331,28 @@ export default class Transaction {
      */
     async createTxFee(
         payeerAddress: string,
-        payeerCurve: Number,
+        payeerCurve: number,
         fee: number | bigint
     ) {
         try {
             if (!payeerAddress || !payeerCurve) throw "Missing arguments";
 
-            payeerAddress = this.wallet.utils.isAddress(payeerAddress);
-            payeerCurve = this.wallet.utils.isCurve(payeerCurve);
+            payeerAddress = isAddress(payeerAddress);
+            payeerCurve = isCurve(payeerCurve);
 
             if (!fee) {
                 if (!this.fees.minTxFee) await this._getFees();
 
                 fee = BigInt("0x" + this.fees.minTxFee);
             } else {
-                fee = this.wallet.utils.isBigInt(fee);
+                fee = isBigInt(fee);
 
                 if (fee <= BigInt(0)) throw "Invalid value";
             }
 
             const account = await this.wallet.account.getAccount(payeerAddress);
 
-            this.transaction.txFee(this.wallet.utils.numToHex(fee));
+            this.transaction.TxFee(fee);
 
             await this._addOutValue(fee, account.address);
         } catch (ex) {
@@ -353,35 +378,35 @@ export default class Transaction {
         from: string,
         value: number | bigint | string,
         to: string,
-        toCurve: Number,
+        toCurve: number | string,
         fee?: string
-    ): Promise<ValueStore> {
+    ): Promise<Vout> {
         try {
             if (!from || !to || !value || !toCurve) throw "Missing arugments";
 
-            from = this.wallet.utils.isAddress(from);
-            value = this.wallet.utils.isBigInt(value);
-            toCurve = this.wallet.utils.isCurve(toCurve);
-            to = this.wallet.utils.isAddress(to);
+            from = isAddress(from);
+            value = isBigInt(value);
+            toCurve = isCurve(toCurve);
+            to = isAddress(to);
 
             if (value <= BigInt(0)) throw "Invalid value";
 
             if (fee) {
-                fee = this.wallet.utils.numToHex(fee);
                 if (this.wallet.rpc.rpcServer) {
-                    if (!this.fees.valueStoreFee) {
+                    if (!this.fees?.valueStoreFee) {
                         await this._getFees();
                     }
+
                     if (
                         BigInt("0x" + this.fees.valueStoreFee) <
-                        BigInt("0x" + fee)
+                        BigInt("0x" + numToHex(fee))
                     ) {
                         throw "Fee too low";
                     }
                 }
             } else {
                 if (this.wallet.rpc.rpcServer) {
-                    if (!this.fees.valueStoreFee) {
+                    if (!this.fees?.valueStoreFee) {
                         await this._getFees();
                     }
                     fee = this.fees.valueStoreFee;
@@ -394,20 +419,16 @@ export default class Transaction {
 
             if (!account.curve) throw "Cannot get curve";
 
-            const owner = await this.wallet.utils.prefixSVACurve(
-                1,
-                toCurve,
-                to
-            );
+            const owner = await prefixSVACurve(1, toCurve, to);
 
             const vStore = this.transaction.ValueStore(
-                this.wallet.utils.numToHex(value),
+                Number(value),
                 this.transaction.vout.length,
                 owner,
                 fee
             );
 
-            const total = BigInt(value) + BigInt("0x" + fee);
+            const total = BigInt(value) + BigInt("0x" + numToHex(fee));
 
             await this._addOutValue(total, account.address);
 
@@ -440,15 +461,15 @@ export default class Transaction {
         duration: number | bigint,
         rawData: string,
         issuedAt: Number | any = 0,
-        fee: Number
-    ): Promise<DataStore> {
+        fee: number
+    ): Promise<Vout> {
         try {
             if (!from || !index || !duration || !rawData) {
                 throw "Missing arguments";
             }
 
-            from = this.wallet.utils.isAddress(from);
-            duration = this.wallet.utils.isBigInt(duration);
+            from = isAddress(from);
+            duration = isBigInt(duration);
 
             if (duration <= BigInt(0)) throw "Invalid duration";
 
@@ -457,7 +478,7 @@ export default class Transaction {
             if (!account) throw "Cannot get account";
 
             if (issuedAt) {
-                issuedAt = this.wallet.utils.isNumber(issuedAt);
+                issuedAt = isNumber(issuedAt);
             } else {
                 if (!this.wallet.rpc.rpcServer) {
                     throw "RPC server must be set to fetch epoch";
@@ -473,44 +494,35 @@ export default class Transaction {
                 }
             }
 
-            rawData =
+            const rawDataHex =
                 rawData.indexOf("0x") === 0
-                    ? this.wallet.utils.isHex(rawData)
-                    : this.wallet.utils.txtToHex(rawData);
+                    ? isHex(rawData)
+                    : txtToHex(rawData);
 
-            let deposit = await this.wallet.utils.calculateDeposit(
-                rawData,
-                duration
-            );
-            deposit = this.wallet.utils.isBigInt(deposit);
+            let deposit = await calculateDeposit(rawDataHex, duration);
+            deposit = isBigInt(deposit);
 
-            const owner = await this.wallet.utils.prefixSVACurve(
+            const owner = await prefixSVACurve(
                 3,
                 account.curve,
                 account.address
             );
             const txIdx = this.transaction.vout.length;
 
-            index =
-                index.indexOf("0x") === 0
-                    ? this.wallet.utils.isHex(index)
-                    : (index = this.wallet.utils.txtToHex(index));
+            let indexHex =
+                index.indexOf("0x") === 0 ? isHex(index) : txtToHex(index);
 
-            if (index.length > 64) {
+            if (indexHex.length > 64) {
                 throw "Index too large";
-            } else if (index.length != 64) {
-                index = index.padStart(64, "0");
-            }
-
-            if (fee) {
-                fee = this.wallet.utils.numToHex(fee);
+            } else if (indexHex.length != 64) {
+                indexHex = indexHex.toString().padStart(64, "0");
             }
 
             if (this.wallet.rpc.rpcServer) {
-                if (!this.fees.dataStoreFee) await this._getFees();
+                if (!this.fees?.dataStoreFee) await this._getFees();
 
-                let calculatedFee = await this.wallet.utils.calculateFee(
-                    this.wallet.utils.hexToInt(this.fees.dataStoreFee),
+                let calculatedFee = await calculateFee(
+                    hexToInt(this.fees?.dataStoreFee),
                     duration
                 );
 
@@ -519,25 +531,25 @@ export default class Transaction {
                         throw "Invalid fee";
                     }
                 } else {
-                    fee = this.wallet.utils.numToHex(calculatedFee);
+                    fee = parseInt(calculatedFee);
                 }
             } else {
                 if (!fee) throw "RPC server must be set to fetch fee";
             }
 
             const dStore = this.transaction.DataStore(
-                index,
+                indexHex.toString(),
                 issuedAt,
-                this.wallet.utils.numToHex(deposit),
+                parseInt(numToHex(deposit).toString()),
                 rawData,
                 txIdx,
                 owner,
                 fee
             );
-            const total = BigInt(deposit) + BigInt("0x" + fee);
+            const total = BigInt(deposit) + BigInt("0x" + numToHex(fee));
 
             await this._addOutValue(total, account.address, {
-                index: index,
+                index: indexHex,
                 epoch: issuedAt,
             });
 
@@ -572,7 +584,7 @@ export default class Transaction {
      * @param {hex|any} [dsIndex=false]
      */
     async _addOutValue(
-        value: Number | bigint,
+        value: number | bigint,
         ownerAddress: string,
         dsIndex?: string | any
     ) {
@@ -652,10 +664,10 @@ export default class Transaction {
                     // Skip if the store doesn't equal datastore for spending
                     if (
                         DS &&
-                        DS.DSLinker.DSPreImage.Index ==
+                        DS.dsLinker.dsPreImage.index ==
                             outValue.dsIndex[i].index
                     ) {
-                        const reward = await this.wallet.utils.remainingDeposit(
+                        const reward = await remainingDeposit(
                             DS,
                             outValue.dsIndex[i].epoch
                         );
@@ -768,7 +780,7 @@ export default class Transaction {
      */
     async _createDataTxIn(address: string, utxo: Utxo) {
         try {
-            this.transaction.txIn(
+            this.transaction.TxIn(
                 utxo.dsLinker.TxHash,
                 utxo.dsLinker.DSPreImage.TXOutIdx
                     ? utxo.dsLinker.DSPreImage.TXOutIdx
@@ -805,7 +817,7 @@ export default class Transaction {
         changeAddressCurve: string
     ) {
         try {
-            accountUTXO = accountUTXO.ValueStores;
+            accountUTXO = accountUTXO.valueStores;
 
             while (true) {
                 let highestUnspent: any = false;

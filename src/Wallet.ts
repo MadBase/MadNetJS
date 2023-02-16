@@ -5,13 +5,13 @@ import { isNumber } from "./Util/Validator";
 import Util from "./Util";
 
 interface WalletConstructorParams {
-    chainId: Number;
-    account: Account;
-    transaction: Transaction;
-    rpc: RPC;
-    utils: any;
-    rpcServer: any;
-    rpcTimeout: any;
+    chainId?: number | string | undefined;
+    account?: Account;
+    transaction?: Transaction;
+    rpc?: RPC;
+    utils?: any;
+    rpcServer?: any;
+    rpcTimeout?: any;
 }
 
 /**
@@ -25,15 +25,15 @@ interface WalletConstructorParams {
  * @property {UtilityCollection} Utils - Utility Collection
  */
 export default class Wallet {
-    chainId: Number;
+    chainId: number | string | undefined;
     account: Account;
     transaction: Transaction;
     rpc: RPC;
-    utils: any;
+    utils: any; // TODO: typeof Util
 
     /**
      * Creates an instance of Wallet.
-     * @param {WalletParams} params
+     * @param {WalletType} params
      */
     constructor(...params: WalletConstructorParams[]) {
         const { chainId, rpcServer, rpcTimeout } =
@@ -49,7 +49,7 @@ export default class Wallet {
     /**
      * Initializes Wallet parameters.
      * @param {WalletParams} params - Accepts a chainId and rpcServer arguments for backwards compatibility, a shorthand instancing w/ RPC endpoint only or object Based configuration
-     * @returns {Object<WalletParams>} Wallet parameters
+     * @returns {Object<WalletType>} Wallet parameters
      */
     _initializeParams(params: WalletConstructorParams[]) {
         let chainId, rpcServer, rpcTimeout;

@@ -20,11 +20,11 @@ async function main() {
         const privateKey = process.env.OPTIONAL_TEST_SUITE_PRIVATE_KEY;
         const secondaryPrivateKey = process.env.OPTIONAL_TEST_SUITE_SECONDARY_PRIVATE_KEY;
 
-        await madWallet.Account.addAccount(privateKey, 1);
-        await madWallet.Account.addAccount(secondaryPrivateKey, 1);
+        await madWallet.account.addAccount(privateKey, 1);
+        await madWallet.account.addAccount(secondaryPrivateKey, 1);
 
-        const secpAccount = madWallet.Account.accounts[0]; 
-        const secpSecondaryAccount = madWallet.Account.accounts[1];
+        const secpAccount = madWallet.account.accounts[0];
+        const secpSecondaryAccount = madWallet.account.accounts[1];
 
         try {
             console.log('// Create value store object for tx');
@@ -32,10 +32,10 @@ async function main() {
 
             console.log('// Create tx fee');
             await madWallet.Transaction.createTxFee(secpAccount.address, 1, false);
-            
+
             console.log('// Sending transaction..');
             const txHash = await madWallet.Transaction.sendTx(secpAccount.address, 1);
-            
+
             console.log('// Retrieve valid txHash');
             const validTxHash = await waitForTx(txHash);
 

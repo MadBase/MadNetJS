@@ -1,5 +1,6 @@
-import BNSignerWrapper from "../GoWrappers/BNSignerWrapper";
+import * as BNSignerWrapper from "../GoWrappers/BNSignerWrapper";
 import BNSigner from "./BNSigner";
+import { WalletType } from "../types/Types";
 
 /**
  * MultiSig
@@ -9,7 +10,7 @@ import BNSigner from "./BNSigner";
  * @property {Array} publicKeys - Public Keys
  */
 export default class MultiSig {
-    Wallet: any; // TODO: Wallet type
+    wallet: any; // TODO: Wallet type
     bnSigner: any; // TODO
     publicKeys: any; // TODO
     publicKey: string;
@@ -19,12 +20,12 @@ export default class MultiSig {
      * @param {Object} Wallet - Circular wallet reference to use internally of Account class
      * @param {Object} signer - Signer instance
      */
-    constructor(wallet?: any /* TODO: Wallet type */, bnSigner?: any) {
+    constructor(wallet?: WalletType, bnSigner?: any) {
         if (bnSigner && !(bnSigner instanceof BNSigner)) {
             throw new Error("bnSigner param must be an instance of BnSigner");
         }
 
-        this.Wallet = wallet;
+        this.wallet = wallet;
         this.bnSigner = bnSigner;
         this.publicKeys = [];
     }
@@ -71,7 +72,7 @@ export default class MultiSig {
      * @throws Need public keys
      * @returns {hex} Address
      */
-    async getAddress() {
+    async getAddress(multiSig?: any) {
         try {
             if (!this.publicKeys || parseInt(this.publicKeys.length) === 0) {
                 throw "Need public keys";
@@ -138,7 +139,7 @@ export default class MultiSig {
      * @param {Array<hex>} signature
      * @returns {Array<hex>} Signature
      */
-    async aggregateSignatures(signatures: string[]) {
+    async aggregateSignatures(signatures: any) {
         try {
             return await BNSignerWrapper.AggregateSignatures(signatures);
         } catch (ex) {
@@ -175,7 +176,10 @@ export default class MultiSig {
      */
     async verifyAggregate(msg: string, sig: string) {
         try {
-            return await this.Wallet.Utils.MultiSigVerifyAggregate(msg, sig);
+            return await this.wallet.utils.verifySignature.MultiSigVerifyAggregate(
+                msg,
+                sig
+            );
         } catch (ex) {
             throw new Error(
                 "BNAggregate.verifyAggregateSingle\r\n" + String(ex)
@@ -191,7 +195,7 @@ export default class MultiSig {
      */
     async verifyAggregateSingle(msg: string, groupPubKey: string, sig: string) {
         try {
-            return await this.Wallet.Utils.MultiSigVerifyAggregateSingle(
+            return await this.wallet.utils.verifySignature.MultiSigVerifyAggregateSingle(
                 msg,
                 groupPubKey,
                 sig

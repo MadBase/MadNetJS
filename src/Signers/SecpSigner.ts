@@ -1,5 +1,7 @@
-import ethUtil from "ethereumjs-util";
-import { ecdsaSign, ecdsaRecover } from "secp256k1";
+import { keccak256, privateToPublic, pubToAddress } from "ethereumjs-util";
+import { isHex } from "../Util/Validator";
+import pkg from "secp256k1";
+const { ecdsaSign, ecdsaRecover } = pkg;
 
 /**
  * SECP256k1 signer
@@ -18,7 +20,7 @@ export default class SecpSigner {
      */
     constructor(Wallet: any /* TODO: Wallet type */, privK: string) {
         this.Wallet = Wallet;
-        this.privK = this.Wallet.Utils.isHex(privK);
+        this.privK = isHex(privK);
     }
 
     /**
@@ -30,10 +32,10 @@ export default class SecpSigner {
      */
     async sign(msg: string): Promise<string> {
         try {
-            if (!this.Wallet.Utils.isHex(msg)) throw "Bad argument type";
+            if (!isHex(msg)) throw "Bad argument type";
             if (!this.privK) throw "Private key not set";
 
-            const msgBuffer = ethUtil.keccak256(Buffer.from(msg, "hex"));
+            const msgBuffer = keccak256(Buffer.from(msg, "hex"));
             const privK = Buffer.from(this.privK, "hex");
             const signature = ecdsaSign(msgBuffer, privK);
 
@@ -77,9 +79,8 @@ export default class SecpSigner {
      */
     async verify(msg: string, sig: string): Promise<Uint8Array> {
         try {
-            if (!this.Wallet.Utils.isHex(msg) || !this.Wallet.Utils.isHex(sig))
+            if (!isHex(msg) || !isHex(sig))
                 throw "Bad argument type";
-
             // Get and parse recid from last byte of passed hexadecimal signature from this.sign() method
             const recidByteString = sig.slice(sig.length - 2);
 
@@ -92,7 +93,7 @@ export default class SecpSigner {
             sig = sig.slice(0, sig.length - 2);
 
             // Get buffer represenation of msg, and hash as keccak256, just as sign() does
-            const msgBuffer = ethUtil.keccak256(Buffer.from(msg, "hex"));
+            const msgBuffer = keccak256(Buffer.from(msg, "hex"));
 
             // Get msg and sig as Uint8Arrays for ecdsaRecover
             const uint8Msg = Uint8Array.from(msgBuffer);
@@ -136,7 +137,7 @@ export default class SecpSigner {
         try {
             if (!this.privK) throw "Private key not set";
 
-            const pubKey = ethUtil.privateToPublic(
+            const pubKey = privateToPublic(
                 Buffer.from(this.privK, "hex")
             );
 
@@ -156,7 +157,7 @@ export default class SecpSigner {
 
             if (pubK.length === 32) return pubK.slice(12);
 
-            return ethUtil.pubToAddress(pubK).toString("hex");
+            return pubToAddress(pubK).toString("hex");
         } catch (ex) {
             throw new Error("MultiSigner.getAddress\r\n" + String(ex));
         }

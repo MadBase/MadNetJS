@@ -25,8 +25,8 @@ export const requestTestnetFunds = async (
         if (!address || !faucetServer) {
             throw "Arguments address and faucetServer cannot be empty";
         }
-        const validAddress: boolean = isAddress(address);
-        const res = await Axios.post(
+        const validAddress = isAddress(address);
+        const res: any = await Axios.post( // TODO type any here for tests only
             faucetServer + "/faucet/",
             {
                 address: validAddress,

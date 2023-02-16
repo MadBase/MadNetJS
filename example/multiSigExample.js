@@ -4,19 +4,19 @@ const madWallet = new MadWalletJS(false, process.env.RPC);
 async function main() {
     try {
         // add 2 bn curve addresses
-        await madWallet.Account.addAccount("6aea45ee1273170fb525da34015e4f20ba39fe792f486ba74020bcacc9badfc1", 2)
-        await madWallet.Account.addAccount("6aea45ee1273170fb525da34015e4f20ba39fe792f486ba74020bcacc9badfc2", 2)
-        await madWallet.Account.addAccount("6aea45ee1273170fb525da34015e4f20ba39fe792f486ba74020bcacc9badfc1", 1)
+        await madWallet.account.addAccount("6aea45ee1273170fb525da34015e4f20ba39fe792f486ba74020bcacc9badfc1", 2)
+        await madWallet.account.addAccount("6aea45ee1273170fb525da34015e4f20ba39fe792f486ba74020bcacc9badfc2", 2)
+        await madWallet.account.addAccount("6aea45ee1273170fb525da34015e4f20ba39fe792f486ba74020bcacc9badfc1", 1)
 
-        let acct1 = await madWallet.Account.getAccount(madWallet.Account.accounts[0]["address"])
+        let acct1 = await madWallet.account.getAccount(madWallet.account.accounts[0]["address"])
         let acct1p = await acct1.signer.getPubK()
-        let acct2 = await madWallet.Account.getAccount(madWallet.Account.accounts[1]["address"])
+        let acct2 = await madWallet.account.getAccount(madWallet.account.accounts[1]["address"])
         let acct2p = await acct2.signer.getPubK()
         console.log("Public Key #1:", acct1p)
         console.log("Public Key #2:", acct2p)
         console.log("-------------------")
 
-        let multiAcct = await madWallet.Account.addMultiSig([acct1p, acct2p])
+        let multiAcct = await madWallet.account.addMultiSig([acct1p, acct2p])
 
         console.log("Aggregated Public Key:", await multiAcct.signer.getPubK())
         console.log("----------------")
@@ -61,8 +61,8 @@ async function main() {
 
         /*
             console.log("Funding multisig address...")
-            await madWallet.Transaction.createValueStore(madWallet.Account.accounts[2]["address"], 10000, multiAcct.address, 2)
-            await madWallet.Transaction.createTxFee(madWallet.Account.accounts[2]["address"], 1, BigInt("0x" + fees.baseFees["MinTxFee"]))
+            await madWallet.Transaction.createValueStore(madWallet.account.accounts[2]["address"], 10000, multiAcct.address, 2)
+            await madWallet.Transaction.createTxFee(madWallet.account.accounts[2]["address"], 1, BigInt("0x" + fees.baseFees["MinTxFee"]))
             await madWallet.Transaction.sendTx();
             console.log("Done")
             console.log("--------------------")
@@ -82,7 +82,7 @@ async function main() {
 
         let sigs2Vin = await acct2.signer.multiSig.signMulti(sigMsgs["Vin"], multiPubK)
         let sigs2Vout = await acct2.signer.multiSig.signMulti(sigMsgs["Vout"], multiPubK)
-  
+
         await madWallet.Transaction.Tx.injectSignaturesAggregate([sigs1Vin, sigs2Vin], [sigs1Vout, sigs2Vout])
         console.log("Done")
         console.log("--------------------------")
