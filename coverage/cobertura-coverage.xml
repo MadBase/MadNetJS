@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
-<coverage lines-valid="1264" lines-covered="944" line-rate="0.7468" branches-valid="641" branches-covered="391" branch-rate="0.6099" timestamp="1676057744288" complexity="0" version="0.1">
+<coverage lines-valid="1264" lines-covered="944" line-rate="0.7468" branches-valid="641" branches-covered="391" branch-rate="0.6099" timestamp="1676314219463" complexity="0" version="0.1">
   <sources>
     <source>/Users/evertonrenan/Dev/clevertech/alicenet/alicenetjs</source>
   </sources>

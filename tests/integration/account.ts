@@ -217,7 +217,6 @@ describe('Integration/Account:', () => {
         it('Success: Get value stores from account helper', async () => {
             await secpAccount.getAccountValueStores(0);
             const account = await madWallet.account.getAccount(secpAccount.address);
-            console.log(account);
             expect(account.utxo.valueStoreIDs.length).to.be.greaterThan(0);
         });
 

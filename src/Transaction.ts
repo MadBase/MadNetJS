@@ -167,6 +167,7 @@ export default class Transaction {
 
             return txHash;
         } catch (ex) {
+            console.trace({ ex })
             this._reset();
 
             throw new Error("Transaction.sendTx\r\n" + String(ex));
