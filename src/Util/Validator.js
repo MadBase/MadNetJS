@@ -50,7 +50,7 @@ var self = module.exports = {
 
     isNumber: (num) => {
         try {
-            if (!num) { 
+            if (!num && num !== 0n) { 
                 throw "No input provided";
              }
             if (typeof num === "bigint") {
