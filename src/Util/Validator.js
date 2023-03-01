@@ -57,7 +57,7 @@ var self = module.exports = {
                 num = num.toString();
                 return num;
             }
-            if (!parseInt(num) ||
+            if ((!parseInt(num) && parseInt(num) !== 0) ||
                 !Number.isInteger(parseInt(num))
             ) {
                 throw "Invalid number";
