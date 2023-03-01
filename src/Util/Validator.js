@@ -116,7 +116,7 @@ var self = module.exports = {
     numToHex: (num) => {
         try {
             let decimal = self.isNumber(num);
-            if (!decimal) {
+            if (!decimal && decimal !== 0) {
                 throw "Not a number";
             }
             let h = BigInt(num).toString(16);
